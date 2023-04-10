@@ -1,0 +1,25 @@
+{
+  "name": "skynet",
+  "version": "1.0.0",
+  "description": "Testing discord bot features",
+  "main": "src/index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "ts-node src/index.ts",
+    "start:dev": "nodemon src/index.ts"
+  },
+  "keywords": [
+    "bot",
+    "discord"
+  ],
+  "author": "Vakot",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^14.9.0",
+    "dotenv": "^16.0.3"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22",
+    "ts-node": "^10.9.1"
+  }
+}

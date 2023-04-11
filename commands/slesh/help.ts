@@ -7,12 +7,12 @@ import { skynet } from '../../src'
 export default <ISleshCommand>{
   data: new SlashCommandBuilder()
     .setName('help')
-    .setDescription('Display list of commands')
+    .setDescription('Gets information about a command')
     .addStringOption(
       (option) =>
         option
           .setName('command')
-          .setDescription('Get help about specific command')
+          .setDescription('Specific command to display indormation')
           .setRequired(false)
       // TODO: Choises
     ),
@@ -22,33 +22,48 @@ export default <ISleshCommand>{
   async execute(interaction: ChatInputCommandInteraction) {
     const { commands } = skynet
 
-    const command = interaction.options.getString('command')
+    const commandOption = interaction.options.getString('command')
 
-    let embed = new EmbedBuilder().setTitle('Help')
+    let embed = new EmbedBuilder()
 
-    if (command) {
-      embed.setDescription(`Help to command \`/${command}\``)
+    if (commandOption) {
+      embed.setTitle('Command information')
 
-      if (commands.slesh.has(command)) {
-        const validCommand = commands.slesh.get(command)
+      if (commands.slesh.has(commandOption)) {
+        const command = commands.slesh.get(commandOption)
 
-        embed.addFields({
-          name: `**\`/${validCommand.data.name}\`**`,
-          value: `> ${validCommand.data.description}`,
-        })
+        embed.addFields(
+          {
+            name: '**Usage**',
+            value: `> \`/${command.data.name} ${
+              command.data.options &&
+              `[${command.data.options
+                .map((option) => option.toJSON().name)
+                .join('|')}]`
+            }\``,
+          },
+          {
+            name: '**Description**',
+            value: `> ${command.data.description}`,
+          }
+        )
       } else {
         embed.addFields({
-          name: `**\`/${command}\`**`,
+          name: `**\`/${commandOption}\`**`,
           value: '> is not exist',
         })
       }
     } else {
+      embed
+        .setTitle('Overview')
+        .setDescription('List of all supported commands')
+
       const missing = Array.from(commands.slesh.values()).length % 3
 
-      commands.slesh.forEach((cmd) => {
+      commands.slesh.forEach((command) => {
         embed.addFields({
-          name: `**\`/${cmd.data.name}\`**`,
-          value: `> ${cmd.data.description}`,
+          name: `**\`/${command.data.name}\`**`,
+          value: `> ${command.data.description}`,
           inline: true,
         })
       })
@@ -60,8 +75,6 @@ export default <ISleshCommand>{
           inline: true,
         })
       }
-
-      embed.setDescription('All supported commands')
     }
 
     return await interaction.reply({ embeds: [embed.setTimestamp()] })

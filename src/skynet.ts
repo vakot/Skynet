@@ -28,12 +28,12 @@ class Skynet {
     logger.log('Skynet Initializing')
 
     this.client.login(config.TOKEN).then(async () => {
-      await this.setEvents().catch(() => {})
-      await this.setCommands().catch(() => {})
-      await this.setComponents().catch(() => {})
-      await this.setActions().catch(() => {})
-      await this.setPlugins().catch(() => {})
-      await this.deployGlobalCommands().catch(() => {})
+      await this.setEvents().catch(logger.error)
+      await this.setCommands().catch(logger.error)
+      await this.setComponents().catch(logger.error)
+      await this.setActions().catch(logger.error)
+      await this.setPlugins().catch(logger.error)
+      await this.deployGlobalCommands().catch(logger.error)
     })
   }
 
@@ -170,19 +170,11 @@ class Skynet {
 
     const rest = new REST().setToken(config.TOKEN)
 
-    try {
-      logger.log('Started refreshing application (/) commands')
-
-      await rest.put(Routes.applicationCommands(config.CLIENT_ID), {
-        body: commands,
-      })
-
-      logger.log(
-        `Successfully reloaded [${commands.length}] application (/) commands`
-      )
-    } catch (error) {
-      logger.error('Exception:\n' + error)
-    }
+    logger.log(`Started reloading ${commands.length} /commands`)
+    await rest.put(Routes.applicationCommands(config.CLIENT_ID), {
+      body: commands,
+    })
+    logger.log(`Successfully reloaded ${commands.length} /commands`)
   }
 }
 

@@ -1,5 +1,5 @@
 import { Message, Events } from 'discord.js'
-import { botClient } from '../src'
+import { skynet } from '../src'
 import { IMessageCommand } from '../models/command'
 import { handleCooldown } from '../utils/cooldownHandler'
 
@@ -8,7 +8,7 @@ module.exports = {
   async execute(message: Message) {
     if (message.author.bot) return
 
-    const { messageCommands } = botClient
+    const { messageCommands } = skynet
 
     if (!messageCommands.has(message.content)) return
 

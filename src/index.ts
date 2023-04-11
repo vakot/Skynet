@@ -1,9 +1,9 @@
 import { Client, GatewayIntentBits } from 'discord.js'
 
-import BotClient from './botClient'
+import Skynet from './skynet'
 
 // Discord client object
-export const botClient = new BotClient(
+export const skynet = new Skynet(
   new Client({
     intents: [
       GatewayIntentBits.Guilds,

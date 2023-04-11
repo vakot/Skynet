@@ -1,12 +1,12 @@
 import { BaseInteraction, Events } from 'discord.js'
-import { botClient } from '../src'
+import { skynet } from '../src'
 
 import { handleCooldown } from '../utils/cooldownHandler'
 
 module.exports = {
   name: Events.InteractionCreate,
   async execute(interaction: BaseInteraction) {
-    const { commands, components } = botClient
+    const { commands, components } = skynet
 
     // Bruh...
     if (interaction.isChatInputCommand()) {

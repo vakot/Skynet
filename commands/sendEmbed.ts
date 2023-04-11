@@ -13,7 +13,7 @@ export default <ISleshCommand>{
     .setName('send-embed')
     .setDescription('Sending an embed!'),
 
-  cooldown: 3000,
+  cooldown: 6000,
 
   async execute(interaction: ChatInputCommandInteraction) {
     const actionRowComponent1 = new ActionRowBuilder().setComponents(

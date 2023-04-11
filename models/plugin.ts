@@ -4,7 +4,7 @@ import { IComponent } from './component'
 
 export interface IPlugin {
   name: string
-  actions?: IAction[]
+  actions: IAction[]
   commands: ISleshCommand[]
   messageCommands: IMessageCommand[]
   components: IComponent[]

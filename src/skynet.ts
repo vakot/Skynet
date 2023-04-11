@@ -7,9 +7,10 @@ import { config } from '../utils/config'
 import { ISleshCommand, IMessageCommand } from '../models/command'
 import { IComponent } from '../models/component'
 import { IPlugin } from '../models/plugin'
+import { IAction } from '../models/action'
 
 // Discord client object
-class BotClient {
+class Skynet {
   // commands name => command body
   public commands = new Collection<string, ISleshCommand>()
   // commands name => command body
@@ -28,6 +29,7 @@ class BotClient {
       await this.setCommands()
       await this.setMessageCommands()
       await this.setComponents()
+      await this.setActions()
       await this.setPlugins()
       await this.deployGlobalCommands()
     })()
@@ -126,6 +128,26 @@ class BotClient {
     })
   }
 
+  // Set unique and independent event handling functions
+  private async setActions() {
+    console.log('ACTIONS')
+
+    const path = join(__dirname, '..', 'actions')
+    const files = readdirSync(path).filter(
+      (file) => file.endsWith('.js') || file.endsWith('.ts')
+    )
+
+    await files.forEach((file, index) => {
+      console.log(
+        `${index == files.length - 1 ? '└' : '├'}─File ${file} loaded`
+      )
+      const filePath = join(path, file)
+      const action: IAction = require(filePath).default
+
+      this.client.on(action.trigger, (...args) => action.execute(...args))
+    })
+  }
+
   // Set each plugin in the plugins folder as a plugin in the collection
   private async setPlugins() {
     console.log('PLUGINS')
@@ -157,6 +179,12 @@ class BotClient {
       plugin.components.map((component) =>
         this.components.set(component.data.name, component)
       )
+
+      if (plugin.actions) {
+        plugin.actions.map((action) =>
+          this.client.on(action.trigger, (...args) => action.execute(...args))
+        )
+      }
     })
   }
 
@@ -182,4 +210,4 @@ class BotClient {
   }
 }
 
-export default BotClient
+export default Skynet

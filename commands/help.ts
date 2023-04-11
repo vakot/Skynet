@@ -2,7 +2,7 @@ import { ChatInputCommandInteraction, SlashCommandBuilder } from 'discord.js'
 import { ISleshCommand } from '../models/command'
 
 import { EmbedBuilder } from '@discordjs/builders'
-import { botClient } from '../src'
+import { skynet } from '../src'
 
 export default <ISleshCommand>{
   data: new SlashCommandBuilder()
@@ -28,7 +28,7 @@ export default <ISleshCommand>{
   cooldown: 6000,
 
   async execute(interaction: ChatInputCommandInteraction) {
-    const { commands } = botClient
+    const { commands } = skynet
 
     const command = interaction.options.getString('command')
 

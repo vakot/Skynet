@@ -1,115 +1,66 @@
-import { BaseInteraction, Collection, Message } from 'discord.js'
-import { botClient } from '../src'
+import { BaseInteraction, Collection, Message, User } from 'discord.js'
+import { skynet } from '../src'
 
-async function replyWith(message, interaction) {
-  return await interaction.reply({
-    content: message,
-    ephemeral: true,
-  })
+function isMessage(instance): Boolean {
+  return instance instanceof Message
 }
 
-// export function handleCooldown(component, interaction: Interaction): Boolean {
-//   const { cooldowns } = botClient
-
-//   // Command in cooldown for specific user
-//   if (!cooldowns.has(component.data.name)) {
-//     cooldowns.set(component.data.name, new Collection())
-//   }
-
-//   // Cooldown logic
-//   if (component.cooldown) {
-//     const now = Date.now()
-//     const timestamps = cooldowns.get(component.data.name)
-
-//     if (timestamps.has(interaction.user.id)) {
-//       const expirationTime =
-//         timestamps.get(interaction.user.id) + component.cooldown
-
-//       if (now < expirationTime) {
-//         replyWith(
-//           `In cooldown for ${Math.round((expirationTime - now) / 1000)}s`,
-//           interaction
-//         )
-
-//         return true
-//       }
-//     }
-
-//     timestamps.set(interaction.user.id, now)
-//     setTimeout(() => timestamps.delete(interaction.user.id), component.cooldown)
-//   }
-
-//   return false
-// }
+function isInteraction(instance): Boolean {
+  return (
+    instance instanceof BaseInteraction &&
+    (instance.isChatInputCommand() ||
+      instance.isButton() ||
+      instance.isAnySelectMenu())
+  )
+}
 
 export function handleCooldown(component, userInput): Boolean {
-  const { cooldowns } = botClient
+  const { cooldowns } = skynet
 
-  if (userInput instanceof Message) {
-    if (!cooldowns.has(component.data.name)) {
-      cooldowns.set(component.data.name, new Collection())
+  if (!cooldowns.has(component.data.name)) {
+    cooldowns.set(component.data.name, new Collection())
+  }
+
+  if (!component.cooldown) return false
+
+  const now = Date.now()
+  const timestamps = cooldowns.get(component.data.name)
+
+  // Bruh...
+  // different user fetching
+  const user: User = ((): User => {
+    if (isInteraction(userInput)) {
+      return userInput.user
     }
 
-    // Cooldown logic
-    if (component.cooldown) {
-      const now = Date.now()
-      const timestamps = cooldowns.get(component.data.name)
-
-      if (timestamps.has(userInput.author.id)) {
-        const expirationTime =
-          timestamps.get(userInput.author.id) + component.cooldown
-
-        if (now < expirationTime) {
-          userInput.channel.send(
-            `In cooldown for ${Math.round((expirationTime - now) / 1000)}s`
-          )
-
-          return true
-        }
-      }
-
-      timestamps.set(userInput.author.id, now)
-      setTimeout(
-        () => timestamps.delete(userInput.author.id),
-        component.cooldown
-      )
+    if (isMessage(userInput)) {
+      return userInput.author
     }
+  })()
+
+  // if NOT in cooldown
+  if (!timestamps.has(user.id)) {
+    // set cooldown
+    timestamps.set(user.id, now)
+    setTimeout(() => timestamps.delete(user.id), component.cooldown)
 
     return false
   }
 
-  if (
-    userInput instanceof BaseInteraction &&
-    (userInput.isChatInputCommand() ||
-      userInput.isButton() ||
-      userInput.isAnySelectMenu())
-  ) {
-    if (!cooldowns.has(component.data.name)) {
-      cooldowns.set(component.data.name, new Collection())
+  const expirationTime = timestamps.get(user.id) + component.cooldown
+
+  // if in cooldown
+  if (now < expirationTime) {
+    const cooldown = Math.ceil((expirationTime - now) / 1000)
+
+    if (isInteraction(userInput)) {
+      userInput.reply(`In cooldown for ${cooldown}s`)
     }
 
-    // Cooldown logic
-    if (component.cooldown) {
-      const now = Date.now()
-      const timestamps = cooldowns.get(component.data.name)
-
-      if (timestamps.has(userInput.user.id)) {
-        const expirationTime =
-          timestamps.get(userInput.user.id) + component.cooldown
-
-        if (now < expirationTime) {
-          userInput.reply(
-            `In cooldown for ${Math.round((expirationTime - now) / 1000)}s`
-          )
-
-          return true
-        }
-      }
-
-      timestamps.set(userInput.user.id, now)
-      setTimeout(() => timestamps.delete(userInput.user.id), component.cooldown)
+    if (isMessage(userInput)) {
+      userInput.channel.send(`In cooldown for ${cooldown}s`)
     }
 
-    return false
+    return true
   }
 }

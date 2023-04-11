@@ -6,6 +6,7 @@ const plugin: IPlugin = {
   commands: [],
   messageCommands: [],
   components: [],
+  actions: [],
   setup() {
     loadPlugin(plugin)
   },

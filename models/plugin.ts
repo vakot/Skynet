@@ -5,8 +5,10 @@ import { IComponent } from './component'
 export interface IPlugin {
   name: string
   actions: IAction[]
-  commands: ISleshCommand[]
-  messageCommands: IMessageCommand[]
+  commands: {
+    slesh: ISleshCommand[]
+    message: IMessageCommand[]
+  }
   components: IComponent[]
   setup(): any
 }

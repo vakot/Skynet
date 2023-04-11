@@ -1,8 +1,8 @@
 import { ChatInputCommandInteraction, SlashCommandBuilder } from 'discord.js'
-import { ISleshCommand } from '../models/command'
+import { ISleshCommand } from '../../models/command'
 
 import { EmbedBuilder } from '@discordjs/builders'
-import { skynet } from '../src'
+import { skynet } from '../../src'
 
 export default <ISleshCommand>{
   data: new SlashCommandBuilder()
@@ -14,15 +14,7 @@ export default <ISleshCommand>{
           .setName('command')
           .setDescription('Get help about specific command')
           .setRequired(false)
-      // .setChoices(
-      //   ...botClient.commands.map((cmd) => ({
-      //     name: cmd.data.name,
-      //     value: cmd.data.name,
-      //   }))
-      //   // {name: "123", value: '123'}
-      //   // {name: "231", value: '231'}
-      //   // {name: "312", value: '312'}
-      // )
+      // TODO: Choises
     ),
 
   cooldown: 6000,
@@ -37,8 +29,8 @@ export default <ISleshCommand>{
     if (command) {
       embed.setDescription(`Help to command \`/${command}\``)
 
-      if (commands.has(command)) {
-        const validCommand = commands.get(command)
+      if (commands.slesh.has(command)) {
+        const validCommand = commands.slesh.get(command)
 
         embed.addFields({
           name: `**\`/${validCommand.data.name}\`**`,
@@ -51,9 +43,9 @@ export default <ISleshCommand>{
         })
       }
     } else {
-      const missing = Array.from(commands.values()).length % 3
+      const missing = Array.from(commands.slesh.values()).length % 3
 
-      commands.forEach((cmd) => {
+      commands.slesh.forEach((cmd) => {
         embed.addFields({
           name: `**\`/${cmd.data.name}\`**`,
           value: `> ${cmd.data.description}`,

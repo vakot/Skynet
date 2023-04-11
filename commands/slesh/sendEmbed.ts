@@ -6,7 +6,7 @@ import {
   SlashCommandBuilder,
   StringSelectMenuBuilder,
 } from 'discord.js'
-import { ISleshCommand } from '../models/command'
+import { ISleshCommand } from '../../models/command'
 
 export default <ISleshCommand>{
   data: new SlashCommandBuilder()

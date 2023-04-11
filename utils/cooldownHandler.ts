@@ -54,11 +54,11 @@ export function handleCooldown(component, userInput): Boolean {
     const cooldown = Math.ceil((expirationTime - now) / 1000)
 
     if (isInteraction(userInput)) {
-      userInput.reply(`In cooldown for ${cooldown}s`)
+      userInput.reply(`Cooldown in ${cooldown}s`)
     }
 
     if (isMessage(userInput)) {
-      userInput.channel.send(`In cooldown for ${cooldown}s`)
+      userInput.channel.send(`Cooldown in ${cooldown}s`)
     }
 
     return true

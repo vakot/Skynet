@@ -1,12 +1,8 @@
 import { IPlugin } from '../../models/plugin'
 import { loadPlugin } from '../loadPlugin'
 
-export const config = {
-  parent_id: '1095278976617959444',
-}
-
 const plugin: IPlugin = {
-  name: 'temporaryVoice',
+  name: 'moderation',
   commands: {
     slesh: [],
     message: [],

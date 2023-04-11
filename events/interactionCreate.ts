@@ -2,8 +2,9 @@ import { BaseInteraction, Events } from 'discord.js'
 import { skynet } from '../src'
 
 import { handleCooldown } from '../utils/cooldownHandler'
+import { IEvent } from '../models/event'
 
-module.exports = {
+export default <IEvent>{
   name: Events.InteractionCreate,
   async execute(interaction: BaseInteraction) {
     const { commands, components } = skynet
@@ -11,14 +12,14 @@ module.exports = {
     // Bruh...
     if (interaction.isChatInputCommand()) {
       // Command is not exist
-      if (!commands.has(interaction.commandName)) {
+      if (!commands.slesh.has(interaction.commandName)) {
         return await interaction.reply({
           content: `Command \`/${interaction.commandName}\` not found`,
           ephemeral: true,
         })
       }
 
-      const command = commands.get(interaction.commandName)
+      const command = commands.slesh.get(interaction.commandName)
 
       if (!command) return
 

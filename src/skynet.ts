@@ -8,13 +8,15 @@ import { ISleshCommand, IMessageCommand } from '../models/command'
 import { IComponent } from '../models/component'
 import { IPlugin } from '../models/plugin'
 import { IAction } from '../models/action'
+import { logger } from '../utils/logger'
 
 // Discord client object
 class Skynet {
   // commands name => command body
-  public commands = new Collection<string, ISleshCommand>()
-  // commands name => command body
-  public messageCommands = new Collection<string, IMessageCommand>()
+  public commands = {
+    slesh: new Collection<string, ISleshCommand>(),
+    message: new Collection<string, IMessageCommand>(),
+  }
   // button | menu => button body | menu body
   public components = new Collection<string, IComponent>()
   // button | menu => button body | menu body
@@ -23,189 +25,163 @@ class Skynet {
   public cooldowns = new Collection<string, Collection<string, number>>()
 
   public constructor(public readonly client: Client) {
-    this.client.login(config.TOKEN)
-    ;(async () => {
-      await this.setEvents()
-      await this.setCommands()
-      await this.setMessageCommands()
-      await this.setComponents()
-      await this.setActions()
-      await this.setPlugins()
-      await this.deployGlobalCommands()
-    })()
+    logger.log('Skynet Initializing')
+
+    this.client.login(config.TOKEN).then(async () => {
+      await this.setEvents().catch(() => {})
+      await this.setCommands().catch(() => {})
+      await this.setComponents().catch(() => {})
+      await this.setActions().catch(() => {})
+      await this.setPlugins().catch(() => {})
+      await this.deployGlobalCommands().catch(() => {})
+    })
   }
 
   // Event handling
   private async setEvents() {
-    console.log('EVENT LISTENERS')
-
     const path = join(__dirname, '..', 'events')
     const files = readdirSync(path).filter(
       (file) => file.endsWith('.js') || file.endsWith('.ts')
     )
 
-    await files.forEach((file, index) => {
-      console.log(
-        `${index == files.length - 1 ? '└' : '├'}─File ${file} loaded`
-      )
+    for (const file of files) {
+      logger.log(`event ${file} loaded`)
 
       const filePath = join(path, file)
-      const event = require(filePath)
+      const event = require(filePath).default
 
-      if (event.once) {
-        this.client.once(event.name, (...args) => event.execute(...args))
+      if (event?.once) {
+        this.client.once(event?.name, (...args) => event?.execute(...args))
       } else {
-        this.client.on(event.name, (...args) => event.execute(...args))
+        this.client.on(event?.name, (...args) => event?.execute(...args))
       }
-    })
+    }
   }
 
-  // Set each command in the commands folder as a sleshCommand in the collection
+  // Set each command in the commands folder as a command in the collection
   private async setCommands() {
-    console.log('COMMANDS')
-
-    const path = join(__dirname, '..', 'commands')
-    const files = readdirSync(path).filter(
+    const sleshPath = join(__dirname, '..', 'commands', 'slesh')
+    const sleshFiles = readdirSync(sleshPath).filter(
       (file) => file.endsWith('.js') || file.endsWith('.ts')
     )
 
-    await files.forEach((file, index) => {
-      console.log(
-        `${index == files.length - 1 ? '└' : '├'}─File ${file} loaded`
-      )
-      const filePath = join(path, file)
+    const messagePath = join(__dirname, '..', 'commands', 'message')
+    const messageFiles = readdirSync(messagePath).filter(
+      (file) => file.endsWith('.js') || file.endsWith('.ts')
+    )
+
+    for (const file of sleshFiles) {
+      logger.log(`/command ${file} loaded`)
+
+      const filePath = join(sleshPath, file)
       const command: ISleshCommand = require(filePath).default
 
-      this.commands.set(command.data.name, command)
-      this.cooldowns.set(command.data.name, new Collection())
-    })
-  }
+      await this.commands.slesh.set(command?.data?.name, command)
+    }
 
-  // Set each command in the commands folder as a messageCommand in the collection
-  private async setMessageCommands() {
-    console.log('MESSAGE COMMANDS')
+    for (const file of messageFiles) {
+      logger.log(`?command ${file} loaded`)
 
-    const path = join(__dirname, '..', 'messageCommands')
-    const files = readdirSync(path).filter(
-      (file) => file.endsWith('.js') || file.endsWith('.ts')
-    )
-
-    await files.forEach((file, index) => {
-      console.log(
-        `${index == files.length - 1 ? '└' : '├'}─File ${file} loaded`
-      )
-
-      const filePath = join(path, file)
+      const filePath = join(messagePath, file)
       const command: IMessageCommand = require(filePath).default
 
-      this.messageCommands.set(command.data.prefix + command.data.name, command)
-      this.cooldowns.set(
-        command.data.prefix + command.data.name,
-        new Collection()
+      await this.commands.message.set(
+        command?.data?.prefix + command?.data?.name,
+        command
       )
-    })
+    }
   }
 
-  // Set each component in the buttons/menus folder as a messageComponents in the collection
+  // Set each component in the buttons/menus folder as a component in the collection
   private async setComponents() {
-    console.log('COMPONENTS')
-
     const path = join(__dirname, '..', 'components')
     const files = readdirSync(path).filter(
       (file) => file.endsWith('.js') || file.endsWith('.ts')
     )
 
-    await files.forEach((file, index) => {
-      console.log(
-        `${index == files.length - 1 ? '└' : '├'}─File ${file} loaded`
-      )
+    for (const file of files) {
+      logger.log(`component ${file} loaded`)
 
       const filePath = join(path, file)
-      const button: IComponent = require(filePath).default
+      const component: IComponent = require(filePath).default
 
-      this.components.set(button.data.name, button)
-      this.cooldowns.set(button.data.name, new Collection())
-    })
+      await this.components.set(component?.data?.name, component)
+    }
   }
 
   // Set unique and independent event handling functions
   private async setActions() {
-    console.log('ACTIONS')
-
     const path = join(__dirname, '..', 'actions')
     const files = readdirSync(path).filter(
       (file) => file.endsWith('.js') || file.endsWith('.ts')
     )
 
-    await files.forEach((file, index) => {
-      console.log(
-        `${index == files.length - 1 ? '└' : '├'}─File ${file} loaded`
-      )
+    for (const file of files) {
+      logger.log(`action ${file} loaded`)
+
       const filePath = join(path, file)
       const action: IAction = require(filePath).default
 
-      this.client.on(action.trigger, (...args) => action.execute(...args))
-    })
+      await this.client.on(action?.trigger, (...args) =>
+        action?.execute(...args)
+      )
+    }
   }
 
   // Set each plugin in the plugins folder as a plugin in the collection
   private async setPlugins() {
-    console.log('PLUGINS')
-
     const path = join(__dirname, '..', 'plugins')
     const folders = readdirSync(path).filter((folder) => !folder.includes('.'))
 
-    await folders.forEach((folder) => {
-      console.log(`└─File ${folder} loaded`)
+    for (const folder of folders) {
+      logger.log(`plugin ${folder} loaded`)
 
       const pluginPath = join(path, folder)
       const plugin: IPlugin = require(pluginPath).default
 
-      plugin.setup()
+      plugin?.setup()
 
-      this.plugins.set(plugin.name, plugin)
+      this.plugins.set(plugin?.name, plugin)
 
-      plugin.commands.map((command) =>
-        this.commands.set(command.data.name, command)
+      plugin?.commands?.slesh?.map((command) =>
+        this.commands.slesh.set(command?.data?.name, command)
       )
 
-      plugin.messageCommands.map((command) =>
-        this.messageCommands.set(
-          command.data.prefix + command.data.name,
+      plugin?.commands?.message?.map((command) =>
+        this.commands.message.set(
+          command?.data?.prefix + command?.data?.name,
           command
         )
       )
 
-      plugin.components.map((component) =>
-        this.components.set(component.data.name, component)
+      plugin?.components?.map((component) =>
+        this.components.set(component?.data?.name, component)
       )
 
-      if (plugin.actions) {
-        plugin.actions.map((action) =>
-          this.client.on(action.trigger, (...args) => action.execute(...args))
-        )
-      }
-    })
+      plugin?.actions?.map((action) =>
+        this.client.on(action?.trigger, (...args) => action?.execute(...args))
+      )
+    }
   }
 
   // Deploy all global application (/) commands
   private async deployGlobalCommands() {
-    const commands = this.commands.map((command) => command.data.toJSON())
+    const commands = this.commands.slesh.map((command) => command.data.toJSON())
 
     const rest = new REST().setToken(config.TOKEN)
 
     try {
-      console.log('\nStarted refreshing application (/) commands')
+      logger.log('Started refreshing application (/) commands')
 
       await rest.put(Routes.applicationCommands(config.CLIENT_ID), {
         body: commands,
       })
 
-      console.log(
-        `Successfully reloaded [${commands.length}] application (/) commands\n`
+      logger.log(
+        `Successfully reloaded [${commands.length}] application (/) commands`
       )
     } catch (error) {
-      console.error('Exception' + error)
+      logger.error('Exception:\n' + error)
     }
   }
 }

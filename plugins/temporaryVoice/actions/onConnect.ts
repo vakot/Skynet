@@ -1,5 +1,11 @@
-import { Events, ChannelType, VoiceState } from 'discord.js'
+import {
+  Events,
+  ChannelType,
+  VoiceState,
+  PermissionsBitField,
+} from 'discord.js'
 import { IAction } from '../../../models/action'
+import { config } from '../'
 
 const ActiveChannels: string[] = []
 
@@ -10,13 +16,26 @@ export default <IAction>{
   trigger: Events.VoiceStateUpdate,
   async execute(oldState: VoiceState, newState: VoiceState) {
     // onParentJoin
-    if (newState?.channel?.id == '1095278976617959444') {
+    if (newState?.channel?.id == config.parent_id) {
       return newState.channel.members.map((member) => {
         newState.guild.channels
           .create({
             name: `${member.user.username}'s Room`,
             type: ChannelType.GuildVoice,
-            reason: 'temp',
+            permissionOverwrites: [
+              {
+                id: member.user.id,
+                allow: [
+                  PermissionsBitField.Flags.ViewChannel,
+                  PermissionsBitField.Flags.ManageChannels,
+                  PermissionsBitField.Flags.Connect,
+                  PermissionsBitField.Flags.Speak,
+                  PermissionsBitField.Flags.Stream,
+                  PermissionsBitField.Flags.PrioritySpeaker,
+                  PermissionsBitField.Flags.MoveMembers,
+                ],
+              },
+            ],
           })
           .then((channel) => {
             member.voice.setChannel(channel)

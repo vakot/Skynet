@@ -2,17 +2,18 @@ import { Message, Events } from 'discord.js'
 import { skynet } from '../src'
 import { IMessageCommand } from '../models/command'
 import { handleCooldown } from '../utils/cooldownHandler'
+import { IEvent } from '../models/event'
 
-module.exports = {
+export default <IEvent>{
   name: Events.MessageCreate,
   async execute(message: Message) {
     if (message.author.bot) return
 
-    const { messageCommands } = skynet
+    const { commands } = skynet
 
-    if (!messageCommands.has(message.content)) return
+    if (!commands.message.has(message.content)) return
 
-    const command: IMessageCommand = messageCommands.get(message.content)
+    const command: IMessageCommand = commands.message.get(message.content)
 
     if (!command) return
 

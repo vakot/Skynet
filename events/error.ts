@@ -1,6 +1,7 @@
 import { Events, ErrorEvent } from 'discord.js'
+import { IEvent } from '../models/event'
 
-module.exports = {
+export default <IEvent>{
   name: Events.Error,
   async execute(error: ErrorEvent) {
     console.error(error.message)

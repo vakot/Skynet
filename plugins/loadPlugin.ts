@@ -6,87 +6,79 @@ import { IPlugin } from '../models/plugin'
 import { IComponent } from '../models/component'
 import { IAction } from '../models/action'
 
-export async function loadPlugin(plugin: IPlugin) {
+import { logger } from '../utils/logger'
+
+export function loadPlugin(plugin: IPlugin) {
   // if [item] folder exist - read
   // else - ignore
   getCommands(plugin).catch(() => {})
-  getMessageCommands(plugin).catch(() => {})
   getComponents(plugin).catch(() => {})
   getActions(plugin).catch(() => {})
 }
 
-// Get each command in the commands folder as a sleshCommand in the collection
+const basePath = join(__dirname, '..', 'plugins')
+
+// Set each command in the commands folder as a command in the collection
 async function getCommands(plugin: IPlugin) {
-  const path = join(__dirname, '.', plugin.name, 'commands')
-  const files = readdirSync(path).filter(
+  const sleshPath = join(basePath, plugin.name, 'commands/slesh')
+  const sleshFiles = readdirSync(sleshPath).filter(
     (file) => file.endsWith('.js') || file.endsWith('.ts')
   )
 
-  await files.forEach((file, index) => {
-    console.log(
-      `  ${index == files.length - 1 ? '└' : '├'}─File ${file} loaded`
-    )
+  for (const file of sleshFiles) {
+    logger.log(`/command ${file} loaded`)
 
-    const filePath = join(path, file)
+    const filePath = join(sleshPath, file)
     const command: ISleshCommand = require(filePath).default
 
-    plugin.commands.push(command)
-  })
-}
+    plugin.commands.slesh.push(command)
+  }
 
-// Get each command in the commands folder as a messageCommand in the collection
-async function getMessageCommands(plugin: IPlugin) {
-  const path = join(__dirname, '.', plugin.name, 'messageCommands')
-  const files = readdirSync(path).filter(
+  const messagePath = join(basePath, plugin.name, 'commands/message')
+  const messageFiles = readdirSync(messagePath).filter(
     (file) => file.endsWith('.js') || file.endsWith('.ts')
   )
 
-  await files.forEach((file, index) => {
-    console.log(
-      `  ${index == files.length - 1 ? '└' : '├'}─File ${file} loaded`
-    )
+  for (const file of messageFiles) {
+    logger.log(`?command ${file} loaded`)
 
-    const filePath = join(path, file)
+    const filePath = join(messagePath, file)
     const command: IMessageCommand = require(filePath).default
 
-    plugin.messageCommands.push(command)
-  })
+    plugin.commands.message.push(command)
+  }
 }
 
-// Get each component in the buttons/menus folder as a messageComponents in the collection
+// Set each component in the buttons/menus folder as a component in the collection
 async function getComponents(plugin: IPlugin) {
-  const path = join(__dirname, '.', plugin.name, 'components')
+  const path = join(__dirname, '..', 'plugins', plugin.name, 'components')
   const files = readdirSync(path).filter(
     (file) => file.endsWith('.js') || file.endsWith('.ts')
   )
 
-  await files.forEach((file, index) => {
-    console.log(
-      `  ${index == files.length - 1 ? '└' : '├'}─File ${file} loaded`
-    )
+  for (const file of files) {
+    logger.log(`component ${file} loaded`)
 
     const filePath = join(path, file)
     const component: IComponent = require(filePath).default
 
     plugin.components.push(component)
-  })
+  }
 }
 
-// Get each component in the buttons/menus folder as a messageComponents in the collection
+// Set unique and independent event handling functions
 async function getActions(plugin: IPlugin) {
-  const path = join(__dirname, '.', plugin.name, 'actions')
+  const path = join(basePath, plugin.name, 'actions')
   const files = readdirSync(path).filter(
     (file) => file.endsWith('.js') || file.endsWith('.ts')
   )
 
-  await files.forEach((file, index) => {
-    console.log(
-      `  ${index == files.length - 1 ? '└' : '├'}─File ${file} loaded`
-    )
+  for (const file of files) {
+    logger.log(`action ${file} loaded`)
 
     const filePath = join(path, file)
     const action: IAction = require(filePath).default
 
     plugin.actions.push(action)
-  })
+  }
 }

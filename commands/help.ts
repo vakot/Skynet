@@ -2,23 +2,33 @@ import { ChatInputCommandInteraction, SlashCommandBuilder } from 'discord.js'
 import { ISleshCommand } from '../models/command'
 
 import { EmbedBuilder } from '@discordjs/builders'
-import { botClient } from '../src'
+import { skynet } from '../src'
 
 export default <ISleshCommand>{
   data: new SlashCommandBuilder()
     .setName('help')
     .setDescription('Display list of commands')
-    .addStringOption((option) =>
-      option
-        .setName('command')
-        .setDescription('Get help about specific command')
-        .setRequired(false)
+    .addStringOption(
+      (option) =>
+        option
+          .setName('command')
+          .setDescription('Get help about specific command')
+          .setRequired(false)
+      // .setChoices(
+      //   ...botClient.commands.map((cmd) => ({
+      //     name: cmd.data.name,
+      //     value: cmd.data.name,
+      //   }))
+      //   // {name: "123", value: '123'}
+      //   // {name: "231", value: '231'}
+      //   // {name: "312", value: '312'}
+      // )
     ),
 
-  cooldown: 60000,
+  cooldown: 6000,
 
   async execute(interaction: ChatInputCommandInteraction) {
-    const { commands } = botClient
+    const { commands } = skynet
 
     const command = interaction.options.getString('command')
 

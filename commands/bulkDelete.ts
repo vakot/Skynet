@@ -17,7 +17,7 @@ export default <ISleshCommand>{
     )
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages),
 
-  cooldown: 5000,
+  cooldown: 6000,
 
   async execute(interaction: ChatInputCommandInteraction) {
     const count = Number(interaction.options.get('count').value)

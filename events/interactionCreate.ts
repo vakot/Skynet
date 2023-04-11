@@ -1,51 +1,12 @@
-import { BaseInteraction, Collection, Events } from 'discord.js'
-import { botClient } from '../src'
+import { BaseInteraction, Events } from 'discord.js'
+import { skynet } from '../src'
 
-async function replyWith(message, interaction) {
-  return await interaction.reply({
-    content: message,
-    ephemeral: true,
-  })
-}
-
-function handleCooldown(component, interaction): Boolean {
-  const { cooldowns } = botClient
-
-  // Command in cooldown for specific user
-  if (!cooldowns.has(component.data.name)) {
-    cooldowns.set(component.data.name, new Collection())
-  }
-
-  // Cooldown logic
-  if (component.cooldown) {
-    const now = Date.now()
-    const timestamps = cooldowns.get(component.data.name)
-
-    if (timestamps.has(interaction.user.id)) {
-      const expirationTime =
-        timestamps.get(interaction.user.id) + component.cooldown
-
-      if (now < expirationTime) {
-        replyWith(
-          `In cooldown for ${Math.round((expirationTime - now) / 1000)}s`,
-          interaction
-        )
-
-        return true
-      }
-    }
-
-    timestamps.set(interaction.user.id, now)
-    setTimeout(() => timestamps.delete(interaction.user.id), component.cooldown)
-  }
-
-  return false
-}
+import { handleCooldown } from '../utils/cooldownHandler'
 
 module.exports = {
   name: Events.InteractionCreate,
   async execute(interaction: BaseInteraction) {
-    const { commands, components } = botClient
+    const { commands, components } = skynet
 
     // Bruh...
     if (interaction.isChatInputCommand()) {
@@ -116,8 +77,6 @@ module.exports = {
       if (!menu) return
 
       if (handleCooldown(menu, interaction)) return
-
-      // handleCooldown(menu, interaction)
 
       try {
         await menu.execute(interaction)

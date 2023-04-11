@@ -1,4 +1,9 @@
+import { ClientEvents } from 'discord.js'
+
 export interface IAction {
-  name: string
+  data: {
+    name: string
+  }
+  trigger: keyof ClientEvents
   execute(...args: any): any
 }

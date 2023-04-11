@@ -1,13 +1,13 @@
 import { Message } from 'discord.js'
-import { IMessageCommand } from '../models/command'
+import { IMessageCommand } from '../../../models/command'
 
 export default <IMessageCommand>{
   data: {
-    name: 'count',
-    prefix: 'g!',
+    name: 'test',
+    prefix: 'v!',
   },
 
-  cooldown: 30000,
+  cooldown: 300,
 
   async execute(message: Message) {
     message.channel.send('Pending...')

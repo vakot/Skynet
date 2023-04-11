@@ -2,20 +2,22 @@ import { Client, Collection, REST, Routes } from 'discord.js'
 
 import { readdirSync } from 'fs'
 import { join } from 'path'
-
 import { config } from '../utils/config'
+
 import { ISleshCommand, IMessageCommand } from '../models/command'
 import { IComponent } from '../models/component'
+import { IPlugin } from '../models/plugin'
 
 // Discord client object
 class BotClient {
   // commands name => command body
   public commands = new Collection<string, ISleshCommand>()
-  public prefix = '!'
   // commands name => command body
   public messageCommands = new Collection<string, IMessageCommand>()
   // button | menu => button body | menu body
   public components = new Collection<string, IComponent>()
+  // button | menu => button body | menu body
+  public plugins = new Collection<string, IPlugin>()
   // action => user id => cooldown created at
   public cooldowns = new Collection<string, Collection<string, number>>()
 
@@ -26,114 +28,146 @@ class BotClient {
       await this.setCommands()
       await this.setMessageCommands()
       await this.setComponents()
+      await this.setPlugins()
       await this.deployGlobalCommands()
     })()
   }
 
   // Event handling
   private async setEvents() {
-    console.log('[EVENT LISTENERS LOADING]')
+    console.log('EVENT LISTENERS')
 
-    const eventsPath = join(__dirname, '..', 'events')
-    const eventFiles = readdirSync('./events').filter(
+    const path = join(__dirname, '..', 'events')
+    const files = readdirSync(path).filter(
       (file) => file.endsWith('.js') || file.endsWith('.ts')
     )
 
-    for (const file of eventFiles) {
-      console.log(`File ${file} loaded`)
+    await files.forEach((file, index) => {
+      console.log(
+        `${index == files.length - 1 ? '└' : '├'}─File ${file} loaded`
+      )
 
-      const filePath = join(eventsPath, file)
+      const filePath = join(path, file)
       const event = require(filePath)
 
       if (event.once) {
-        await this.client.once(event.name, (...args) => event.execute(...args))
+        this.client.once(event.name, (...args) => event.execute(...args))
       } else {
-        await this.client.on(event.name, (...args) => event.execute(...args))
+        this.client.on(event.name, (...args) => event.execute(...args))
       }
-    }
-
-    console.log('[EVENT LISTENERS LOADED]\n')
+    })
   }
 
-  // Set each command in the commands folder as a command in the collection
+  // Set each command in the commands folder as a sleshCommand in the collection
   private async setCommands() {
-    console.log('[SLESH COMMANDS LOADING]')
+    console.log('COMMANDS')
 
     const path = join(__dirname, '..', 'commands')
-    const files = readdirSync('./commands').filter(
+    const files = readdirSync(path).filter(
       (file) => file.endsWith('.js') || file.endsWith('.ts')
     )
 
-    for (const file of files) {
-      console.log(`File ${file} loaded`)
-
+    await files.forEach((file, index) => {
+      console.log(
+        `${index == files.length - 1 ? '└' : '├'}─File ${file} loaded`
+      )
       const filePath = join(path, file)
-      const command = require(filePath)
+      const command: ISleshCommand = require(filePath).default
 
-      await this.commands.set(command.default.data.name, command.default)
-      await this.cooldowns.set(command.default.data.name, new Collection())
-    }
-
-    console.log('[SLESH COMMANDS LOADED]\n')
+      this.commands.set(command.data.name, command)
+      this.cooldowns.set(command.data.name, new Collection())
+    })
   }
 
   // Set each command in the commands folder as a messageCommand in the collection
   private async setMessageCommands() {
-    console.log('[MESSAGE COMMANDS LOADING]')
+    console.log('MESSAGE COMMANDS')
 
     const path = join(__dirname, '..', 'messageCommands')
-    const files = readdirSync('./messageCommands').filter(
+    const files = readdirSync(path).filter(
       (file) => file.endsWith('.js') || file.endsWith('.ts')
     )
 
-    for (const file of files) {
-      console.log(`File ${file} loaded`)
+    await files.forEach((file, index) => {
+      console.log(
+        `${index == files.length - 1 ? '└' : '├'}─File ${file} loaded`
+      )
 
       const filePath = join(path, file)
-      const command = require(filePath)
+      const command: IMessageCommand = require(filePath).default
 
-      await this.messageCommands.set(
-        command.default.data.preffix + command.default.data.name,
-        command.default
-      )
-      await this.cooldowns.set(
-        command.default.data.preffix + command.default.data.name,
+      this.messageCommands.set(command.data.prefix + command.data.name, command)
+      this.cooldowns.set(
+        command.data.prefix + command.data.name,
         new Collection()
       )
-    }
-
-    console.log('[MESSAGE COMMANDS LOADED]\n')
+    })
   }
 
   // Set each component in the buttons/menus folder as a messageComponents in the collection
   private async setComponents() {
-    console.log('[COMPONENTS LOADING]')
+    console.log('COMPONENTS')
 
     const path = join(__dirname, '..', 'components')
-    const files = readdirSync('./components').filter(
+    const files = readdirSync(path).filter(
       (file) => file.endsWith('.js') || file.endsWith('.ts')
     )
 
-    for (const file of files) {
-      console.log(`File ${file} loaded`)
+    await files.forEach((file, index) => {
+      console.log(
+        `${index == files.length - 1 ? '└' : '├'}─File ${file} loaded`
+      )
 
       const filePath = join(path, file)
-      const button = require(filePath)
+      const button: IComponent = require(filePath).default
 
-      await this.components.set(button.default.data.name, button.default)
-    }
+      this.components.set(button.data.name, button)
+      this.cooldowns.set(button.data.name, new Collection())
+    })
+  }
 
-    console.log('[COMPONENTS LOADED]\n')
+  // Set each plugin in the plugins folder as a plugin in the collection
+  private async setPlugins() {
+    console.log('PLUGINS')
+
+    const path = join(__dirname, '..', 'plugins')
+    const folders = readdirSync(path).filter((folder) => !folder.includes('.'))
+
+    await folders.forEach((folder) => {
+      console.log(`└─File ${folder} loaded`)
+
+      const pluginPath = join(path, folder)
+      const plugin: IPlugin = require(pluginPath).default
+
+      plugin.setup()
+
+      this.plugins.set(plugin.name, plugin)
+
+      plugin.commands.map((command) =>
+        this.commands.set(command.data.name, command)
+      )
+
+      plugin.messageCommands.map((command) =>
+        this.messageCommands.set(
+          command.data.prefix + command.data.name,
+          command
+        )
+      )
+
+      plugin.components.map((component) =>
+        this.components.set(component.data.name, component)
+      )
+    })
   }
 
   // Deploy all global application (/) commands
   private async deployGlobalCommands() {
-    const commands = this.commands.map((cmd) => cmd.data.toJSON())
+    const commands = this.commands.map((command) => command.data.toJSON())
 
     const rest = new REST().setToken(config.TOKEN)
 
     try {
-      console.log('Started refreshing application (/) commands')
+      console.log('\nStarted refreshing application (/) commands')
 
       await rest.put(Routes.applicationCommands(config.CLIENT_ID), {
         body: commands,
@@ -143,7 +177,7 @@ class BotClient {
         `Successfully reloaded [${commands.length}] application (/) commands\n`
       )
     } catch (error) {
-      console.error(error)
+      console.error('Exception' + error)
     }
   }
 }

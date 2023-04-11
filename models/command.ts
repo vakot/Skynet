@@ -9,6 +9,7 @@ export interface ISleshCommand {
 export interface IMessageCommand {
   data: {
     name: string
+    prefix: string | '!'
   }
   execute(...args: any): any
   cooldown?: number

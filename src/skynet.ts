@@ -1,4 +1,4 @@
-import { Client, Collection, REST, Routes } from 'discord.js'
+import { Client, Collection, REST, Routes, Snowflake } from 'discord.js'
 
 import { readdirSync } from 'fs'
 import { join } from 'path'
@@ -22,7 +22,7 @@ class Skynet {
   // button | menu => button body | menu body
   public plugins = new Collection<string, IPlugin>()
   // action => user id => cooldown created at
-  public cooldowns = new Collection<string, Collection<string, number>>()
+  public cooldowns = new Collection<string, Collection<Snowflake, number>>()
 
   public constructor(public readonly client: Client) {
     logger.log('Skynet Initializing')

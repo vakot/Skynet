@@ -26,17 +26,7 @@ export function handleCooldown(component, userInput): Boolean {
   const now = Date.now()
   const timestamps = cooldowns.get(component.data.name)
 
-  // Bruh...
-  // different user fetching
-  const user: User = ((): User => {
-    if (isInteraction(userInput)) {
-      return userInput.user
-    }
-
-    if (isMessage(userInput)) {
-      return userInput.author
-    }
-  })()
+  const user: User = userInput.member.user
 
   // if NOT in cooldown
   if (!timestamps.has(user.id)) {

@@ -1,7 +1,7 @@
 import { ButtonInteraction } from 'discord.js'
 import { IComponent } from '../models/component'
 
-export default <IComponent>{
+export default {
   data: {
     name: 'button',
   },
@@ -13,4 +13,4 @@ export default <IComponent>{
       content: 'Button work!',
     })
   },
-}
+} as IComponent

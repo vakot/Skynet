@@ -1,7 +1,7 @@
 import { ChatInputCommandInteraction, SlashCommandBuilder } from 'discord.js'
 import { ISleshCommand } from '../../../../models/command'
 
-export default <ISleshCommand>{
+export default {
   data: new SlashCommandBuilder()
     .setName('ban')
     .setDescription('Ban user on server!'),
@@ -13,4 +13,4 @@ export default <ISleshCommand>{
     })
     return
   },
-}
+} as ISleshCommand

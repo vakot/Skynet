@@ -8,10 +8,10 @@ import {
 } from 'discord.js'
 import { ISleshCommand } from '../../models/command'
 
-export default <ISleshCommand>{
+export default {
   data: new SlashCommandBuilder()
-    .setName('send-embed')
-    .setDescription('Sending an embed!'),
+    .setName('send-message')
+    .setDescription('Send custom message template!'),
 
   cooldown: 6000,
 
@@ -51,4 +51,4 @@ export default <ISleshCommand>{
       ],
     })
   },
-}
+} as ISleshCommand

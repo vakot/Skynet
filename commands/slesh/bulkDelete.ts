@@ -5,7 +5,7 @@ import {
 } from 'discord.js'
 import { ISleshCommand } from '../../models/command'
 
-export default <ISleshCommand>{
+export default {
   data: new SlashCommandBuilder()
     .setName('bulk-delete')
     .setDescription('Delete bulk of messages')
@@ -35,4 +35,4 @@ export default <ISleshCommand>{
       })
     })
   },
-}
+} as ISleshCommand

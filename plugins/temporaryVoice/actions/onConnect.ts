@@ -9,7 +9,7 @@ import { config } from '../'
 
 const ActiveChannels: string[] = []
 
-export default <IAction>{
+export default {
   data: {
     name: 'create',
   },
@@ -49,4 +49,4 @@ export default <IAction>{
       if (!oldState.channel.members.size) return oldState.channel.delete()
     }
   },
-}
+} as IAction

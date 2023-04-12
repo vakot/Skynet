@@ -5,19 +5,19 @@ function getTimestamp(): string {
 }
 
 export const logger = {
-  log(message: string) {
+  log(message: any) {
     console.log(`${getTimestamp()} - ${message}`)
   },
-  warn(message: string) {
+  warn(message: any) {
     console.warn(`${getTimestamp()} - !WARNING! ${message}`)
   },
-  error(message: string) {
+  error(message: any) {
     console.error(`${getTimestamp()} - !ERROR! ${message}`)
   },
-  info(message: string) {
+  info(message: any) {
     console.info(`${getTimestamp()} - ${message}`)
   },
-  debug(message: string) {
+  debug(message: any) {
     console.debug(`${getTimestamp()} - ${message}`)
   },
 }

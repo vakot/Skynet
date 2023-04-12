@@ -2,7 +2,7 @@ import { Events, ActivityType } from 'discord.js'
 import { IEvent } from '../models/event'
 import { logger } from '../utils/logger'
 
-export default <IEvent>{
+export default {
   name: Events.ClientReady,
   async execute(client) {
     await (async () =>
@@ -14,11 +14,11 @@ export default <IEvent>{
       .then(() => logger.log('Status updated'))
       .catch(logger.error)
 
-    await client.user
-      .setAvatar('./assets/avatar.png')
-      .then(() => logger.log('Avatar updated'))
-      .catch(logger.error)
+    // await client.user
+    //   .setAvatar('./assets/avatar.png')
+    //   .then(() => logger.log('Avatar updated'))
+    //   .catch(logger.error)
 
-    logger.log(`Logged in as ${client.user!.tag}!`)
+    return logger.log(`Logged in as ${client.user!.tag}!`)
   },
-}
+} as IEvent

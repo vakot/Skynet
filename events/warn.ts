@@ -1,9 +1,10 @@
 import { Events } from 'discord.js'
 import { IEvent } from '../models/event'
+import { logger } from '../utils/logger'
 
-export default <IEvent>{
+export default {
   name: Events.Warn,
   async execute(info) {
-    console.warn(info)
+    return logger.warn(info)
   },
-}
+} as IEvent

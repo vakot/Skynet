@@ -1,9 +1,9 @@
 import { AnySelectMenuInteraction } from 'discord.js'
 import { IComponent } from '../models/component'
 
-export default <IComponent>{
+export default {
   data: {
-    name: 'select',
+    name: 'select1',
   },
 
   cooldown: 300,
@@ -13,4 +13,4 @@ export default <IComponent>{
       content: `Select [1] work! ${interaction.values}`,
     })
   },
-}
+} as IComponent

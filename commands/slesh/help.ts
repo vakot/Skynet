@@ -4,7 +4,7 @@ import { ISleshCommand } from '../../models/command'
 import { EmbedBuilder } from '@discordjs/builders'
 import { skynet } from '../../src'
 
-export default <ISleshCommand>{
+export default {
   data: new SlashCommandBuilder()
     .setName('help')
     .setDescription('Gets information about a command')
@@ -79,4 +79,4 @@ export default <ISleshCommand>{
 
     return await interaction.reply({ embeds: [embed.setTimestamp()] })
   },
-}
+} as ISleshCommand

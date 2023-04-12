@@ -3,8 +3,9 @@ import { skynet } from '../src'
 import { IMessageCommand } from '../models/command'
 import { handleCooldown } from '../utils/cooldownHandler'
 import { IEvent } from '../models/event'
+import { logger } from '../utils/logger'
 
-export default <IEvent>{
+export default {
   name: Events.MessageCreate,
   async execute(message: Message) {
     if (message.author.bot) return
@@ -19,16 +20,9 @@ export default <IEvent>{
 
     if (handleCooldown(command, message)) return
 
-    try {
-      await command.execute(message)
-    } catch (error) {
-      await message.channel.send({
-        content: `Error occured while /${command.data.prefix}${command.data.name} executing`,
-      })
-      console.error(error)
-    }
+    return await command.execute(message).catch(logger.error)
   },
-}
+} as IEvent
 
 // export default new Event({
 //   name: Events.MessageCreate,

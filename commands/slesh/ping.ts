@@ -1,7 +1,7 @@
 import { ChatInputCommandInteraction, SlashCommandBuilder } from 'discord.js'
 import { ISleshCommand } from '../../models/command'
 
-export default <ISleshCommand>{
+export default {
   data: new SlashCommandBuilder()
     .setName('ping')
     .setDescription('Replies with Pong!'),
@@ -14,4 +14,4 @@ export default <ISleshCommand>{
       content: `Pong! In latency of ${latency}ms.`,
     })
   },
-}
+} as ISleshCommand

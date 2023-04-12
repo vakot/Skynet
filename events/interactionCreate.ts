@@ -3,8 +3,9 @@ import { skynet } from '../src'
 
 import { handleCooldown } from '../utils/cooldownHandler'
 import { IEvent } from '../models/event'
+import { logger } from '../utils/logger'
 
-export default <IEvent>{
+export default {
   name: Events.InteractionCreate,
   async execute(interaction: BaseInteraction) {
     const { commands, components } = skynet
@@ -25,15 +26,7 @@ export default <IEvent>{
 
       if (handleCooldown(command, interaction)) return
 
-      try {
-        await command.execute(interaction)
-      } catch (error) {
-        await interaction.reply({
-          content: `Error occured while /${command.data.name} executing`,
-          ephemeral: true,
-        })
-        console.error(error)
-      }
+      return await command.execute(interaction).catch(logger.error)
     }
 
     // Bruh...
@@ -52,15 +45,7 @@ export default <IEvent>{
 
       if (handleCooldown(button, interaction)) return
 
-      try {
-        await button.execute(interaction)
-      } catch (error) {
-        await interaction.reply({
-          content: `Error occured while ${button.data.name} executing`,
-          ephemeral: true,
-        })
-        console.error(error)
-      }
+      return await button.execute(interaction).catch(logger.error)
     }
 
     // Bruh...
@@ -79,15 +64,7 @@ export default <IEvent>{
 
       if (handleCooldown(menu, interaction)) return
 
-      try {
-        await menu.execute(interaction)
-      } catch (error) {
-        await interaction.reply({
-          content: `Error occured while ${menu.data.name} executing`,
-          ephemeral: true,
-        })
-        console.error(error)
-      }
+      return await menu.execute(interaction).catch(logger.error)
     }
   },
-}
+} as IEvent

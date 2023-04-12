@@ -1,7 +1,7 @@
 import { ChatInputCommandInteraction, SlashCommandBuilder } from 'discord.js'
 import { ISleshCommand } from '../../models/command'
 
-export default <ISleshCommand>{
+export default {
   data: new SlashCommandBuilder().setName('test').setDescription('TEST!'),
 
   cooldown: 10000,
@@ -11,4 +11,4 @@ export default <ISleshCommand>{
       content: 'TEST',
     })
   },
-}
+} as ISleshCommand

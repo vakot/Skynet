@@ -27,18 +27,18 @@ class Skynet {
   }
 
   private async Setup() {
-    // path to [actions] folder
+    // path to [action's | plugin's] folder's
     const actionsFolder = path.join(__dirname, '..', 'actions')
     const pluginsFolder = path.join(__dirname, '..', 'plugins')
 
-    // read all action's
+    // read and save all action's
     for (const file of throughDirectory(actionsFolder)) {
       const action: IAction = require(file).default
       await this.actions.set(action?.data?.name, action)
       await action.init(this.client).catch(logger.error)
     }
 
-    // read all plugin's action's
+    // read and save all plugin's action's
     for (const folder of fs.readdirSync(pluginsFolder)) {
       logger.log(`Plugin ${folder} loading...`)
 
@@ -57,7 +57,7 @@ class Skynet {
     // save all slash-command's
     commands.forEach((command) => this.commands.set(command.name, command))
 
-    // globally deloy all slash-command's
+    // globally deploy all slash-command's
     logger.log(`[RELOADING COMMANDS]`)
     await new REST()
       .setToken(config.TOKEN)

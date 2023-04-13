@@ -57,8 +57,6 @@ export default {
 
   async init(client: Client) {
     client.on(Events.InteractionCreate, (interaction) => {
-      console.log(interaction)
-
       if (!interaction.isChatInputCommand()) return
       if (interaction.commandName != this.data.name) return
 

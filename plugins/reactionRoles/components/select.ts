@@ -36,34 +36,12 @@ export default {
     name: 'select-role-component',
   },
 
-  cooldown: 300,
+  cooldown: 3000,
 
   async execute(interaction: StringSelectMenuInteraction) {
-    if (interaction.member.user.bot) return
-
     const memberRoles = interaction.member.roles as GuildMemberRoleManager
+
     const selectedRoles = interaction.values
-
-    // BULK ADD AND REMOVE ISN'T WORKING AND IDK WHY
-    // const rolesToAdd = []
-    // const rolesToRemove = []
-
-    // possibleRoles.map((role) => {
-    //   if (selectedRoles.includes(role) && !memberRoles.cache.has(role))
-    //     rolesToAdd.push(role )
-    //   else if (!selectedRoles.includes(role) && memberRoles.cache.has(role))
-    //     rolesToRemove.push(role )
-    // })
-
-    // memberRoles
-    //   .remove(rolesToRemove)
-    //   .then(() => logger.log('roles removed'))
-    //   .catch(logger.error)
-
-    // memberRoles
-    //   .add(rolesToAdd)
-    //   .then(() => logger.log('roles added'))
-    //   .catch(logger.error)
 
     const addedRoles = []
     const removedRoles = []
@@ -74,6 +52,22 @@ export default {
       else if (!selectedRoles.includes(role) && memberRoles.cache.has(role))
         removedRoles.push(role)
     })
+
+    // BULK ADD AND REMOVE ISN'T WORKING AND IDK WHY
+
+    // if (addedRoles.length)
+    //   await (interaction.member.roles as GuildMemberRoleManager)
+    //     .add(addedRoles)
+    //     .then((member) => console.debug(member.roles.cache.keys()))
+    //     .then(() => logger.log(`Added ${addedRoles.length} roles`))
+    //     .catch(logger.error)
+
+    // if (removedRoles.length)
+    //   await (interaction.member.roles as GuildMemberRoleManager)
+    //     .remove(removedRoles)
+    //     .then((member) => console.debug(member.roles.cache.keys()))
+    //     .then(() => logger.log(`Removed ${removedRoles.length} roles`))
+    //     .catch(logger.error)
 
     addRoles(interaction.member as GuildMember, addedRoles)
     removeRoles(interaction.member as GuildMember, removedRoles)

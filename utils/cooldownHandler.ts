@@ -1,56 +1,43 @@
-import { BaseInteraction, Collection, Message, User } from 'discord.js'
+import { Collection, User } from 'discord.js'
 import { skynet } from '../src'
 
-function isMessage(instance): Boolean {
-  return instance instanceof Message
-}
+export function isInCooldown(interaction): Boolean {
+  const { actions, cooldowns } = skynet
 
-function isInteraction(instance): Boolean {
-  return (
-    instance instanceof BaseInteraction &&
-    (instance.isChatInputCommand() ||
-      instance.isButton() ||
-      instance.isAnySelectMenu())
-  )
-}
+  const componentKey = interaction.customId || interaction.commandName
 
-export function handleCooldown(component, userInput): Boolean {
-  const { cooldowns } = skynet
-
-  if (!cooldowns.has(component.data.name)) {
-    cooldowns.set(component.data.name, new Collection())
+  if (!cooldowns.has(componentKey)) {
+    cooldowns.set(componentKey, new Collection())
   }
 
-  if (!component.cooldown) return false
+  const action = actions.get(componentKey).data
+
+  if (!action.cooldown) return false
 
   const now = Date.now()
-  const timestamps = cooldowns.get(component.data.name)
+  const timestamps = cooldowns.get(action.name)
 
-  const user: User = userInput.member.user
+  const user: User = interaction.member.user
 
-  // if NOT in cooldown
+  // not in cooldown
   if (!timestamps.has(user.id)) {
     // set cooldown
     timestamps.set(user.id, now)
-    setTimeout(() => timestamps.delete(user.id), component.cooldown)
+    setTimeout(() => timestamps.delete(user.id), action.cooldown)
 
     return false
   }
 
-  const expirationTime = timestamps.get(user.id) + component.cooldown
+  const expirationTime = timestamps.get(user.id) + action.cooldown
 
-  // if in cooldown
+  // in cooldown
   if (now < expirationTime) {
     const cooldown = Math.ceil((expirationTime - now) / 1000)
 
-    if (isInteraction(userInput)) {
-      userInput.reply(`Cooldown in ${cooldown}s`)
-    }
-
-    if (isMessage(userInput)) {
-      userInput.channel.send(`Cooldown in ${cooldown}s`)
-    }
+    interaction.reply({ content: `Cooldown in ${cooldown}s`, ephemeral: true })
 
     return true
   }
+
+  return true
 }

@@ -1,12 +1,15 @@
 import {
   StringSelectMenuInteraction,
+  Events,
+  Client,
   GuildMemberRoleManager,
-  EmbedBuilder,
   GuildMember,
   Snowflake,
+  EmbedBuilder,
 } from 'discord.js'
-import { IComponent } from '../../../models/component'
+import { IAction } from '../../../models/action'
 import { logger } from '../../../utils/logger'
+import { isInCooldown } from '../../../utils/cooldownHandler'
 
 const possibleRoles = [
   '1074021128022007889',
@@ -33,10 +36,19 @@ function removeRoles(member: GuildMember, roles: Snowflake[]) {
 
 export default {
   data: {
-    name: 'select-role-component',
+    name: 'reaction-roles-menu-handle',
   },
 
-  cooldown: 3000,
+  async init(client: Client) {
+    client.on(Events.InteractionCreate, (interaction) => {
+      if (!interaction.isStringSelectMenu()) return
+      if (interaction.customId != this.data.name) return
+
+      if (isInCooldown(interaction)) return
+
+      return this.execute(interaction).catch(logger.error)
+    })
+  },
 
   async execute(interaction: StringSelectMenuInteraction) {
     const memberRoles = interaction.member.roles as GuildMemberRoleManager
@@ -101,4 +113,4 @@ export default {
       ephemeral: true,
     })
   },
-} as IComponent
+} as IAction

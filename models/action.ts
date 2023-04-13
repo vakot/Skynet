@@ -1,9 +1,11 @@
-import { ClientEvents } from 'discord.js'
-
+import { PermissionFlags, SlashCommandBuilder } from 'discord.js'
 export interface IAction {
   data: {
     name: string
+    command?: SlashCommandBuilder
+    cooldown?: number
+    permissions?: PermissionFlags[]
   }
-  trigger: keyof ClientEvents
+  init(...args: any): any
   execute(...args: any): any
 }

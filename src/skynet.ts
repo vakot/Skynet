@@ -21,9 +21,12 @@ class Skynet {
     logger.log('[SYSTEM INITIALIZATION]')
     logger.log('RUNNING SKYSOFT KERNEL 4.92.384.42')
 
-    this.client.login(config.TOKEN).then(async () => {
-      await this.Setup().catch(logger.error)
-    })
+    this.client
+      .login(config.TOKEN)
+      .then(async () => {
+        await this.Setup()
+      })
+      .catch(logger.error)
   }
 
   private async Setup() {

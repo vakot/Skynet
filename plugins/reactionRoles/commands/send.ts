@@ -46,10 +46,13 @@ const roles: APISelectMenuOption[] = [
 
 export default {
   data: {
-    name: 'send-reaction-roles-message',
+    name: 'reaction-roles',
     command: new SlashCommandBuilder()
-      .setName('send-reaction-roles-message')
-      .setDescription('Sends reactio roles message!')
+      .setName('reaction-roles')
+      .setDescription('Reactions roles commands')
+      .addSubcommand((command) =>
+        command.setName('send').setDescription('Send reaction roles message')
+      )
       .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
     cooldown: 60000,
   },
@@ -82,12 +85,16 @@ export default {
       .setMinValues(0)
       .setMaxValues(roles.length)
 
-    return await interaction.channel.send({
-      components: [
-        new ActionRowBuilder<StringSelectMenuBuilder>().setComponents(
-          roleSelectMenu
-        ),
-      ],
-    })
+    const subcommand = interaction.options.getSubcommand()
+
+    if (subcommand == 'send') {
+      return await interaction.channel.send({
+        components: [
+          new ActionRowBuilder<StringSelectMenuBuilder>().setComponents(
+            roleSelectMenu
+          ),
+        ],
+      })
+    }
   },
 } as IAction

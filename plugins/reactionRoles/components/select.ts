@@ -45,7 +45,7 @@ export default {
   async init(interaction) {
     if (
       interaction.isStringSelectMenu() &&
-      interaction.commandName == this.data.name &&
+      interaction.customId == this.data.name &&
       !isInCooldown(interaction)
     )
       return this.execute(interaction).catch(logger.error)
@@ -104,10 +104,6 @@ export default {
           }`,
         }
       )
-    // UwU
-    // .setImage(
-    //   'https://cdn.discordapp.com/attachments/1076287941275549696/1076294598546169936/skyline_EMPTY.png'
-    // )
 
     return await interaction.reply({
       embeds: [embed],

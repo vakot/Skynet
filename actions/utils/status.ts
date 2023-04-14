@@ -2,6 +2,7 @@ import {
   ChatInputCommandInteraction,
   Events,
   SlashCommandBuilder,
+  EmbedBuilder,
 } from 'discord.js'
 import { IAction } from '../../models/action'
 import { logger } from '../../utils/logger'
@@ -30,11 +31,52 @@ export default {
   },
 
   async execute(interaction: ChatInputCommandInteraction) {
-    const botLatency = Date.now() - interaction.createdTimestamp
-    const apiLatency = interaction.client.ws.ping
+    const executionStart = Date.now()
+
+    const { guild, guildId, id } = interaction
+
+    const botsCount = (await guild.fetchIntegrations()).filter(
+      (i) => i.application && i.application.bot
+    ).size
+
+    const embed = new EmbedBuilder().setFields(
+      {
+        name: 'Owner',
+        value: `<@${guild.ownerId}>`,
+        inline: true,
+      },
+      {
+        name: 'Server ID',
+        value: `\`${guildId}\``,
+        inline: true,
+      },
+      {
+        name: 'Created at',
+        value: `<t:${Math.round(guild.createdTimestamp / 1000)}:D>`,
+        inline: true,
+      },
+      {
+        name: 'Members',
+        value: `User's: \`${
+          guild.memberCount - botsCount
+        }\` | Bot's: \`${botsCount}\``,
+        inline: true,
+      },
+      {
+        name: 'Event ID',
+        value: `\`${id}\``,
+        inline: true,
+      }
+    )
 
     return await interaction.reply({
-      content: `Bot latency \`${botLatency}ms\`\nAPI latency \`${apiLatency}ms\``,
+      embeds: [
+        embed.addFields({
+          name: 'Execution time',
+          value: `\`${Date.now() - executionStart}ms\``,
+          inline: true,
+        }),
+      ],
     })
   },
 } as IAction

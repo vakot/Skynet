@@ -19,6 +19,6 @@ export default {
   async execute(interaction: ButtonInteraction | AnySelectMenuInteraction) {
     const { customId, user } = interaction
 
-    return logger.log(`/${customId} by ${user.tag}`)
+    return logger.log(`${customId} by ${user.tag}`)
   },
 } as IAction

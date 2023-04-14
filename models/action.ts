@@ -1,5 +1,4 @@
-import { PermissionFlags, SlashCommandBuilder } from 'discord.js'
-import { IListener } from './listener'
+import { ClientEvents, PermissionFlags, SlashCommandBuilder } from 'discord.js'
 
 export interface IAction {
   data: {
@@ -9,7 +8,10 @@ export interface IAction {
     cooldown?: number
     permissions?: PermissionFlags[]
   }
-  listener: IListener
+  listener: {
+    event: keyof ClientEvents
+    once?: boolean
+  }
   init(...args: any): any
   execute(...args: any): any
 }

@@ -10,13 +10,10 @@ import path from 'path'
 import fs from 'fs'
 
 import { IAction } from '../models/action'
-import { IListener } from '../models/listener'
 
 import { throughDirectory } from '../utils/fileManager'
 import { logger } from '../utils/logger'
 import { config } from '../utils/config'
-
-let loadingStart
 
 class Skynet {
   // name => body
@@ -25,26 +22,23 @@ class Skynet {
   public commands = new Collection<string, any>()
   // action => (user id => cooldown created at)
   public cooldowns = new Collection<string, Collection<Snowflake, number>>()
-  // listener => actions
-  public events = new Collection<keyof ClientEvents, string[]>()
+  // listeners set
+  public events = new Set<keyof ClientEvents>()
 
   public constructor(public readonly client: Client) {
-    loadingStart = Date.now()
-
     logger.log('[SYSTEM INITIALIZATION]')
     logger.log('RUNNING SKYSOFT KERNEL 4.92.384.42')
 
     try {
-      this.Login(this.client)
-      this.Setup()
+      ;(async () => {
+        let loadingStart = Date.now()
+        await this.client.login(config.TOKEN)
+        await this.Setup()
+        logger.info(`Loading took ${Date.now() - loadingStart}ms`)
+      })()
     } catch {
       logger.error
     }
-  }
-
-  private async Login(client: Client) {
-    await client.login(config.TOKEN)
-    await client.setMaxListeners(0)
   }
 
   private async Setup() {
@@ -52,10 +46,24 @@ class Skynet {
     const actionsFolder = path.join(__dirname, '..', 'actions')
     const pluginsFolder = path.join(__dirname, '..', 'plugins')
 
-    const saveAction = async (action: IAction) => {
-      if (!Object.keys(action).length) return
+    const isValidAction = (action: IAction): boolean => {
+      try {
+        if (!action.data.name) return false
+        if (!action.listener.event) return false
+        if (!action.init) return false
+        if (!action.execute) return false
+      } catch {
+        return false
+      }
 
-      await this.actions.set(action?.data?.name, action)
+      return true
+    }
+
+    const saveAction = async (action: IAction) => {
+      if (!isValidAction(action))
+        return logger.warn(`Invalid action [${action?.data?.name}] detected`)
+
+      return await this.actions.set(action.data.name, action)
     }
 
     // read and save all action's
@@ -63,53 +71,41 @@ class Skynet {
       saveAction((await import(file)).default)
     }
 
-    this.actions.forEach(async (action) => {
-      if (this.events.has(action.listener.event)) {
-        await this.events.set(action.listener.event, [
-          ...this.events.get(action.listener.event),
-          action.data.name,
-        ])
-      } else {
-        await this.events.set(action.listener.event, [action.data.name])
+    // read and save all action's
+    for (const folder of fs.readdirSync(pluginsFolder)) {
+      logger.log(`Plugin ${folder} loading...`)
+
+      for (const file of throughDirectory(path.join(pluginsFolder, folder))) {
+        saveAction((await import(file)).default)
       }
+    }
+
+    // set all event's
+    this.actions.forEach((action) => {
+      this.events.add(action.listener.event)
     })
 
-    // // read and save all plugin's action's
-    // for (const folder of fs.readdirSync(pluginsFolder)) {
-    //   logger.log(`Plugin ${folder} loading...`)
-
-    //   for (const file of throughDirectory(path.join(pluginsFolder, folder))) {
-    //     saveAction((await import(file)).default)
-    //   }
-    // }
-
-    // run all events
-    // console.log(this.events.size)
-    await [...this.events.keys()].forEach((event) => {
+    // run all client.on event's
+    this.events.forEach(async (event) => {
       this.client.on(event, (...args) => {
         this.actions
-          .filter((action) => action.listener.event == event)
+          .filter(
+            (action) => !action.listener.once && action.listener.event == event
+          )
           .map((action) => action.init(...args))
       })
     })
 
-    // this.events.forEach(event => {
-    //   if (event)
-    // })
-    // this.client.on('cacheSweep', () => {})
-    // this.client.once('channelCreate', () => {})
-
-    // const eventListeners = [...this.events.keys()]
-    // eventListeners.forEach((event) => {
-    //   this.events.
-    // })
-    // .map((event) => console.log(event))
-
-    // this.events.forEach((event) => {
-    //   console.log(event)
-
-    //   this.client
-    // })
+    // run all client.once event's
+    this.events.forEach(async (event) => {
+      this.client.once(event, (...args) => {
+        this.actions
+          .filter(
+            (action) => action.listener.once && action.listener.event == event
+          )
+          .map((action) => action.init(...args))
+      })
+    })
 
     // get all slash-command's
     const commands = this.actions
@@ -128,7 +124,6 @@ class Skynet {
           body: commands,
         })
       logger.log(`[${commands.length} COMMANDS RELOADED]`)
-      logger.info(`Loaded in ${Date.now() - loadingStart}ms`)
     } catch {
       logger.error
     }

@@ -9,6 +9,7 @@ export default {
 
   listener: {
     event: Events.ClientReady,
+    once: true,
   },
 
   async init(client: Client) {

@@ -1,4 +1,4 @@
-import { Events, Client, VoiceState } from 'discord.js'
+import { Events, VoiceState } from 'discord.js'
 import { IAction } from '../../models/action'
 import { logger } from '../../utils/logger'
 
@@ -9,16 +9,16 @@ export default {
     name: 'temp-voice-delete',
   },
 
-  async init(client: Client) {
-    client.on(
-      Events.VoiceStateUpdate,
-      (oldState: VoiceState, newState: VoiceState) => {
-        if (!ActiveChannels.includes(oldState?.channel?.id)) return
-        if (oldState?.channel?.members?.size) return
+  listener: {
+    event: Events.VoiceStateUpdate,
+  },
 
-        return this.execute(oldState, newState).catch(logger.error)
-      }
+  async init(oldState: VoiceState, newState: VoiceState) {
+    if (
+      ActiveChannels.includes(oldState?.channel?.id) &&
+      !oldState?.channel?.members?.size
     )
+      return this.execute(oldState, newState).catch(logger.error)
   },
 
   async execute(oldState: VoiceState, newState: VoiceState) {

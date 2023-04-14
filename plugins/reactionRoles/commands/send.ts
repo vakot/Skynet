@@ -1,7 +1,6 @@
 import {
   ChatInputCommandInteraction,
   Events,
-  Client,
   SlashCommandBuilder,
   APISelectMenuOption,
   PermissionFlagsBits,
@@ -55,15 +54,17 @@ export default {
     cooldown: 60000,
   },
 
-  async init(client: Client) {
-    client.on(Events.InteractionCreate, (interaction) => {
-      if (!interaction.isChatInputCommand()) return
-      if (interaction.commandName != this.data.name) return
+  listener: {
+    event: Events.InteractionCreate,
+  },
 
-      if (isInCooldown(interaction)) return
-
+  async init(interaction) {
+    if (
+      interaction.isChatInputCommand() &&
+      interaction.commandName == this.data.name &&
+      !isInCooldown(interaction)
+    )
       return this.execute(interaction).catch(logger.error)
-    })
   },
 
   async execute(interaction: ChatInputCommandInteraction) {

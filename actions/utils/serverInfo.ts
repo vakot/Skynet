@@ -1,18 +1,19 @@
 import {
   ChatInputCommandInteraction,
   Events,
+  Client,
   SlashCommandBuilder,
 } from 'discord.js'
-import { IAction } from '../models/action'
-import { logger } from '../utils/logger'
-import { isInCooldown } from '../utils/cooldownHandler'
+import { IAction } from '../../models/action'
+import { logger } from '../../utils/logger'
+import { isInCooldown } from '../../utils/cooldownHandler'
 
 export default {
   data: {
-    name: 'ping',
+    name: 'server-info',
     command: new SlashCommandBuilder()
-      .setName('ping')
-      .setDescription('Replies with Pong!'),
+      .setName('server-info')
+      .setDescription('Short information about server'),
     cooldown: 3000,
   },
 
@@ -31,7 +32,7 @@ export default {
 
   async execute(interaction: ChatInputCommandInteraction) {
     return await interaction.reply({
-      content: `:ping_pong: Pong!`,
+      content: `server_info_message_template`,
     })
   },
 } as IAction

@@ -15,9 +15,9 @@ export const logger = {
     console.error(`${getTimestamp()} - !ERROR! ${message}`)
   },
   info(message: any) {
-    console.info(`${getTimestamp()} - ${message}`)
+    console.info(`${getTimestamp()} - !INFO! ${message}`)
   },
   debug(message: any) {
-    console.debug(`${getTimestamp()} - ${message}`)
+    console.debug(`${getTimestamp()} - !DEBUG! ${message}`)
   },
 }

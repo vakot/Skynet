@@ -11,7 +11,14 @@ export function* throughDirectory(directoryPath: string): Generator<string> {
 
     if (stats.isDirectory()) {
       yield* throughDirectory(filePath)
-    } else if (stats.isFile()) {
+    }
+
+    if (stats.isFile()) {
+      if (!file.endsWith('.ts') && !file.endsWith('.js')) {
+        logger.log(`File ${file} ignored`)
+        continue
+      }
+
       logger.log(`File ${file} loaded`)
       yield filePath
     }

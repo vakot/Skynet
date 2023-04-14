@@ -1,7 +1,6 @@
 import {
   StringSelectMenuInteraction,
   Events,
-  Client,
   GuildMemberRoleManager,
   GuildMember,
   Snowflake,
@@ -39,15 +38,17 @@ export default {
     name: 'reaction-roles-menu-handle',
   },
 
-  async init(client: Client) {
-    client.on(Events.InteractionCreate, (interaction) => {
-      if (!interaction.isStringSelectMenu()) return
-      if (interaction.customId != this.data.name) return
+  listener: {
+    event: Events.InteractionCreate,
+  },
 
-      if (isInCooldown(interaction)) return
-
+  async init(interaction) {
+    if (
+      interaction.isStringSelectMenu() &&
+      interaction.commandName == this.data.name &&
+      !isInCooldown(interaction)
+    )
       return this.execute(interaction).catch(logger.error)
-    })
   },
 
   async execute(interaction: StringSelectMenuInteraction) {

@@ -10,28 +10,29 @@ import { isInCooldown } from '../../utils/cooldownHandler'
 
 export default {
   data: {
-    name: 'ping',
+    name: 'server-info',
     command: new SlashCommandBuilder()
-      .setName('ping')
-      .setDescription('Replies with Pong!'),
+      .setName('server-info')
+      .setDescription('Short information about server'),
     cooldown: 3000,
   },
 
-  async init(client: Client) {
-    client.on(Events.InteractionCreate, (interaction) => {
-      if (!interaction.isChatInputCommand()) return
-      if (interaction.commandName != this.data.name) return
+  listener: {
+    event: Events.InteractionCreate,
+  },
 
-      if (isInCooldown(interaction)) return
-
+  async init(interaction) {
+    if (
+      interaction.isChatInputCommand() &&
+      interaction.commandName == this.data.name &&
+      !isInCooldown(interaction)
+    )
       return this.execute(interaction).catch(logger.error)
-    })
   },
 
   async execute(interaction: ChatInputCommandInteraction) {
-    const latency = Date.now() - interaction.createdTimestamp
     return await interaction.reply({
-      content: `Pong! In latency of ${latency}ms`,
+      content: `server_info_message_template`,
     })
   },
 } as IAction

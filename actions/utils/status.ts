@@ -3,17 +3,17 @@ import {
   Events,
   SlashCommandBuilder,
 } from 'discord.js'
-import { IAction } from '../../../models/action'
-import { logger } from '../../../utils/logger'
-import { isInCooldown } from '../../../utils/cooldownHandler'
+import { IAction } from '../../models/action'
+import { logger } from '../../utils/logger'
+import { isInCooldown } from '../../utils/cooldownHandler'
 
 export default {
   data: {
-    name: 'kick',
+    name: 'status',
     command: new SlashCommandBuilder()
-      .setName('kick')
-      .setDescription('Kick user from server (IN PROGRESS...)'),
-    cooldown: 10000,
+      .setName('status')
+      .setDescription('Short information about bot status'),
+    cooldown: 3000,
   },
 
   listener: {
@@ -30,8 +30,11 @@ export default {
   },
 
   async execute(interaction: ChatInputCommandInteraction) {
+    const botLatency = Date.now() - interaction.createdTimestamp
+    const apiLatency = interaction.client.ws.ping
+
     return await interaction.reply({
-      content: `Knock!`,
+      content: `Bot latency \`${botLatency}ms\`\nAPI latency \`${apiLatency}ms\``,
     })
   },
 } as IAction

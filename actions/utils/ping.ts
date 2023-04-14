@@ -3,17 +3,17 @@ import {
   Events,
   SlashCommandBuilder,
 } from 'discord.js'
-import { IAction } from '../../../models/action'
-import { logger } from '../../../utils/logger'
-import { isInCooldown } from '../../../utils/cooldownHandler'
+import { IAction } from '../../models/action'
+import { logger } from '../../utils/logger'
+import { isInCooldown } from '../../utils/cooldownHandler'
 
 export default {
   data: {
-    name: 'kick',
+    name: 'ping',
     command: new SlashCommandBuilder()
-      .setName('kick')
-      .setDescription('Kick user from server (IN PROGRESS...)'),
-    cooldown: 10000,
+      .setName('ping')
+      .setDescription('Replies with Pong!'),
+    cooldown: 3000,
   },
 
   listener: {
@@ -31,7 +31,7 @@ export default {
 
   async execute(interaction: ChatInputCommandInteraction) {
     return await interaction.reply({
-      content: `Knock!`,
+      content: `:ping_pong: Pong!`,
     })
   },
 } as IAction

@@ -1,6 +1,5 @@
 import {
   Events,
-  Client,
   VoiceState,
   ChannelType,
   PermissionsBitField,
@@ -16,15 +15,13 @@ export default {
     name: 'temp-voice-create',
   },
 
-  async init(client: Client) {
-    client.on(
-      Events.VoiceStateUpdate,
-      (oldState: VoiceState, newState: VoiceState) => {
-        if (newState?.channel?.id != config.TEMPORARY_VOICE.PARENT_ID) return
+  listener: {
+    event: Events.VoiceStateUpdate,
+  },
 
-        return this.execute(oldState, newState).catch(logger.error)
-      }
-    )
+  async init(oldState: VoiceState, newState: VoiceState) {
+    if (newState?.channel?.id == config.TEMPORARY_VOICE.PARENT_ID)
+      return this.execute(oldState, newState).catch(logger.error)
   },
 
   async execute(oldState: VoiceState, newState: VoiceState) {

@@ -7,10 +7,13 @@ export default {
     name: 'ready',
   },
 
+  listener: {
+    event: Events.ClientReady,
+    once: true,
+  },
+
   async init(client: Client) {
-    client.once(Events.ClientReady, (client) => {
-      return this.execute(client).catch(logger.error)
-    })
+    return this.execute(client).catch(logger.error)
   },
 
   async execute(client: Client) {

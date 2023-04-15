@@ -5,10 +5,16 @@ import {
   GuildMember,
   Snowflake,
   EmbedBuilder,
+  Events,
+  Interaction,
 } from 'discord.js'
-import { IComponent } from '../../../models/component'
-import { roles } from '../config.json'
+
 import logger from '../../../utils/helpers/logger'
+import isActionReady from '../../../utils/conditions/isActionReady'
+
+import { IAction } from '../../../models/action'
+
+import { roles } from '../config.json'
 
 function addRoles(member: GuildMember, roles: Snowflake[]) {
   if (!roles.length) return
@@ -41,7 +47,19 @@ export default {
   //   .setMinValues(0)
   //   .setMaxValues(roles.length)
 
-  async callback(interaction: StringSelectMenuInteraction) {
+  event: Events.InteractionCreate,
+
+  async init(interaction: Interaction) {
+    if (
+      interaction.isStringSelectMenu() &&
+      interaction.customId === this.data.data.custom_id &&
+      (await isActionReady(this, interaction))
+    ) {
+      return await this.execute(interaction)
+    }
+  },
+
+  async execute(interaction: StringSelectMenuInteraction) {
     const memberRoles = interaction.member.roles as GuildMemberRoleManager
     const selectedRoles = interaction.values
     const possibleRoles = roles.map((role) => role.value)
@@ -79,11 +97,15 @@ export default {
       .addFields(
         {
           name: 'Added roles:',
-          value: `> ${addedRoles?.map((role) => `<@&${role}>`).join(' | ') || '-'}`,
+          value: `> ${
+            addedRoles?.map((role) => `<@&${role}>`).join(' | ') || '-'
+          }`,
         },
         {
           name: 'Removed roles:',
-          value: `> ${removedRoles?.map((role) => `<@&${role}>`).join(' | ') || '-'}`,
+          value: `> ${
+            removedRoles?.map((role) => `<@&${role}>`).join(' | ') || '-'
+          }`,
         }
       )
 
@@ -92,4 +114,4 @@ export default {
       ephemeral: true,
     })
   },
-} as IComponent
+} as IAction

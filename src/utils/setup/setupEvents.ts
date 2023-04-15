@@ -1,15 +1,34 @@
-import { Client } from 'discord.js'
+import { Client, ClientEvents } from 'discord.js'
 
 import store from '../helpers/store'
+import logger from '../helpers/logger'
 
-export default function (client: Client) {
-  const events = store.get('events')
+import { IAction } from '../../models/action'
 
-  for (const event of events) {
-    if (event.once) {
-      client.once(event.name, (...args) => event.execute(...args))
-    } else {
-      client.on(event.name, (...args) => event.execute(...args))
-    }
-  }
+export default async function (client: Client) {
+  const actions: IAction[] = store.get('actions')
+  const events: Set<keyof ClientEvents> = new Set()
+
+  // set all event's
+  actions.forEach((action) => {
+    events.add(action.event)
+  })
+
+  // run all client.on event's
+  events.forEach(async (event) => {
+    client.on(event, (...args) => {
+      actions
+        .filter((action) => !action.once && action.event === event)
+        .map((action) => action.init(...args).catch(logger.error))
+    })
+  })
+
+  // run all client.once event's
+  events.forEach(async (event) => {
+    client.once(event, (...args) => {
+      actions
+        .filter((action) => action.once && action.event === event)
+        .map((action) => action.init(...args).catch(logger.error))
+    })
+  })
 }

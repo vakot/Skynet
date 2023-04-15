@@ -1,17 +1,39 @@
-import { ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder } from 'discord.js'
-import { ICommand } from '../../models/command'
+import {
+  ChatInputCommandInteraction,
+  Events,
+  Interaction,
+  SlashCommandBuilder,
+  EmbedBuilder,
+} from 'discord.js'
+
+import isActionReady from '../../utils/conditions/isActionReady'
+
+import { IAction } from '../../models/action'
 
 export default {
   data: new SlashCommandBuilder()
     .setName('status')
     .setDescription('Short information about bot status'),
 
-  cooldown: 60000,
+  event: Events.InteractionCreate,
+  cooldown: 3000,
+
+  devsOnly: true,
+
+  async init(interaction: Interaction) {
+    if (
+      interaction.isChatInputCommand() &&
+      interaction.commandName === this.data.name &&
+      (await isActionReady(this, interaction))
+    ) {
+      return await this.execute(interaction)
+    }
+  },
 
   async execute(interaction: ChatInputCommandInteraction) {
     const executionStart = Date.now()
 
-    const { guild, guildId, id, client } = interaction
+    const { guild, guildId, id } = interaction
 
     const botsCount = (await guild.fetchIntegrations()).filter(
       (i) => i.application && i.application.bot
@@ -35,7 +57,9 @@ export default {
       },
       {
         name: 'Members',
-        value: `Users: \`${guild.memberCount - botsCount}\` | Bots: \`${botsCount}\``,
+        value: `User: \`${
+          guild.memberCount - botsCount
+        }\` | Bot: \`${botsCount}\``,
         inline: true,
       },
       {
@@ -45,14 +69,17 @@ export default {
       }
     )
 
+    const wsPing = interaction.client.ws.ping
+    const botPing = Date.now() - executionStart
+
     return await interaction.reply({
       embeds: [
         embed.addFields({
           name: 'Execution time',
-          value: `Bot: \`${Date.now() - executionStart}ms\` | Websocket: \`${client.ws.ping}ms\``,
+          value: `Bot: \`${botPing}ms\` | Websocket: \`${wsPing}ms\``,
           inline: true,
         }),
       ],
     })
   },
-} as ICommand
+} as IAction

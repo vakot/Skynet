@@ -1,13 +1,17 @@
 import {
   ChatInputCommandInteraction,
+  Events,
+  Interaction,
   SlashCommandBuilder,
   PermissionFlagsBits,
-  StringSelectMenuBuilder,
   ActionRowBuilder,
+  StringSelectMenuBuilder,
 } from 'discord.js'
 
-import { ICommand } from '../../../models/command'
-import menuHandler from '../components/reaction-roles-menu'
+import { IAction } from '../../../models/action'
+import isActionReady from '../../../utils/conditions/isActionReady'
+
+import menu from '../components/reaction-roles-menu'
 
 export default {
   data: new SlashCommandBuilder()
@@ -18,17 +22,30 @@ export default {
     )
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
 
+  event: Events.InteractionCreate,
   cooldown: 60000,
+
+  async init(interaction: Interaction) {
+    if (
+      interaction.isChatInputCommand() &&
+      interaction.commandName === this.data.name &&
+      (await isActionReady(this, interaction))
+    ) {
+      return await this.execute(interaction)
+    }
+  },
 
   async execute(interaction: ChatInputCommandInteraction) {
     const subcommand = interaction.options.getSubcommand()
 
     if (subcommand == 'send') {
-      const menu = menuHandler.data as StringSelectMenuBuilder
-
       return await interaction.channel.send({
-        components: [new ActionRowBuilder<StringSelectMenuBuilder>().setComponents(menu)],
+        components: [
+          new ActionRowBuilder<StringSelectMenuBuilder>().setComponents(
+            menu.data
+          ),
+        ],
       })
     }
   },
-} as ICommand
+} as IAction

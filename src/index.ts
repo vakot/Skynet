@@ -1,9 +1,9 @@
 require('dotenv').config()
 import { Client, GatewayIntentBits } from 'discord.js'
-import loadFiles from './utils/setup/loadFiles'
 import setupEvents from './utils/setup/setupEvents'
+import loadActions from './utils/setup/loadActions'
+import logger from './utils/helpers/logger'
 
-// Discord client object
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
@@ -14,9 +14,18 @@ const client = new Client({
 })
 
 ;(async () => {
-  await loadFiles()
+  const startTime = Date.now()
 
-  await setupEvents(client)
+  logger.info('[SYSTEM INITIALIZATION]')
+  logger.info('RUNNING SKYSOFT KERNEL 4.92.384.42')
 
-  await client.login(process.env.TOKEN)
+  await loadActions().catch(logger.error)
+
+  await setupEvents(client).catch(logger.error)
+
+  logger.info(`Loaded in ${Date.now() - startTime}ms`)
+
+  client
+    .login(process.env.TOKEN)
+    .then(() => logger.info(`Logged in ${Date.now() - startTime}ms`))
 })()

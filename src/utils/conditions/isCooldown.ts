@@ -1,29 +1,41 @@
-import { Collection, Snowflake, User } from 'discord.js'
+import { Collection, Interaction, Snowflake, User } from 'discord.js'
+import { IAction } from '../../models/action'
 
 const cooldowns = new Collection<string, Collection<Snowflake, number>>()
 
-export default function (key: string, cooldown: number, interaction: any): Boolean {
+export default function (action: IAction, interaction: Interaction): Boolean {
+  if (
+    !interaction.isChatInputCommand() &&
+    !interaction.isButton() &&
+    !interaction.isAnySelectMenu()
+  )
+    return false
+
+  const key = interaction.isChatInputCommand()
+    ? interaction.commandName
+    : interaction.customId
+
   if (!cooldowns.has(key)) {
     cooldowns.set(key, new Collection())
   }
 
-  if (!cooldown) return false
+  if (!action.cooldown) return false
 
   const now = Date.now()
   const timestamps = cooldowns.get(key)
 
-  const user: User = interaction.member.user
+  const user: User = interaction.user
 
   // not in cooldown
   if (!timestamps.has(user.id)) {
     // set cooldown
     timestamps.set(user.id, now)
-    setTimeout(() => timestamps.delete(user.id), cooldown)
+    setTimeout(() => timestamps.delete(user.id), action.cooldown)
 
     return false
   }
 
-  const expirationTime = timestamps.get(user.id) + cooldown
+  const expirationTime = timestamps.get(user.id) + action.cooldown
 
   // in cooldown
   if (now < expirationTime) {

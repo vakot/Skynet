@@ -5,37 +5,41 @@ import isCommandsEqual from '../conditions/isCommandsEqual'
 import logger from '../helpers/logger'
 import store from '../helpers/store'
 
-import { testServer } from '../../../config.json'
+import { IAction } from '../../models/action'
 
-import { ICommand } from '../../models/command'
+import { testServer } from '../../../config.json'
 
 export default async function (client: Client) {
   try {
-    const localCommands: ICommand[] = store.get('localCommands')
+    const localCommands: IAction[] = store
+      .get('actions')
+      .filter((action) => action.data?.name)
 
     const applicationCommands = await getApplicationCommands(client, testServer)
 
     // create | edit | delete application commands
     for (const localCommand of localCommands) {
+      const { data, forceUpdate, deleteble } = localCommand
+
       const existingCommand = await applicationCommands.cache.find(
-        (command) => command.name === localCommand.data.name
+        (command) => command.name === data.name
       )
 
-      if (!existingCommand && !localCommand.delete) {
-        await applicationCommands.create(localCommand.data)
-        logger.info(`Command ${localCommand.data.name} created`)
+      if (!existingCommand && !deleteble) {
+        await applicationCommands.create(data)
+        logger.info(`Command ${data.name} created`)
         continue
       }
 
-      if (localCommand.delete) {
+      if (deleteble) {
         await applicationCommands.delete(existingCommand.id)
-        logger.info(`Command ${localCommand.data.name} deleted`)
+        logger.info(`Command ${data.name} deleted`)
         continue
       }
 
-      if (!isCommandsEqual(localCommand.data, existingCommand) || localCommand.forceUpdate) {
-        await applicationCommands.edit(existingCommand.id, localCommand.data)
-        logger.info(`Command ${localCommand.data.name} updated`)
+      if (!isCommandsEqual(data, existingCommand) || forceUpdate) {
+        await applicationCommands.edit(existingCommand.id, data)
+        logger.info(`Command ${data.name} updated`)
         continue
       }
     }

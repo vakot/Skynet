@@ -1,15 +1,21 @@
+require('dotenv').config()
 import { Client, GatewayIntentBits } from 'discord.js'
-
-import Skynet from './skynet'
+import eventHandler from './handlers/event'
+import registerCommands from './utils/registerCommands'
+import logger from './utils/logger'
 
 // Discord client object
-export const skynet = new Skynet(
-  new Client({
-    intents: [
-      GatewayIntentBits.Guilds,
-      GatewayIntentBits.GuildVoiceStates,
-      GatewayIntentBits.GuildMessages,
-      GatewayIntentBits.MessageContent,
-    ],
-  })
-)
+const client = new Client({
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildVoiceStates,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent,
+  ],
+})
+
+;(async () => {
+  await eventHandler(client)
+
+  await client.login(process.env.TOKEN)
+})()

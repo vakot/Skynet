@@ -1,6 +1,5 @@
 import fs from 'fs'
 import path from 'path'
-import { logger } from './logger'
 
 export function* throughDirectory(directoryPath: string): Generator<string> {
   const files = fs.readdirSync(directoryPath)
@@ -14,12 +13,6 @@ export function* throughDirectory(directoryPath: string): Generator<string> {
     }
 
     if (stats.isFile()) {
-      if (!file.endsWith('.ts') && !file.endsWith('.js')) {
-        logger.log(`File ${file} ignored`)
-        continue
-      }
-
-      logger.log(`File ${file} loaded`)
       yield filePath
     }
   }

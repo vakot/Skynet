@@ -1,8 +1,7 @@
 require('dotenv').config()
 import { Client, GatewayIntentBits } from 'discord.js'
-import eventHandler from './handlers/event'
-import registerCommands from './utils/registerCommands'
-import logger from './utils/logger'
+import loadFiles from './utils/setup/loadFiles'
+import setupEvents from './utils/setup/setupEvents'
 
 // Discord client object
 const client = new Client({
@@ -15,7 +14,9 @@ const client = new Client({
 })
 
 ;(async () => {
-  await eventHandler(client)
+  await loadFiles()
+
+  await setupEvents(client)
 
   await client.login(process.env.TOKEN)
 })()

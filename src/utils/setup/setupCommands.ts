@@ -1,16 +1,21 @@
 import { Client } from 'discord.js'
-import logger from './logger'
-import getApplicationCommands from './getApplicationCommands'
-import getLocalCommands from './getLocalCommands'
-import { ICommand } from '../models/command'
-import { testServer } from '../../config.json'
-import isCommandsEqual from './isCommandsEqual'
+
+import getApplicationCommands from '../fetch/getApplicationCommands'
+import isCommandsEqual from '../conditions/isCommandsEqual'
+import logger from '../helpers/logger'
+import store from '../helpers/store'
+
+import { testServer } from '../../../config.json'
+
+import { ICommand } from '../../models/command'
 
 export default async function (client: Client) {
   try {
-    const localCommands: ICommand[] = await getLocalCommands()
+    const localCommands: ICommand[] = store.get('localCommands')
+
     const applicationCommands = await getApplicationCommands(client, testServer)
 
+    // create | edit | delete application commands
     for (const localCommand of localCommands) {
       const existingCommand = await applicationCommands.cache.find(
         (command) => command.name === localCommand.data.name
@@ -28,10 +33,7 @@ export default async function (client: Client) {
         continue
       }
 
-      if (
-        !isCommandsEqual(localCommand.data, existingCommand) ||
-        localCommand.forceUpdate
-      ) {
+      if (!isCommandsEqual(localCommand.data, existingCommand) || localCommand.forceUpdate) {
         await applicationCommands.edit(existingCommand.id, localCommand.data)
         logger.info(`Command ${localCommand.data.name} updated`)
         continue

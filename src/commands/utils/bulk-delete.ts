@@ -1,8 +1,4 @@
-import {
-  ChatInputCommandInteraction,
-  SlashCommandBuilder,
-  PermissionFlagsBits,
-} from 'discord.js'
+import { ChatInputCommandInteraction, SlashCommandBuilder, PermissionFlagsBits } from 'discord.js'
 import { ICommand } from '../../models/command'
 
 export default {
@@ -10,14 +6,13 @@ export default {
     .setName('bulk-delete')
     .setDescription('Delete bulk of messages')
     .addNumberOption((option) =>
-      option
-        .setName('count')
-        .setDescription('The count of messages to delete')
-        .setRequired(true)
+      option.setName('count').setDescription('The count of messages to delete').setRequired(true)
     )
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages),
 
-  async callback(interaction: ChatInputCommandInteraction) {
+  cooldown: 6000,
+
+  async execute(interaction: ChatInputCommandInteraction) {
     const count = Number(interaction.options.get('count').value)
 
     if (count < 1 || count > 99)

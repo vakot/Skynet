@@ -1,5 +1,13 @@
-import logger from '../../src/utils/logger'
+import { Events } from 'discord.js'
 
-export default function (info: string) {
-  logger.error(info)
-}
+import logger from '../utils/helpers/logger'
+
+import { IEvent } from '../models/event'
+
+export default {
+  name: Events.Error,
+
+  execute(info) {
+    logger.error(info)
+  },
+} as IEvent

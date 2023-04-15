@@ -6,9 +6,8 @@ import {
   ActionRowBuilder,
 } from 'discord.js'
 
-import { ICommand } from '../../models/command'
-import menuHandler from './select-menu.component'
-import store from '../../utils/store'
+import { ICommand } from '../../../models/command'
+import menuHandler from '../components/reaction-roles-menu'
 
 export default {
   data: new SlashCommandBuilder()
@@ -21,19 +20,14 @@ export default {
 
   cooldown: 60000,
 
-  async callback(interaction: ChatInputCommandInteraction) {
-    const menu = menuHandler.data as StringSelectMenuBuilder
-
-    const components = store.get('components')
-    store.set('components', [menuHandler, ...components])
-
+  async execute(interaction: ChatInputCommandInteraction) {
     const subcommand = interaction.options.getSubcommand()
 
     if (subcommand == 'send') {
+      const menu = menuHandler.data as StringSelectMenuBuilder
+
       return await interaction.channel.send({
-        components: [
-          new ActionRowBuilder<StringSelectMenuBuilder>().setComponents(menu),
-        ],
+        components: [new ActionRowBuilder<StringSelectMenuBuilder>().setComponents(menu)],
       })
     }
   },

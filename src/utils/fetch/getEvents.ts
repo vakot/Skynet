@@ -1,8 +1,10 @@
-import logger from './logger'
-import { throughDirectory } from './throughDirectory'
+import throughDirectory from '../helpers/throughDirectory'
+import logger from '../helpers/logger'
 
-export default async function (eventsFolder: string) {
-  const events: { name: string; callback: Function }[] = []
+import { IEvent } from '../../models/event'
+
+export default async function (eventsFolder: string): Promise<IEvent[]> {
+  const events: IEvent[] = []
 
   for (const eventPath of throughDirectory(eventsFolder)) {
     const eventFileName = eventPath.replace(/\\/g, '/').split('/').pop()
@@ -18,9 +20,7 @@ export default async function (eventsFolder: string) {
 
     logger.log(`File ${eventFileName} loaded`)
 
-    const name = eventFileName.split('.').shift()
-
-    events.push({ name, callback: event })
+    events.push(event)
   }
 
   return events

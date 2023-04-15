@@ -6,9 +6,9 @@ import {
   Snowflake,
   EmbedBuilder,
 } from 'discord.js'
-import { IComponent } from '../../models/component'
-import { roles } from './config.json'
-import logger from '../../utils/logger'
+import { IComponent } from '../../../models/component'
+import { roles } from '../config.json'
+import logger from '../../../utils/helpers/logger'
 
 function addRoles(member: GuildMember, roles: Snowflake[]) {
   if (!roles.length) return
@@ -27,7 +27,7 @@ function removeRoles(member: GuildMember, roles: Snowflake[]) {
 
 export default {
   data: new StringSelectMenuBuilder()
-    .setCustomId('reaction-roles-menu-handler')
+    .setCustomId('reaction-roles-menu')
     .setPlaceholder('Select a role to get it!')
     .setOptions(...roles)
     .setMinValues(0)
@@ -41,13 +41,9 @@ export default {
   //   .setMinValues(0)
   //   .setMaxValues(roles.length)
 
-  cooldown: 6000,
-
   async callback(interaction: StringSelectMenuInteraction) {
     const memberRoles = interaction.member.roles as GuildMemberRoleManager
-
     const selectedRoles = interaction.values
-
     const possibleRoles = roles.map((role) => role.value)
 
     const addedRoles = possibleRoles.filter(
@@ -83,15 +79,11 @@ export default {
       .addFields(
         {
           name: 'Added roles:',
-          value: `> ${
-            addedRoles?.map((role) => `<@&${role}>`).join(' | ') || '-'
-          }`,
+          value: `> ${addedRoles?.map((role) => `<@&${role}>`).join(' | ') || '-'}`,
         },
         {
           name: 'Removed roles:',
-          value: `> ${
-            removedRoles?.map((role) => `<@&${role}>`).join(' | ') || '-'
-          }`,
+          value: `> ${removedRoles?.map((role) => `<@&${role}>`).join(' | ') || '-'}`,
         }
       )
 

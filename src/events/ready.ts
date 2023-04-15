@@ -1,9 +1,17 @@
-import { Client } from 'discord.js'
-import logger from '../../src/utils/logger'
-import registerCommands from '../utils/registerCommands'
+import { Client, Events } from 'discord.js'
 
-export default async function (client: Client) {
-  logger.info(`Logged in as ${client.user.tag}`)
+import setupCommands from '../utils/setup/setupCommands'
+import logger from '../utils/helpers/logger'
 
-  await registerCommands(client)
-}
+import { IEvent } from '../models/event'
+
+export default {
+  name: Events.ClientReady,
+  once: true,
+
+  async execute(client: Client) {
+    logger.info(`Logged in as ${client.user.tag}`)
+
+    await setupCommands(client)
+  },
+} as IEvent

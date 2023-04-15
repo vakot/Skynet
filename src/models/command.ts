@@ -7,5 +7,5 @@ export interface ICommand {
   testOnly?: boolean
   devsOnly?: boolean
   forceUpdate?: boolean
-  callback(...args: any): any
+  execute(...args: any): any
 }

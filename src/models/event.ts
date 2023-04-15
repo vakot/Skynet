@@ -1,12 +1,7 @@
-import { Events } from 'discord.js'
-
-export interface IOldEvent {
-  name: string
-  callback: Function
-}
+import { ClientEvents } from 'discord.js'
 
 export interface IEvent {
-  name: Events
+  name: keyof ClientEvents
   once?: boolean
   execute(...args: any): any
 }

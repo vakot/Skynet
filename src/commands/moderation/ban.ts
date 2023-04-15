@@ -2,11 +2,11 @@ import { ChatInputCommandInteraction, SlashCommandBuilder } from 'discord.js'
 import { ICommand } from '../../models/command'
 
 export default {
-  data: new SlashCommandBuilder().setName('ping').setDescription('Replies with "Pong!"'),
+  data: new SlashCommandBuilder().setName('ban').setDescription('Ban a user on server'),
 
-  cooldown: 3000,
+  cooldown: 6000,
 
   async execute(interaction: ChatInputCommandInteraction) {
-    interaction.reply({ content: `:ping_pong: Pong!`, ephemeral: true })
+    interaction.reply({ content: `Bang!`, ephemeral: true })
   },
 } as ICommand

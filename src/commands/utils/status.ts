@@ -1,8 +1,4 @@
-import {
-  ChatInputCommandInteraction,
-  SlashCommandBuilder,
-  EmbedBuilder,
-} from 'discord.js'
+import { ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder } from 'discord.js'
 import { ICommand } from '../../models/command'
 
 export default {
@@ -10,9 +6,9 @@ export default {
     .setName('status')
     .setDescription('Short information about bot status'),
 
-  cooldown: 6000,
+  cooldown: 60000,
 
-  async callback(interaction: ChatInputCommandInteraction) {
+  async execute(interaction: ChatInputCommandInteraction) {
     const executionStart = Date.now()
 
     const { guild, guildId, id, client } = interaction
@@ -39,9 +35,7 @@ export default {
       },
       {
         name: 'Members',
-        value: `Users: \`${
-          guild.memberCount - botsCount
-        }\` | Bots: \`${botsCount}\``,
+        value: `Users: \`${guild.memberCount - botsCount}\` | Bots: \`${botsCount}\``,
         inline: true,
       },
       {
@@ -55,9 +49,7 @@ export default {
       embeds: [
         embed.addFields({
           name: 'Execution time',
-          value: `Bot: \`${Date.now() - executionStart}ms\` | Websocket: \`${
-            client.ws.ping
-          }ms\``,
+          value: `Bot: \`${Date.now() - executionStart}ms\` | Websocket: \`${client.ws.ping}ms\``,
           inline: true,
         }),
       ],

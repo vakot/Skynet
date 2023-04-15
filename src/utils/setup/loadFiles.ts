@@ -11,10 +11,10 @@ import { ICommand } from '../../models/command'
 import { IComponent } from '../../models/component'
 
 export default async function () {
-  const eventsFolder = path.join(__dirname, '..', 'events')
-  const commandsFolder = path.join(__dirname, '..', 'commands')
-  const componentsFolder = path.join(__dirname, '..', 'components')
-  const pluginsFolder = path.join(__dirname, '..', 'plugins')
+  const eventsFolder = path.join(__dirname, '..', '..', 'events')
+  const commandsFolder = path.join(__dirname, '..', '..', 'commands')
+  const componentsFolder = path.join(__dirname, '..', '..', 'components')
+  const pluginsFolder = path.join(__dirname, '..', '..', 'plugins')
 
   // read and save all events
   store.set('events', await getEvents(eventsFolder))

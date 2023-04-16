@@ -2,7 +2,7 @@ import { Events } from 'discord.js'
 
 import logger from '../../utils/helpers/logger'
 
-import { IAction } from '../../models/action'
+import { Action } from '../../models/action'
 
 export default {
   event: Events.Error,
@@ -14,4 +14,4 @@ export default {
   async execute(info) {
     return await logger.warn(info)
   },
-} as IAction
+} as Action

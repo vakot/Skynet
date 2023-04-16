@@ -1,15 +1,15 @@
 import {
-  SlashCommandBuilder,
-  ButtonBuilder,
   ClientEvents,
-  StringSelectMenuBuilder,
-  RoleSelectMenuBuilder,
-  UserSelectMenuBuilder,
-  ChannelSelectMenuBuilder,
-  MentionableSelectMenuBuilder,
+  // SlashCommandBuilder,
+  // ButtonBuilder,
+  // StringSelectMenuBuilder,
+  // RoleSelectMenuBuilder,
+  // UserSelectMenuBuilder,
+  // ChannelSelectMenuBuilder,
+  // MentionableSelectMenuBuilder,
 } from 'discord.js'
 
-export interface IAction {
+export interface Action {
   // data:
   //   | SlashCommandBuilder
   //   | StringSelectMenuBuilder

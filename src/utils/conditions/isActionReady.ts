@@ -3,12 +3,12 @@ import { Interaction } from 'discord.js'
 import logger from '../helpers/logger'
 import isCooldown from './isCooldown'
 
-import { IAction } from '../../models/action'
+import { Action } from '../../models/action'
 
 import { testServer, devs } from '../../../config.json'
 
 export default async function (
-  action: IAction,
+  action: Action,
   interaction: Interaction
 ): Promise<boolean> {
   if (

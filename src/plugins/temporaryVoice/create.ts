@@ -9,7 +9,7 @@ import {
 
 import store from '../../utils/helpers/store'
 
-import { IAction } from '../../models/action'
+import { Action } from '../../models/action'
 
 import { parentId } from './config.json'
 
@@ -59,4 +59,4 @@ export default {
         store.set('temporary-voice', childrens)
       })
   },
-} as IAction
+} as Action

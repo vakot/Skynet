@@ -4,7 +4,7 @@ import fs from 'fs'
 import store from '../helpers/store'
 import logger from '../helpers/logger'
 
-import { IAction } from '../../models/action'
+import { Action } from '../../models/action'
 import getActions from '../fetch/getActions'
 
 export default async function () {
@@ -12,7 +12,7 @@ export default async function () {
   const pluginsFolder = path.join(__dirname, '..', '..', 'plugins')
 
   // read all main actions
-  const actions: IAction[] = await getActions(actionsFolder)
+  const actions: Action[] = await getActions(actionsFolder)
 
   // read all plugins actions
   for (const pluginFolder of fs.readdirSync(pluginsFolder)) {

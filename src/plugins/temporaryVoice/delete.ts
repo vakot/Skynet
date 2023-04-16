@@ -2,7 +2,7 @@ import { Events, VoiceState, Collection, Snowflake } from 'discord.js'
 
 import store from '../../utils/helpers/store'
 
-import { IAction } from '../../models/action'
+import { Action } from '../../models/action'
 
 export default {
   event: Events.VoiceStateUpdate,
@@ -25,4 +25,4 @@ export default {
 
     return await oldState.channel.delete()
   },
-} as IAction
+} as Action

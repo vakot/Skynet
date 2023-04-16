@@ -5,13 +5,13 @@ import isCommandsEqual from '../conditions/isCommandsEqual'
 import logger from '../helpers/logger'
 import store from '../helpers/store'
 
-import { IAction } from '../../models/action'
+import { Action } from '../../models/action'
 
 import { testServer } from '../../../config.json'
 
 export default async function (client: Client) {
   try {
-    const localCommands: IAction[] = store
+    const localCommands: Action[] = store
       .get('actions')
       .filter((action) => action.data?.name)
 

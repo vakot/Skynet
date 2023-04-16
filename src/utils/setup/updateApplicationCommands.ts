@@ -1,7 +1,7 @@
 import { Client } from 'discord.js'
 
 import { getApplicationCommands } from '../fetch/getApplicationCommands'
-import { isCommandsEqual } from '../conditions/isCommandsEqual'
+import { isCommandsEqual } from '../helpers/isCommandsEqual'
 import store from '../helpers/store'
 import logger from '../helpers/logger'
 

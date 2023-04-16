@@ -8,11 +8,12 @@ import {
 
 import { nanoid } from 'nanoid'
 
-import logger from '../utils/helpers/logger'
+import { validateInteraction } from '../utils/helpers/validateInteraction'
+import responder from '../utils/helpers/responder'
+
+import store from '../utils/helpers/store'
 
 import { Action } from '../models/action'
-import { isActionReady } from '../utils/conditions/isActionReady'
-import store from '../utils/helpers/store'
 
 export default {
   id: nanoid(),
@@ -30,15 +31,20 @@ export default {
     ),
 
   event: Events.InteractionCreate,
-  cooldown: 3000,
+  cooldown: 6000,
 
-  async init(interaction) {
-    if (
-      interaction.isChatInputCommand() &&
-      interaction.commandName == this.data.name &&
-      (await isActionReady(this, interaction))
-    )
-      return this.execute(interaction).catch(logger.error)
+  async init(interaction: ChatInputCommandInteraction) {
+    if (interaction.commandName === this.data.name) {
+      const { user, guildId } = interaction
+
+      const invalidations = await validateInteraction(this, user, guildId)
+
+      if (invalidations.length) {
+        return await responder.deny.reply(interaction, invalidations)
+      } else {
+        return await this.execute(interaction)
+      }
+    }
   },
 
   async execute(interaction: ChatInputCommandInteraction) {

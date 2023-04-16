@@ -14,21 +14,21 @@ export async function setupEvents(client: Client) {
     events.add(action.event)
   })
 
-  // run all client.on event's
-  events.forEach(async (event) => {
+  for (const event of events) {
+    // run all client.on event's
     client.on(event, (...args) => {
       actions
         .filter((action) => !action.once && action.event === event)
         .map((action) => action.init(...args).catch(logger.error))
     })
-  })
 
-  // run all client.once event's
-  events.forEach(async (event) => {
+    // run all client.once event's
     client.once(event, (...args) => {
       actions
         .filter((action) => action.once && action.event === event)
         .map((action) => action.init(...args).catch(logger.error))
     })
-  })
+
+    logger.debug(`Listener <${event}> registered`)
+  }
 }

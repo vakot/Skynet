@@ -1,13 +1,13 @@
 import {
   Events,
-  Interaction,
   StringSelectMenuBuilder,
   StringSelectMenuInteraction,
 } from 'discord.js'
 
 import { nanoid } from 'nanoid'
 
-import { isActionReady } from '../../utils/conditions/isActionReady'
+import { validateInteraction } from '../../utils/helpers/validateInteraction'
+import responder from '../../utils/helpers/responder'
 
 import { Action } from '../../models/action'
 
@@ -28,13 +28,17 @@ export default {
   testOnly: true,
   devsOnly: true,
 
-  async init(interaction: Interaction) {
-    if (
-      interaction.isStringSelectMenu() &&
-      interaction.customId === this.data.data.custom_id &&
-      (await isActionReady(this, interaction))
-    ) {
-      return await this.execute(interaction)
+  async init(interaction: StringSelectMenuInteraction) {
+    if (interaction.customId === this.data.data.custom_id) {
+      const { user, guildId } = interaction
+
+      const invalidations = await validateInteraction(this, user, guildId)
+
+      if (invalidations.length) {
+        return await responder.deny.reply(interaction, invalidations)
+      } else {
+        return await this.execute(interaction)
+      }
     }
   },
 

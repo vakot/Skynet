@@ -30,7 +30,7 @@ const logger = {
     console.info(consoleColor.FgWhite + `${getTimestamp()} - ${message}`)
   },
   debug(message: any) {
-    console.debug(consoleColor.FgBlue + `${getTimestamp()} - ${message}`)
+    console.debug(consoleColor.FgCyan + `${getTimestamp()} - ${message}`)
   },
 }
 

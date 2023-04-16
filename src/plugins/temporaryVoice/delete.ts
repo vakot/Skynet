@@ -21,7 +21,7 @@ export default {
       !!newState.channelId &&
       oldState.channelId !== newState.channelId
 
-    if (isLeft || isMove) return this.execute(oldState, newState)
+    if (isLeft || isMove) return await this.execute(oldState, newState)
   },
 
   async execute(oldState: VoiceState, newState: VoiceState) {

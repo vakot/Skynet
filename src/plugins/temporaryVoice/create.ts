@@ -12,10 +12,12 @@ import { nanoid } from 'nanoid'
 import store from '../../utils/helpers/store'
 import logger from '../../utils/helpers/logger'
 
+import { validateInteraction } from '../../utils/helpers/validateInteraction'
+import responder from '../../utils/helpers/responder'
+
 import { Action } from '../../models/action'
 
 import { parentId } from './config.json'
-import { getCooldown } from '../../utils/fetch/getCooldown'
 
 export default {
   id: nanoid(),
@@ -25,33 +27,19 @@ export default {
   cooldown: 20000,
 
   async init(oldState: VoiceState, newState: VoiceState) {
-    const isParent: boolean = newState.channelId === parentId
+    if (newState.channelId === parentId) {
+      const invalidations = await validateInteraction(
+        this,
+        newState.member.user,
+        newState.channelId
+      )
 
-    const isJoined: boolean = !oldState.channelId && !!newState.channelId
-    const isMove: boolean =
-      !!oldState.channelId &&
-      !!newState.channelId &&
-      oldState.channelId !== newState.channelId
-
-    if ((isJoined || isMove) && isParent) {
-      const cooldown = getCooldown(this, newState.member.user)
-      const now = Date.now()
-
-      // custom cooldown handle
-      if (cooldown > now) {
-        const { member } = newState
-
-        logger.warn(`${member.user.tag} create channels to often`)
-
-        await member.voice.disconnect()
-
-        // dm to user and delete message after cooldown
-        return await member.user
-          .send(`Cooldown <t:${Math.round(cooldown / 1000)}:R>`)
-          .then((message) => setTimeout(() => message.delete(), cooldown - now))
+      if (invalidations.length) {
+        await newState.member.voice.disconnect()
+        return await responder.deny.dm(newState.member.user, invalidations)
+      } else {
+        return await this.execute(oldState, newState)
       }
-
-      return this.execute(oldState, newState)
     }
   },
 

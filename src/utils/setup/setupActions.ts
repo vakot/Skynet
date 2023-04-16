@@ -7,7 +7,7 @@ import logger from '../helpers/logger'
 
 import { Action } from '../../models/action'
 
-export async function loadActions() {
+export async function setupActions() {
   const actionsFolder = path.join(__dirname, '..', '..', 'actions')
   const pluginsFolder = path.join(__dirname, '..', '..', 'plugins')
 

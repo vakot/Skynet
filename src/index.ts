@@ -3,7 +3,7 @@ require('dotenv').config()
 import { Client, GatewayIntentBits } from 'discord.js'
 
 import { setupEvents } from './utils/setup/setupEvents'
-import { loadActions } from './utils/setup/loadActions'
+import { setupActions } from './utils/setup/setupActions'
 
 import logger from './utils/helpers/logger'
 
@@ -22,7 +22,7 @@ const client = new Client({
   logger.info('[SYSTEM INITIALIZATION]')
   logger.info('RUNNING SKYSOFT KERNEL 4.92.384.42')
 
-  await loadActions().catch(logger.error)
+  await setupActions().catch(logger.error)
 
   await setupEvents(client).catch(logger.error)
 

@@ -1,13 +1,10 @@
 import {
   ChatInputCommandInteraction,
   Events,
-  Interaction,
   SlashCommandBuilder,
 } from 'discord.js'
 
 import { nanoid } from 'nanoid'
-
-import { isActionReady } from '../utils/conditions/isActionReady'
 
 import { Action } from '../models/action'
 
@@ -19,14 +16,9 @@ export default {
     .setDescription('Replies with "Pong!"'),
 
   event: Events.InteractionCreate,
-  cooldown: 3000,
 
-  async init(interaction: Interaction) {
-    if (
-      interaction.isChatInputCommand() &&
-      interaction.commandName === this.data.name &&
-      (await isActionReady(this, interaction))
-    ) {
+  async init(interaction: ChatInputCommandInteraction) {
+    if (interaction.commandName === this.data.name) {
       return await this.execute(interaction)
     }
   },

@@ -6,12 +6,10 @@ import {
   Snowflake,
   EmbedBuilder,
   Events,
-  Interaction,
 } from 'discord.js'
 
 import { nanoid } from 'nanoid'
 
-import { isActionReady } from '../../../utils/conditions/isActionReady'
 import logger from '../../../utils/helpers/logger'
 
 import { Action } from '../../../models/action'
@@ -53,12 +51,8 @@ export default {
 
   event: Events.InteractionCreate,
 
-  async init(interaction: Interaction) {
-    if (
-      interaction.isStringSelectMenu() &&
-      interaction.customId === this.data.data.custom_id &&
-      (await isActionReady(this, interaction))
-    ) {
+  async init(interaction: StringSelectMenuInteraction) {
+    if (interaction.customId === this.data.data.custom_id) {
       return await this.execute(interaction)
     }
   },

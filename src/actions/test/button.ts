@@ -3,12 +3,12 @@ import {
   ButtonInteraction,
   ButtonStyle,
   Events,
-  Interaction,
 } from 'discord.js'
 
 import { nanoid } from 'nanoid'
 
-import { isActionReady } from '../../utils/conditions/isActionReady'
+import { validateInteraction } from '../../utils/helpers/validateInteraction'
+import responder from '../../utils/helpers/responder'
 
 import { Action } from '../../models/action'
 
@@ -27,13 +27,17 @@ export default {
 
   cooldown: 10000,
 
-  async init(interaction: Interaction) {
-    if (
-      interaction.isButton() &&
-      interaction.customId === this.data.data.custom_id &&
-      (await isActionReady(this, interaction))
-    ) {
-      return await this.execute(interaction)
+  async init(interaction: ButtonInteraction) {
+    if (interaction.customId === this.data.data.custom_id) {
+      const { user, guildId } = interaction
+
+      const invalidations = await validateInteraction(this, user, guildId)
+
+      if (invalidations.length) {
+        return await responder.deny.reply(interaction, invalidations)
+      } else {
+        return await this.execute(interaction)
+      }
     }
   },
 

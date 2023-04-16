@@ -1,14 +1,14 @@
 import {
   ChatInputCommandInteraction,
   Events,
-  Interaction,
   SlashCommandBuilder,
   PermissionFlagsBits,
 } from 'discord.js'
 
 import { nanoid } from 'nanoid'
 
-import { isActionReady } from '../../utils/conditions/isActionReady'
+import { validateInteraction } from '../../utils/helpers/validateInteraction'
+import responder from '../../utils/helpers/responder'
 
 import { Action } from '../../models/action'
 
@@ -27,15 +27,19 @@ export default {
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages),
 
   event: Events.InteractionCreate,
-  cooldown: 9000,
+  cooldown: 10000,
 
-  async init(interaction: Interaction) {
-    if (
-      interaction.isChatInputCommand() &&
-      interaction.commandName === this.data.name &&
-      (await isActionReady(this, interaction))
-    ) {
-      return await this.execute(interaction)
+  async init(interaction: ChatInputCommandInteraction) {
+    if (interaction.commandName === this.data.name) {
+      const { user, guildId } = interaction
+
+      const invalidations = await validateInteraction(this, user, guildId)
+
+      if (invalidations.length) {
+        return await responder.deny.reply(interaction, invalidations)
+      } else {
+        return await this.execute(interaction)
+      }
     }
   },
 

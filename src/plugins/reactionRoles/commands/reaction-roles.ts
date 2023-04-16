@@ -1,7 +1,6 @@
 import {
   ChatInputCommandInteraction,
   Events,
-  Interaction,
   SlashCommandBuilder,
   PermissionFlagsBits,
   ActionRowBuilder,
@@ -10,7 +9,8 @@ import {
 
 import { nanoid } from 'nanoid'
 
-import { isActionReady } from '../../../utils/conditions/isActionReady'
+import { validateInteraction } from '../../../utils/helpers/validateInteraction'
+import responder from '../../../utils/helpers/responder'
 
 import { Action } from '../../../models/action'
 
@@ -30,13 +30,19 @@ export default {
   event: Events.InteractionCreate,
   cooldown: 60000,
 
-  async init(interaction: Interaction) {
-    if (
-      interaction.isChatInputCommand() &&
-      interaction.commandName === this.data.name &&
-      (await isActionReady(this, interaction))
-    ) {
-      return await this.execute(interaction)
+  async init(interaction: ChatInputCommandInteraction) {
+    if (interaction.commandName === this.data.name) {
+      const invalidations = await validateInteraction(
+        this,
+        interaction.user,
+        interaction.channelId
+      )
+
+      if (invalidations.length) {
+        return await responder.deny.reply(interaction, invalidations)
+      } else {
+        return await this.execute(interaction)
+      }
     }
   },
 

@@ -17,7 +17,7 @@ export async function getActions(path: string): Promise<Action[]> {
     const action: Action = (await import(actionPath))?.default
 
     if (!action?.execute) {
-      logger.warn(`File ${actionFileName} is unresolvable`)
+      logger.warn(`File ${actionFileName} unresolvable`)
       continue
     }
 

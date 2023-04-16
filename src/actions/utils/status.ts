@@ -1,14 +1,14 @@
 import {
   ChatInputCommandInteraction,
   Events,
-  Interaction,
   SlashCommandBuilder,
   EmbedBuilder,
 } from 'discord.js'
 
 import { nanoid } from 'nanoid'
 
-import { isActionReady } from '../../utils/conditions/isActionReady'
+import { validateInteraction } from '../../utils/helpers/validateInteraction'
+import responder from '../../utils/helpers/responder'
 
 import { Action } from '../../models/action'
 
@@ -20,17 +20,21 @@ export default {
     .setDescription('Short information about bot status'),
 
   event: Events.InteractionCreate,
-  cooldown: 3000,
+  cooldown: 10000,
 
   devsOnly: true,
 
-  async init(interaction: Interaction) {
-    if (
-      interaction.isChatInputCommand() &&
-      interaction.commandName === this.data.name &&
-      (await isActionReady(this, interaction))
-    ) {
-      return await this.execute(interaction)
+  async init(interaction: ChatInputCommandInteraction) {
+    if (interaction.commandName === this.data.name) {
+      const { user, guildId } = interaction
+
+      const invalidations = await validateInteraction(this, user, guildId)
+
+      if (invalidations.length) {
+        return await responder.deny.reply(interaction, invalidations)
+      } else {
+        return await this.execute(interaction)
+      }
     }
   },
 

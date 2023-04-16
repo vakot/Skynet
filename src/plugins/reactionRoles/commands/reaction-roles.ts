@@ -8,8 +8,8 @@ import {
   StringSelectMenuBuilder,
 } from 'discord.js'
 
-import { IAction } from '../../../models/action'
-import isActionReady from '../../../utils/conditions/isActionReady'
+import { isActionReady } from '../../../utils/conditions/isActionReady'
+import { Action } from '../../../models/action'
 
 import menu from '../components/reaction-roles-menu'
 
@@ -48,4 +48,4 @@ export default {
       })
     }
   },
-} as IAction
+} as Action

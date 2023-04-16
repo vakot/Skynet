@@ -3,7 +3,7 @@ import path from 'path'
 
 import logger from './logger'
 
-export default function* throughDirectory(directoryPath: string): Generator<string> {
+export function* throughDirectory(directoryPath: string): Generator<string> {
   try {
     const files = fs.readdirSync(directoryPath)
 

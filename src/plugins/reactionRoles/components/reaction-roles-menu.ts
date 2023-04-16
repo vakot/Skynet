@@ -9,10 +9,10 @@ import {
   Interaction,
 } from 'discord.js'
 
+import { isActionReady } from '../../../utils/conditions/isActionReady'
 import logger from '../../../utils/helpers/logger'
-import isActionReady from '../../../utils/conditions/isActionReady'
 
-import { IAction } from '../../../models/action'
+import { Action } from '../../../models/action'
 
 import { roles } from '../config.json'
 
@@ -114,4 +114,4 @@ export default {
       ephemeral: true,
     })
   },
-} as IAction
+} as Action

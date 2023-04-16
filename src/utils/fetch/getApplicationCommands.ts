@@ -1,6 +1,6 @@
 import { Client } from 'discord.js'
 
-export default async function (client: Client, guildId?: string) {
+export async function getApplicationCommands(client: Client, guildId?: string) {
   let applicationCommands
 
   if (guildId) {

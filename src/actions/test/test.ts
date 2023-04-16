@@ -8,9 +8,9 @@ import {
   StringSelectMenuBuilder,
 } from 'discord.js'
 
-import isActionReady from '../../utils/conditions/isActionReady'
+import { isActionReady } from '../../utils/conditions/isActionReady'
 
-import { IAction } from '../../models/action'
+import { Action } from '../../models/action'
 
 import menu from './select-menu'
 import button from './button'
@@ -67,4 +67,4 @@ export default {
       })
     }
   },
-} as IAction
+} as Action

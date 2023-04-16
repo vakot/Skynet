@@ -1,9 +1,9 @@
 import { Client, Events } from 'discord.js'
 
-import updateApplicationCommands from '../../utils/setup/updateApplicationCommands'
+import { updateApplicationCommands } from '../../utils/setup/updateApplicationCommands'
 import logger from '../../utils/helpers/logger'
 
-import { IAction } from '../../models/action'
+import { Action } from '../../models/action'
 
 export default {
   event: Events.ClientReady,
@@ -18,4 +18,4 @@ export default {
 
     return await updateApplicationCommands(client)
   },
-} as IAction
+} as Action

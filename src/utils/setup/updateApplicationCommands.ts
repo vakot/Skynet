@@ -1,17 +1,17 @@
 import { Client } from 'discord.js'
 
-import getApplicationCommands from '../fetch/getApplicationCommands'
-import isCommandsEqual from '../conditions/isCommandsEqual'
-import logger from '../helpers/logger'
+import { getApplicationCommands } from '../fetch/getApplicationCommands'
+import { isCommandsEqual } from '../conditions/isCommandsEqual'
 import store from '../helpers/store'
+import logger from '../helpers/logger'
 
-import { IAction } from '../../models/action'
+import { Action } from '../../models/action'
 
 import { testServer } from '../../../config.json'
 
-export default async function (client: Client) {
+export async function updateApplicationCommands(client: Client) {
   try {
-    const localCommands: IAction[] = store
+    const localCommands: Action[] = store
       .get('actions')
       .filter((action) => action.data?.name)
 
@@ -37,7 +37,7 @@ export default async function (client: Client) {
         continue
       }
 
-      if (!isCommandsEqual(data, existingCommand) || forceUpdate) {
+      if (!isCommandsEqual(data.toJSON(), existingCommand) || forceUpdate) {
         await applicationCommands.edit(existingCommand.id, data)
         logger.info(`Command ${data.name} updated`)
         continue

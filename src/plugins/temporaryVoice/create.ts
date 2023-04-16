@@ -5,8 +5,14 @@ import {
   PermissionsBitField,
   Collection,
   Snowflake,
+  Collection,
+  Snowflake,
 } from 'discord.js'
 
+import store from '../../utils/helpers/store'
+import logger from '../../utils/helpers/logger'
+
+import { Action } from '../../models/action'
 import store from '../../utils/helpers/store'
 import logger from '../../utils/helpers/logger'
 
@@ -42,6 +48,7 @@ export default {
     if (childrens && childrens.has(member.user.id)) return
 
     return await guild.channels
+    return await guild.channels
       .create({
         name: `${member.user.username}'s Room`,
         type: ChannelType.GuildVoice,
@@ -68,6 +75,13 @@ export default {
         store.set('temporary-voice', childrens)
 
         logger.info(`Channel ${channel.name} created`)
+
+        childrens.set(member.user.id, channel.id)
+
+        store.set('temporary-voice', childrens)
+
+        logger.info(`Channel ${channel.name} created`)
       })
   },
+} as Action
 } as Action

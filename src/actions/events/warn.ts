@@ -1,10 +1,14 @@
 import { Events } from 'discord.js'
 
+import { nanoid } from 'nanoid'
+
 import logger from '../../utils/helpers/logger'
 
 import { Action } from '../../models/action'
 
 export default {
+  id: nanoid(),
+
   event: Events.Warn,
 
   async init(info) {

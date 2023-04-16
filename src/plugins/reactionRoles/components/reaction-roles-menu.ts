@@ -9,6 +9,8 @@ import {
   Interaction,
 } from 'discord.js'
 
+import { nanoid } from 'nanoid'
+
 import { isActionReady } from '../../../utils/conditions/isActionReady'
 import logger from '../../../utils/helpers/logger'
 
@@ -32,6 +34,8 @@ function removeRoles(member: GuildMember, roles: Snowflake[]) {
 }
 
 export default {
+  id: nanoid(),
+
   data: new StringSelectMenuBuilder()
     .setCustomId('reaction-roles-menu')
     .setPlaceholder('Select a role to get it!')

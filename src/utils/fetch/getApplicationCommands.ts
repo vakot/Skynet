@@ -11,5 +11,6 @@ export async function getApplicationCommands(client: Client, guildId?: string) {
   }
 
   await applicationCommands?.fetch()
+
   return applicationCommands
 }

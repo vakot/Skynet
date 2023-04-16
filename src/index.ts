@@ -1,7 +1,10 @@
 require('dotenv').config()
+
 import { Client, GatewayIntentBits } from 'discord.js'
+
 import { setupEvents } from './utils/setup/setupEvents'
 import { loadActions } from './utils/setup/loadActions'
+
 import logger from './utils/helpers/logger'
 
 const client = new Client({

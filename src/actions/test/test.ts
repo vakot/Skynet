@@ -8,6 +8,8 @@ import {
   StringSelectMenuBuilder,
 } from 'discord.js'
 
+import { nanoid } from 'nanoid'
+
 import { isActionReady } from '../../utils/conditions/isActionReady'
 
 import { Action } from '../../models/action'
@@ -16,6 +18,8 @@ import menu from './select-menu'
 import button from './button'
 
 export default {
+  id: nanoid(),
+
   data: new SlashCommandBuilder()
     .setName('test')
     .setDescription('Test commands')
@@ -36,7 +40,6 @@ export default {
   devsOnly: true,
 
   async init(interaction: Interaction) {
-    // Condition that describe THIS interaction as a unique action
     if (
       interaction.isChatInputCommand() &&
       interaction.commandName === this.data.name &&

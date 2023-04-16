@@ -6,6 +6,8 @@ import {
   Collection,
 } from 'discord.js'
 
+import { nanoid } from 'nanoid'
+
 import logger from '../utils/helpers/logger'
 
 import { Action } from '../models/action'
@@ -13,6 +15,8 @@ import { isActionReady } from '../utils/conditions/isActionReady'
 import store from '../utils/helpers/store'
 
 export default {
+  id: nanoid(),
+
   data: new SlashCommandBuilder()
     .setName('help')
     .setDescription("Get's information about a command")

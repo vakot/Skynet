@@ -6,11 +6,15 @@ import {
   EmbedBuilder,
 } from 'discord.js'
 
+import { nanoid } from 'nanoid'
+
 import { isActionReady } from '../../utils/conditions/isActionReady'
 
 import { Action } from '../../models/action'
 
 export default {
+  id: nanoid(),
+
   data: new SlashCommandBuilder()
     .setName('status')
     .setDescription('Short information about bot status'),

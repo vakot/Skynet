@@ -8,6 +8,8 @@ import {
   StringSelectMenuBuilder,
 } from 'discord.js'
 
+import { nanoid } from 'nanoid'
+
 import { isActionReady } from '../../../utils/conditions/isActionReady'
 
 import { Action } from '../../../models/action'
@@ -15,6 +17,8 @@ import { Action } from '../../../models/action'
 import menu from '../components/reaction-roles-menu'
 
 export default {
+  id: nanoid(),
+
   data: new SlashCommandBuilder()
     .setName('reaction-roles')
     .setDescription('Reaction roles plugin commands')

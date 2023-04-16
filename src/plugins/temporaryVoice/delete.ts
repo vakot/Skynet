@@ -1,5 +1,7 @@
 import { Events, VoiceState, Collection, Snowflake } from 'discord.js'
 
+import { nanoid } from 'nanoid'
+
 import store from '../../utils/helpers/store'
 import logger from '../../utils/helpers/logger'
 
@@ -8,6 +10,8 @@ import { Action } from '../../models/action'
 import { parentId } from './config.json'
 
 export default {
+  id: nanoid(),
+
   event: Events.VoiceStateUpdate,
 
   async init(oldState: VoiceState, newState: VoiceState) {

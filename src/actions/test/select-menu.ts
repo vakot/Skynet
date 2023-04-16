@@ -5,11 +5,15 @@ import {
   StringSelectMenuInteraction,
 } from 'discord.js'
 
+import { nanoid } from 'nanoid'
+
 import { isActionReady } from '../../utils/conditions/isActionReady'
 
 import { Action } from '../../models/action'
 
 export default {
+  id: nanoid(),
+
   data: new StringSelectMenuBuilder()
     .setCustomId('test-select-menu')
     .setPlaceholder('You can choose a value')

@@ -1,6 +1,6 @@
 import { Interaction } from 'discord.js'
 
-import { isCooldown } from './isCooldown'
+import { getCooldown } from '../fetch/getCooldown'
 import logger from '../helpers/logger'
 
 import { Action } from '../../models/action'
@@ -27,14 +27,7 @@ export async function isActionReady(
       `Action ${actionName} execution called by ${interaction.user.tag}`
     )
 
-    if (!action) {
-      await interaction.reply({
-        content: 'No action matching your request detected',
-        ephemeral: true,
-      })
-      return false
-    }
-
+    // test only
     if (action.testOnly && interaction.guildId !== testServer) {
       await interaction.reply({
         content: 'This action availible only on test server',
@@ -46,6 +39,7 @@ export async function isActionReady(
       return false
     }
 
+    // devs only
     if (action.devsOnly && !devs.includes(interaction.member.user.id)) {
       await interaction.reply({
         content: 'This action availible only for developers',
@@ -57,11 +51,23 @@ export async function isActionReady(
       return false
     }
 
-    if (isCooldown(action, interaction)) {
+    // in cooldown
+    const cooldown = getCooldown(action, interaction.user)
+    const now = Date.now()
+
+    if (cooldown > now) {
+      await interaction.reply({
+        content: `Cooldown <t:${Math.round(cooldown / 1000)}:R>`,
+        ephemeral: true,
+      })
+
+      setTimeout(() => interaction.deleteReply(), cooldown - now)
+
       logger.warn(`${interaction.user.tag} calls action to often`)
       return false
     }
 
+    // ready
     return true
   } catch (error) {
     logger.error(error)

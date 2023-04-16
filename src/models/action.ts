@@ -18,7 +18,7 @@ export interface Action {
   //   | ChannelSelectMenuBuilder
   //   | MentionableSelectMenuBuilder
   //   | ButtonBuilder
-
+  id: string
   data?: any
   event: keyof ClientEvents
   once?: boolean

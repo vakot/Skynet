@@ -5,11 +5,15 @@ import {
   SlashCommandBuilder,
 } from 'discord.js'
 
+import { nanoid } from 'nanoid'
+
 import { isActionReady } from '../utils/conditions/isActionReady'
 
 import { Action } from '../models/action'
 
 export default {
+  id: nanoid(),
+
   data: new SlashCommandBuilder()
     .setName('ping')
     .setDescription('Replies with "Pong!"'),

@@ -8,6 +8,7 @@ import {
 } from 'discord.js'
 
 import store from '../../utils/helpers/store'
+import logger from '../../utils/helpers/logger'
 
 import { Action } from '../../models/action'
 
@@ -24,21 +25,22 @@ export default {
   },
 
   async execute(oldState: VoiceState, newState: VoiceState) {
+    const { guild, member } = newState
     if (!store.has('temporary-voice'))
       store.set('temporary-voice', new Collection<Snowflake, string>())
 
     const childrens: Collection<Snowflake, string> =
       store.get('temporary-voice')
 
-    if (childrens && childrens.has(newState.member.user.id)) return
+    if (childrens && childrens.has(member.user.id)) return
 
-    return await newState.guild.channels
+    return await guild.channels
       .create({
-        name: `${newState.member.user.username}'s Room`,
+        name: `${member.user.username}'s Room`,
         type: ChannelType.GuildVoice,
         permissionOverwrites: [
           {
-            id: newState.member.user.id,
+            id: member.user.id,
             allow: [
               PermissionsBitField.Flags.ViewChannel,
               PermissionsBitField.Flags.ManageChannels,
@@ -52,11 +54,13 @@ export default {
         ],
       })
       .then((channel) => {
-        newState.member.voice.setChannel(channel)
+        member.voice.setChannel(channel)
 
-        childrens.set(newState.member.user.id, channel.id)
+        childrens.set(member.user.id, channel.id)
 
         store.set('temporary-voice', childrens)
+
+        logger.info(`Channel ${channel.name} created`)
       })
   },
 } as Action

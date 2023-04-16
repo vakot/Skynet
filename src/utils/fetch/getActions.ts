@@ -1,10 +1,10 @@
 import throughDirectory from '../helpers/throughDirectory'
 import logger from '../helpers/logger'
 
-import { IAction } from '../../models/action'
+import { Action } from '../../models/action'
 
-export default async function (path: string): Promise<IAction[]> {
-  const actions: IAction[] = []
+export default async function (path: string): Promise<Action[]> {
+  const actions: Action[] = []
 
   for (const actionPath of throughDirectory(path)) {
     const actionFileName = actionPath.replace(/\\/g, '/').split('/').pop()
@@ -14,7 +14,7 @@ export default async function (path: string): Promise<IAction[]> {
       continue
     }
 
-    const action: IAction = (await import(actionPath))?.default
+    const action: Action = (await import(actionPath))?.default
 
     if (!action?.execute) {
       logger.warn(`File ${actionFileName} is unresolvable`)

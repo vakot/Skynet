@@ -3,10 +3,10 @@ import { Client, ClientEvents } from 'discord.js'
 import store from '../helpers/store'
 import logger from '../helpers/logger'
 
-import { IAction } from '../../models/action'
+import { Action } from '../../models/action'
 
 export default async function (client: Client) {
-  const actions: IAction[] = store.get('actions')
+  const actions: Action[] = store.get('actions')
   const events: Set<keyof ClientEvents> = new Set()
 
   // set all event's

@@ -1,9 +1,9 @@
 import { Collection, Interaction, Snowflake, User } from 'discord.js'
-import { IAction } from '../../models/action'
+import { Action } from '../../models/action'
 
 const cooldowns = new Collection<string, Collection<Snowflake, number>>()
 
-export default function (action: IAction, interaction: Interaction): Boolean {
+export default function (action: Action, interaction: Interaction): Boolean {
   if (
     !interaction.isChatInputCommand() &&
     !interaction.isButton() &&

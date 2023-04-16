@@ -7,7 +7,7 @@ import {
 
 import isActionReady from '../../utils/conditions/isActionReady'
 
-import { IAction } from '../../models/action'
+import { Action } from '../../models/action'
 
 export default {
   data: new StringSelectMenuBuilder()
@@ -40,4 +40,4 @@ export default {
       ephemeral: true,
     })
   },
-} as IAction
+} as Action

@@ -3,27 +3,38 @@ import {
   VoiceState,
   ChannelType,
   PermissionsBitField,
+  Collection,
+  Snowflake,
 } from 'discord.js'
 
-import { IAction } from '../../models/action'
+import store from '../../utils/helpers/store'
+import logger from '../../utils/helpers/logger'
+
+import { Action } from '../../models/action'
 
 import { parentId } from './config.json'
-
-export const ActiveChannels: { userId: string; channelId: string }[] = []
 
 export default {
   event: Events.VoiceStateUpdate,
 
   async init(oldState: VoiceState, newState: VoiceState) {
-    if (newState.channel.id == parentId) return this.execute(oldState, newState)
+    const isJoined: boolean = !oldState.channelId && !!newState.channelId
+    const isParent: boolean = newState.channelId === parentId
+
+    if (isJoined && isParent) return this.execute(oldState, newState)
   },
 
   async execute(oldState: VoiceState, newState: VoiceState) {
     const { guild, member } = newState
+    if (!store.has('temporary-voice'))
+      store.set('temporary-voice', new Collection<Snowflake, string>())
 
-    if (ActiveChannels.find(({ userId }) => member.user.id === userId)) return
+    const childrens: Collection<Snowflake, string> =
+      store.get('temporary-voice')
 
-    return guild.channels
+    if (childrens && childrens.has(member.user.id)) return
+
+    return await guild.channels
       .create({
         name: `${member.user.username}'s Room`,
         type: ChannelType.GuildVoice,
@@ -44,7 +55,12 @@ export default {
       })
       .then((channel) => {
         member.voice.setChannel(channel)
-        ActiveChannels.push({ userId: member.user.id, channelId: channel.id })
+
+        childrens.set(member.user.id, channel.id)
+
+        store.set('temporary-voice', childrens)
+
+        logger.info(`Channel ${channel.name} created`)
       })
   },
-} as IAction
+} as Action

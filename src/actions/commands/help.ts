@@ -3,7 +3,6 @@ import {
   Events,
   SlashCommandBuilder,
   EmbedBuilder,
-  Collection,
 } from 'discord.js'
 
 import { nanoid } from 'nanoid'
@@ -52,7 +51,7 @@ export default {
   },
 
   async execute(interaction: ChatInputCommandInteraction) {
-    const commands = store
+    const commands = await store
       .get('actions')
       .filter((action) => action.data?.name)
       .map((commandAction) => commandAction.data)
@@ -67,16 +66,16 @@ export default {
       const command = commands.find((cmd) => cmd.name === commandOption)
 
       if (command) {
-        CommandExistEmbed(command, embed)
+        await CommandExistEmbed(command, embed)
       } else {
-        CommandNotExistEmbed(commandOption, embed)
+        await CommandNotExistEmbed(commandOption, embed)
       }
     } else {
       embed
         .setTitle('Overview')
         .setDescription('List of all supported commands')
 
-      CommandsEmbed(commands, embed)
+      await CommandsEmbed(commands, embed)
     }
 
     return await interaction.reply({ embeds: [embed.setTimestamp()] })
@@ -86,7 +85,7 @@ export default {
 function CommandNotExistEmbed(command: string, embed: EmbedBuilder) {
   embed.addFields({
     name: `**\`/${command}\`**`,
-    value: '> I dont kwon this command',
+    value: ">>> I don't know this command",
   })
 }
 
@@ -100,24 +99,24 @@ function CommandExistEmbed(command: any, embed: EmbedBuilder) {
   embed.addFields(
     {
       name: '**Usage**',
-      value: `> \`/${name}${optionSting}\``,
+      value: `>>> \`/${name}${optionSting}\``,
     },
     {
       name: '**Description**',
-      value: `> ${description}`,
+      value: `>>> ${description}`,
     }
   )
 }
 
-function CommandsEmbed(commands: Collection<string, any>, embed: EmbedBuilder) {
-  const missing = commands.size % 3
+function CommandsEmbed(commands: any[], embed: EmbedBuilder) {
+  const missing = commands.length % 3
 
   commands.forEach((command) => {
     const { name, description } = command
 
     embed.addFields({
       name: `**\`/${name}\`**`,
-      value: `> ${description}`,
+      value: `>>> ${description}`,
       inline: true,
     })
   })

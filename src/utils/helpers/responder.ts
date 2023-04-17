@@ -51,7 +51,7 @@ function DenyEmbed(invalidations: Collection<string, string[]>): EmbedBuilder {
 
     embed.addFields({
       name: key,
-      value: value.map((reason) => `> ${reason}`).join('\n'),
+      value: value.map((reason) => `>>> ${reason}`).join('\n'),
     })
   }
 

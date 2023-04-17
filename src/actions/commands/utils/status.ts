@@ -43,8 +43,6 @@ export default {
   },
 
   async execute(interaction: ChatInputCommandInteraction) {
-    const executionStart = Date.now()
-
     const { guild, guildId, id } = interaction
 
     const botsCount = (await guild.fetchIntegrations()).filter(
@@ -81,14 +79,16 @@ export default {
       }
     )
 
-    const wsPing = interaction.client.ws.ping
-    const botPing = Date.now() - executionStart
+    const reply = await interaction.deferReply({ fetchReply: true })
 
-    return await interaction.reply({
+    return await interaction.editReply({
+      content: '',
       embeds: [
         embed.addFields({
           name: 'Execution time',
-          value: `Bot: \`${botPing}ms\` | Websocket: \`${wsPing}ms\``,
+          value: `Bot: \`${
+            Date.now() - reply.createdTimestamp
+          }ms\` | Websocket: \`${interaction.client.ws.ping}ms\``,
           inline: true,
         }),
       ],

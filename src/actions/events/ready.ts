@@ -26,7 +26,7 @@ export default {
         type: ActivityType.Watching,
         url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
       }))()
-      .then(() => logger.log('Status updated'))
+      .then(() => logger.info('Status updated'))
       .catch(logger.error)
 
     // console.log(client.user.presence.)

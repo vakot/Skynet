@@ -1,4 +1,5 @@
 import moment from 'moment'
+import store from './store'
 
 function getTimestamp(): string {
   return moment(Date.now()).format('HH:mm:ss')
@@ -18,40 +19,71 @@ export const consoleColor = {
 
 const logger = {
   log(message: any) {
-    console.log(
-      consoleColor.FgGray +
-        `${getTimestamp()} - ${message}` +
-        consoleColor.FgWhite
-    )
+    message = `${getTimestamp()} - ${message}`
+
+    console.log(consoleColor.FgGray + message + consoleColor.FgWhite)
+
+    save(message, 'gray')
   },
   warn(message: any) {
-    console.warn(
-      consoleColor.FgYellow +
-        `${getTimestamp()} - ${message}` +
-        consoleColor.FgWhite
-    )
+    message = `${getTimestamp()} - ${message}`
+
+    console.warn(consoleColor.FgYellow + message + consoleColor.FgWhite)
+
+    save(message, 'yellow')
   },
   error(message: any) {
-    console.error(
-      consoleColor.FgRed +
-        `${getTimestamp()} - ${message}` +
-        consoleColor.FgWhite
-    )
+    message = `${getTimestamp()} - ${message}`
+
+    console.error(consoleColor.FgRed + message + consoleColor.FgWhite)
+
+    save(message, 'red')
   },
   info(message: any) {
-    console.info(
-      consoleColor.FgWhite +
-        `${getTimestamp()} - ${message}` +
-        consoleColor.FgWhite
-    )
+    message = `${getTimestamp()} - ${message}`
+
+    console.info(consoleColor.FgWhite + message + consoleColor.FgWhite)
+
+    save(message, 'white')
   },
   debug(message: any) {
-    console.debug(
-      consoleColor.FgCyan +
-        `${getTimestamp()} - ${message}` +
-        consoleColor.FgWhite
-    )
+    message = `${getTimestamp()} - ${message}`
+
+    console.debug(consoleColor.FgCyan + message + consoleColor.FgWhite)
+
+    save(message, 'cyan')
   },
+}
+
+function save(
+  message: string,
+  color: 'cyan' | 'yellow' | 'red' | 'gray' | 'white'
+) {
+  const colored = () => {
+    if (color === 'cyan') {
+      return `\`\`\`ansi\n[0;2m[0;31m[0;34m${message}[0m[0;31m[0m[0m\`\`\``
+    }
+    if (color === 'yellow') {
+      return `\`\`\`ansi\n[0;2m[0;31m[0;34m[0;30m[0;33m${message}[0m[0;30m[0m[0;34m[0m[0;31m[0m[0m\`\`\``
+    }
+    if (color === 'red') {
+      return `\`\`\`ansi\n[0;2m[0;31m[0;34m${message}[0m[0;31m[0m[0m\`\`\``
+    }
+    if (color === 'gray') {
+      return `\`\`\`ansi\n[0;2m[0;31m[0;34m[0;30m${message}[0m[0;34m[0m[0;31m[0m[0m\`\`\``
+    }
+    if (color === 'white') {
+      return `\`\`\`${message}\`\`\``
+    }
+  }
+
+  const savedLog: string[] = store.get('log')
+
+  if (savedLog) {
+    savedLog.push(colored())
+  } else {
+    store.set('log', [colored()])
+  }
 }
 
 export default logger

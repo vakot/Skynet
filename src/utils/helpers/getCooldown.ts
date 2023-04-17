@@ -1,6 +1,6 @@
 import { Collection, Snowflake, User } from 'discord.js'
 
-import store from '../helpers/store'
+import store from './store'
 
 import { Action } from '../../models/action'
 

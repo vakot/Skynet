@@ -57,7 +57,7 @@ export default {
       .slice(localState.page * 10, (localState.page + 1) * 10)
       .join('')
 
-    await interaction.reply({
+    return await interaction.reply({
       content: logMessage || 'No log provided',
       components: [
         new ActionRowBuilder<ButtonBuilder>().setComponents(
@@ -66,15 +66,11 @@ export default {
         ),
       ],
     })
-
-    return (localState.message = await interaction.fetchReply())
   },
 } as Action
 
 export const localState: {
-  message: Message
   page: number
 } = {
-  message: null,
   page: 0,
 }

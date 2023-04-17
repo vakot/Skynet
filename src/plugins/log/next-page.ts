@@ -28,8 +28,6 @@ export default {
   },
 
   async execute(interaction: ButtonInteraction) {
-    const message = localState.message
-
     if (localState.page * 10 <= store.get('log').length) localState.page++
 
     const logMessage: string = store
@@ -38,9 +36,12 @@ export default {
       .slice(localState.page * 10, (localState.page + 1) * 10)
       .join('')
 
-    return await message
-      .edit({ content: logMessage || 'No log provided' })
-      .then(() => interaction.deferReply({ ephemeral: true }))
-      .then(() => interaction.deleteReply())
+    return await interaction.message
+      .edit({
+        content: logMessage || 'No log provided',
+      })
+      // This code sucks, but i dont figured out a better way to remove "This interaction failed"
+      // from the buttons that dont need to provide any replies
+      .then(() => interaction.reply(''))
   },
 } as Action

@@ -1,4 +1,4 @@
-import { ApplicationCommand } from 'discord.js'
+import { ApplicationCommand, APIApplicationCommand } from 'discord.js'
 
 export function isChoicesEquals(localChoices, applicationChoices): boolean {
   if (!localChoices && !applicationChoices) return true
@@ -52,7 +52,7 @@ export function isOptionsEquals(localOptions, applicationOptions): boolean {
 }
 
 export function isCommandsEqual(
-  localCommand: ApplicationCommand,
+  localCommand: APIApplicationCommand,
   applicationCommand: ApplicationCommand
 ): boolean {
   if (localCommand.name !== applicationCommand.name) {
@@ -68,7 +68,6 @@ export function isCommandsEqual(
     return false
   }
   if (
-    // @ts-ignore
     localCommand.default_member_permissions !==
     applicationCommand.defaultMemberPermissions?.bitfield.toString()
   ) {

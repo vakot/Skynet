@@ -17,6 +17,8 @@ const client = new Client({
 })
 
 ;(async () => {
+  console.clear()
+
   const startTime = Date.now()
 
   logger.info('[SYSTEM INITIALIZATION]')

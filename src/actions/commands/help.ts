@@ -8,24 +8,24 @@ import {
 
 import { nanoid } from 'nanoid'
 
-import { validateInteraction } from '../utils/helpers/validateInteraction'
-import responder from '../utils/helpers/responder'
+import { validateInteraction } from '../../utils/interactions/validate'
+import responder from '../../utils/helpers/responder'
 
-import store from '../utils/helpers/store'
+import store from '../../utils/helpers/store'
 
-import { Action } from '../models/action'
+import { Action } from '../../models/action'
 
 export default {
   id: nanoid(),
 
   data: new SlashCommandBuilder()
     .setName('help')
-    .setDescription("Get's information about a command")
+    .setDescription('Show information about application commands')
     .addStringOption(
       (option) =>
         option
           .setName('command')
-          .setDescription('Specific command to display indormation')
+          .setDescription('Show more information about specific command')
           .setRequired(false)
       // TODO: Choises
     ),

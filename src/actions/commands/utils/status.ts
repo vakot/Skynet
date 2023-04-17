@@ -7,10 +7,10 @@ import {
 
 import { nanoid } from 'nanoid'
 
-import { validateInteraction } from '../../utils/helpers/validateInteraction'
-import responder from '../../utils/helpers/responder'
+import { validateInteraction } from '../../../utils/interactions/validate'
+import responder from '../../../utils/helpers/responder'
 
-import { Action } from '../../models/action'
+import { Action } from '../../../models/action'
 
 export default {
   id: nanoid(),

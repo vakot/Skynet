@@ -18,19 +18,39 @@ export const consoleColor = {
 
 const logger = {
   log(message: any) {
-    console.log(consoleColor.FgGray + `${getTimestamp()} - ${message}`)
+    console.log(
+      consoleColor.FgGray +
+        `${getTimestamp()} - ${message}` +
+        consoleColor.FgWhite
+    )
   },
   warn(message: any) {
-    console.warn(consoleColor.FgYellow + `${getTimestamp()} - ${message}`)
+    console.warn(
+      consoleColor.FgYellow +
+        `${getTimestamp()} - ${message}` +
+        consoleColor.FgWhite
+    )
   },
   error(message: any) {
-    console.error(consoleColor.FgRed + `${getTimestamp()} - ${message}`)
+    console.error(
+      consoleColor.FgRed +
+        `${getTimestamp()} - ${message}` +
+        consoleColor.FgWhite
+    )
   },
   info(message: any) {
-    console.info(consoleColor.FgWhite + `${getTimestamp()} - ${message}`)
+    console.info(
+      consoleColor.FgWhite +
+        `${getTimestamp()} - ${message}` +
+        consoleColor.FgWhite
+    )
   },
   debug(message: any) {
-    console.debug(consoleColor.FgCyan + `${getTimestamp()} - ${message}`)
+    console.debug(
+      consoleColor.FgCyan +
+        `${getTimestamp()} - ${message}` +
+        consoleColor.FgWhite
+    )
   },
 }
 

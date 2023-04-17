@@ -7,7 +7,7 @@ import {
 
 import { nanoid } from 'nanoid'
 
-import { validateInteraction } from '../../utils/helpers/validateInteraction'
+import { validateInteraction } from '../../utils/interactions/validate'
 import responder from '../../utils/helpers/responder'
 
 import { Action } from '../../models/action'

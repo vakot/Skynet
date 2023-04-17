@@ -6,7 +6,7 @@ import {
 
 import { nanoid } from 'nanoid'
 
-import { Action } from '../models/action'
+import { Action } from '../../models/action'
 
 export default {
   id: nanoid(),

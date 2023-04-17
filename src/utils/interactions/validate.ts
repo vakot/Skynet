@@ -1,7 +1,10 @@
 import { Collection, User } from 'discord.js'
-import { Action } from '../../models/action'
-import logger from './logger'
+
 import { getCooldown } from '../fetch/getCooldown'
+import logger from '../helpers/logger'
+
+import { Action } from '../../models/action'
+
 import { devs, testServer } from '../../../config.json'
 
 export async function validateInteraction(
@@ -11,12 +14,14 @@ export async function validateInteraction(
 ): Promise<Collection<string, string[]>> {
   const reply: Collection<string, string[]> = new Collection()
 
+  // if deleteble
   if (action.deleteble) {
     logger.warn(`${user.tag} - triggers <deleteble> action`)
 
     reply.set('deleteble', ['This action is marked to delete'])
   }
 
+  // if test only
   if (action.testOnly) {
     logger.warn(`${user.tag} - triggers <test only> action`)
 
@@ -25,6 +30,7 @@ export async function validateInteraction(
     }
   }
 
+  // if devs only
   if (action.devsOnly) {
     logger.warn(`${user.tag} - triggers <developers only> action`)
 
@@ -40,6 +46,7 @@ export async function validateInteraction(
     }
   }
 
+  // if overheated
   if (action.cooldown) {
     const cooldown = getCooldown(action, user)
     const now = Date.now()

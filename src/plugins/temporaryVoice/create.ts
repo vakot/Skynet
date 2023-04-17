@@ -12,7 +12,7 @@ import { nanoid } from 'nanoid'
 import store from '../../utils/helpers/store'
 import logger from '../../utils/helpers/logger'
 
-import { validateInteraction } from '../../utils/helpers/validateInteraction'
+import { validateInteraction } from '../../utils/interactions/validate'
 import responder from '../../utils/helpers/responder'
 
 import { Action } from '../../models/action'

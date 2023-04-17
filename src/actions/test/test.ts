@@ -45,8 +45,12 @@ export default {
 
       const invalidations = await validateInteraction(this, user, guildId)
 
-      if (invalidations.length) {
-        return await responder.deny.reply(interaction, invalidations)
+      if (invalidations.size) {
+        return await responder.deny.reply(
+          interaction,
+          invalidations,
+          this.data.name
+        )
       } else {
         return await this.execute(interaction)
       }

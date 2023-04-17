@@ -34,9 +34,13 @@ export default {
         newState.channelId
       )
 
-      if (invalidations.length) {
+      if (invalidations.size) {
         await newState.member.voice.disconnect()
-        return await responder.deny.dm(newState.member.user, invalidations)
+        return await responder.deny.dm(
+          newState.member.user,
+          invalidations,
+          'temporary-voice'
+        )
       } else {
         return await this.execute(oldState, newState)
       }

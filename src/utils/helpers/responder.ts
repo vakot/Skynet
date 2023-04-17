@@ -2,6 +2,8 @@ import {
   AnySelectMenuInteraction,
   ButtonInteraction,
   ChatInputCommandInteraction,
+  Collection,
+  EmbedBuilder,
   User,
 } from 'discord.js'
 
@@ -12,33 +14,48 @@ const responder = {
         | ChatInputCommandInteraction
         | ButtonInteraction
         | AnySelectMenuInteraction,
-      invalidations: string[],
+      invalidations: Collection<string, string[]>,
       actionName?: string
     ) {
-      await interaction.reply({
-        content: `Access to **${
-          actionName ?? 'action'
-        }** denied by the following reasons:\n${invalidations
-          .map((inv) => `> ${inv}`)
-          .join('\n')}`,
-        ephemeral: true,
-      })
+      const embed = DenyEmbed(invalidations)
+
+      embed.setTitle(`Access to <${actionName ?? 'action'}> denied`)
+
+      return await interaction
+        .reply({ embeds: [embed], ephemeral: true })
+        .then((message) => setTimeout(() => message.delete(), 20000))
     },
 
-    async dm(user: User, invalidations: string[], actionName?: string) {
+    async dm(
+      user: User,
+      invalidations: Collection<string, string[]>,
+      actionName?: string
+    ) {
+      const embed = DenyEmbed(invalidations)
+
+      embed.setTitle(`Access to <${actionName ?? 'action'}> denied`)
+
       await user
-        .send(
-          `Access to **${
-            actionName ?? 'action'
-          }** denied by the following reasons:\n${invalidations
-            .map((inv) => `> ${inv}`)
-            .join('\n')}\n\nMessage will be deleted <t:${
-            Math.round(Date.now() / 1000) + 20
-          }:R>`
-        )
+        .send({ embeds: [embed] })
         .then((message) => setTimeout(() => message.delete(), 20000))
     },
   },
+}
+
+function DenyEmbed(invalidations: Collection<string, string[]>): EmbedBuilder {
+  const embed = new EmbedBuilder()
+
+  for (const invalidation of invalidations) {
+    const key = invalidation[0]
+    const value = invalidation[1]
+
+    embed.addFields({
+      name: key,
+      value: value.map((reason) => `> ${reason}`).join('\n'),
+    })
+  }
+
+  return embed.setDescription('Message will be automatically deleted in `20s`')
 }
 
 export default responder

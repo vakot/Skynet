@@ -11,7 +11,7 @@ import {
 import { Action } from '../../models/Action'
 import { validateAction } from '../../utils/helpers/validateAction'
 
-export default class TestCommand extends Action {
+export default class SlashCommand extends Action {
   data = new SlashCommandBuilder()
     .setName('test')
     .setDescription('Testing features')
@@ -20,6 +20,9 @@ export default class TestCommand extends Action {
     )
     .addSubcommand((command) =>
       command.setName('menu').setDescription('Send test menu')
+    )
+    .addSubcommand((command) =>
+      command.setName('dms').setDescription('Send button to create DMs')
     )
 
   event: keyof ClientEvents = Events.InteractionCreate
@@ -75,6 +78,20 @@ export default class TestCommand extends Action {
       const row = new ActionRowBuilder<StringSelectMenuBuilder>().setComponents(
         menu
       )
+
+      return await interaction.reply({
+        ephemeral: true,
+        components: [row],
+      })
+    }
+
+    if (interaction.options.getSubcommand() === 'dms') {
+      const button = new ButtonBuilder()
+        .setCustomId('test-button-send-dm')
+        .setLabel('Send DM!')
+        .setStyle(ButtonStyle.Secondary)
+
+      const row = new ActionRowBuilder<ButtonBuilder>().setComponents(button)
 
       return await interaction.reply({
         ephemeral: true,

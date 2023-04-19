@@ -3,7 +3,7 @@ import { Action } from '../../models/Action'
 import { parentId } from './config.json'
 import { childrens } from './create'
 
-export default class TemporaryVoiceDelete extends Action {
+export default class TemporaryVoice extends Action {
   data: { [key: string]: any; name: string } = {
     name: 'temporary-voice-delete',
   }

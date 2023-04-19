@@ -7,7 +7,7 @@ import {
 
 import { Action } from '../../models/Action'
 
-export default class PingCommand extends Action {
+export default class SlashCommand extends Action {
   data = new SlashCommandBuilder()
     .setName('ping')
     .setDescription('Replies with "Pong!"')

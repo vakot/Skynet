@@ -15,7 +15,7 @@ import { validateAction } from '../../utils/helpers/validateAction'
 // userId > channelId
 export const childrens = new Collection<Snowflake, Snowflake>()
 
-export default class TemporaryVoiceCreate extends Action {
+export default class TemporaryVoice extends Action {
   data: { [key: string]: any; name: string } = {
     name: 'temporary-voice-create',
   }

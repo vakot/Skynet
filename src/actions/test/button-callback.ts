@@ -2,14 +2,14 @@ import { ButtonInteraction, ClientEvents, Events } from 'discord.js'
 import { Action } from '../../models/Action'
 import { validateAction } from '../../utils/helpers/validateAction'
 
-export default class TestButtonCallback extends Action {
+export default class ButtonCallback extends Action {
   data = { name: 'test-button' }
 
   event: keyof ClientEvents = Events.InteractionCreate
 
   devsOnly = true
   testOnly = true
-  cooldown = 10000
+  cooldown = 10_000
 
   async init(interaction: ButtonInteraction): Promise<any> {
     if (interaction.customId !== this.data.name) return

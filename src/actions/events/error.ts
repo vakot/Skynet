@@ -9,11 +9,11 @@ export default class ErrorEvent extends Action {
 
   event: keyof ClientEvents = Events.Error
 
-  async init(info): Promise<any> {
+  async init(info: string): Promise<any> {
     return await this.execute(info)
   }
 
-  async execute(info): Promise<any> {
+  async execute(info: string): Promise<any> {
     return await logger.error(info)
   }
 }

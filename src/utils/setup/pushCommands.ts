@@ -1,11 +1,14 @@
-import { ApplicationCommand, Collection, SlashCommandBuilder } from 'discord.js'
+import { SlashCommandBuilder } from 'discord.js'
 
 import logger from '../helpers/logger'
 import { isCommandsEqual } from '../helpers/compareCommands'
 
 import { Client } from '../../models/Client'
 
-export async function pushCommands(client: Client, clear = false) {
+export async function pushCommands(
+  client: Client,
+  clear = false
+): Promise<void> {
   const actions = client.localActions
 
   const commands = actions
@@ -17,13 +20,12 @@ export async function pushCommands(client: Client, clear = false) {
     client.localCommands.set(command.data.name, command)
   )
 
-  const applicationCommands: Collection<string, ApplicationCommand> =
-    await client.application?.commands.fetch()
+  const applicationCommands = await client.application?.commands.fetch()
 
   // delete all application commands
   // used in some development process cases
   if (clear) {
-    return await applicationCommands.forEach(
+    return await applicationCommands?.forEach(
       async (command) =>
         await command
           .delete()
@@ -35,13 +37,13 @@ export async function pushCommands(client: Client, clear = false) {
     const { data, deleteble, forceUpdate } = command
 
     // collect existing command
-    const existingCommand: ApplicationCommand = await applicationCommands.find(
+    const existingCommand = await applicationCommands?.find(
       (cmd) => cmd.name === data.name
     )
 
     // create new command
     if (!existingCommand && !deleteble) {
-      return await client.application.commands
+      return await client.application?.commands
         .create(data as SlashCommandBuilder)
         .then(() => logger.info(`Command /${data.name} created`))
     }
@@ -59,8 +61,8 @@ export async function pushCommands(client: Client, clear = false) {
         !isCommandsEqual(data as SlashCommandBuilder, existingCommand)) ||
       forceUpdate
     ) {
-      return await client.application.commands
-        .edit(existingCommand.id, data as SlashCommandBuilder)
+      return await client.application?.commands
+        .edit(existingCommand!.id, data as SlashCommandBuilder)
         .then(() => logger.debug(`Command /${data.name} updated`))
     }
   })

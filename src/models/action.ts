@@ -19,7 +19,31 @@ export class Action {
   devsOnly?: boolean
   // uses only with commands to force update it on remote
   forceUpdate?: boolean
-  // condition that determines this action possibility to be executed
+
+  constructor(
+    data: {
+      name: string
+      [key: string]: any
+    },
+    event: keyof ClientEvents,
+    once?: boolean,
+    cooldown?: number,
+    deleteble?: boolean,
+    testOnly?: boolean,
+    devsOnly?: boolean,
+    forceUpdate?: boolean
+  ) {
+    this.data = data
+    this.event = event
+    this.once = once
+    this.cooldown = cooldown
+    this.deleteble = deleteble
+    this.testOnly = testOnly
+    this.devsOnly = devsOnly
+    this.forceUpdate = forceUpdate
+  }
+
+  // conditions that determines this action possibility to be executed
   async init(...args: any): Promise<any> {}
   async execute(...args: any): Promise<any> {}
 }

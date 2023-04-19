@@ -4,7 +4,7 @@ import { Client } from '../../models/Client'
 
 import logger from '../helpers/logger'
 
-export async function loadEvents(client: Client) {
+export async function loadEvents(client: Client): Promise<void> {
   const actions = client.localActions
   const events = new Set<keyof ClientEvents>()
 

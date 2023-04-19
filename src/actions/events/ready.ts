@@ -15,6 +15,6 @@ export default class ReadyEvent extends Action {
   }
 
   async execute(client: Client): Promise<any> {
-    return await logger.info(`Logged in as ${client.user.tag}`)
+    return await logger.info(`Logged in as ${client.user!.tag}`)
   }
 }

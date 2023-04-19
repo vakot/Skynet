@@ -4,8 +4,8 @@ import path from 'path'
 import logger from './logger'
 
 /**
- * Recursively read all files in provided directory and
- * it's subdirectories and returns it's paths
+ * function recursively read all files in provided directory
+ * and it's subdirectories and returns paths of readed files
  *
  * @param {string} directoryPath - path to directory
  * @returns {Generator<string>} - yielded paths
@@ -32,7 +32,7 @@ export function* throughDirectory(directoryPath: string): Generator<string> {
 }
 
 /**
- * Read files in directory and it's subdirecoties
+ * function read files in directory and it's subdirecoties
  * than compare result to provided type paramether
  * and returns array of class instances
  *

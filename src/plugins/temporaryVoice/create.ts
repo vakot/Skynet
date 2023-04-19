@@ -9,7 +9,7 @@ import {
 } from 'discord.js'
 import { Action } from '../../models/Action'
 
-import { parentId } from './config.json'
+import { parentId, categoryId } from './config.json'
 import { validateAction } from '../../utils/helpers/validateAction'
 
 // userId > channelId
@@ -59,12 +59,13 @@ export default class TemporaryVoice extends Action {
   }
 
   async execute(newState: VoiceState): Promise<any> {
-    const { guild, member } = newState
+    const { guild, member, channel } = newState
 
     return await guild.channels
       .create({
         name: `${member.user.username}'s Room`,
         type: ChannelType.GuildVoice,
+        parent: categoryId || channel.parent,
         permissionOverwrites: [
           {
             id: member.user.id,

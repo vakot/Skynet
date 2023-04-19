@@ -9,9 +9,9 @@ import { client } from '../../index'
 
 /**
  * function used to determine user access to provided action
- * need to be used with action that has the following properties:
+ * need to be used with action that has at least one of the following properties:
  * { cooldown, deleteble, testOnly, devsOnly }
- * returns a message  that descripe reason why action is dissalowed
+ * returns a message that descripe reason why action is dissalowed
  *
  * @param {Action} action - instance of Action class
  * @param {Guild} guild - guild instance provided by API

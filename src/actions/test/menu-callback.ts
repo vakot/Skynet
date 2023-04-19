@@ -1,17 +1,16 @@
-import { ButtonInteraction, ClientEvents, Events } from 'discord.js'
+import { ClientEvents, Events, StringSelectMenuInteraction } from 'discord.js'
 import { Action } from '../../models/Action'
 import { validateAction } from '../../utils/helpers/validateAction'
 
-export default class TestButtonCallback extends Action {
-  data = { name: 'test-button' }
+export default class TestMenuCallback extends Action {
+  data = { name: 'test-menu' }
 
   event: keyof ClientEvents = Events.InteractionCreate
 
   devsOnly = true
   testOnly = true
-  cooldown = 10000
 
-  async init(interaction: ButtonInteraction): Promise<any> {
+  async init(interaction: StringSelectMenuInteraction): Promise<any> {
     if (interaction.customId !== this.data.name) return
 
     const invalidation = validateAction(
@@ -27,9 +26,9 @@ export default class TestButtonCallback extends Action {
     return await this.execute(interaction)
   }
 
-  async execute(interaction: ButtonInteraction): Promise<any> {
+  async execute(interaction: StringSelectMenuInteraction): Promise<any> {
     return await interaction.reply({
-      content: "Hello it's me",
+      content: 'Selected values: ' + interaction.values.sort().join(' | '),
       ephemeral: true,
     })
   }

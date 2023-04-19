@@ -28,6 +28,9 @@ export default class TemporaryVoiceCreate extends Action {
     // just in case to be sure
     if (!oldState && !newState) return
 
+    // user streaming is also trigger VoiceStateUpdate. Avoid it
+    if (oldState.channelId === newState.channelId) return
+
     // create new only if join to parent channel
     if (newState.channelId !== parentId) return
 

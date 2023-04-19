@@ -14,6 +14,9 @@ export default class TemporaryVoiceDelete extends Action {
     // just in case to be sure
     if (!oldState && !newState) return
 
+    // user streaming is also trigger VoiceStateUpdate. Avoid it
+    if (oldState.channelId === newState.channelId) return
+
     // delete channel only if user leave
     if (!oldState && newState) return
 

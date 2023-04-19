@@ -1,78 +1,52 @@
-import { ApplicationCommand, APIApplicationCommand } from 'discord.js'
-
-export function isChoicesEquals(localChoices, applicationChoices): boolean {
-  if (!localChoices && !applicationChoices) return true
-
-  if (localChoices.length !== applicationChoices.length) return false
-
-  for (const localChoice of localChoices) {
-    const applicationChoice = applicationChoices?.find(
-      (choice) => choice.name === localChoice.name
-    )
-
-    if (!applicationChoice) {
-      return false
-    }
-    if (localChoice.value !== applicationChoice.value) {
-      return false
-    }
-  }
-
-  return true
-}
-
-export function isOptionsEquals(localOptions, applicationOptions): boolean {
-  if (!localOptions && !applicationOptions) return true
-
-  if (localOptions.length !== applicationOptions.length) return false
-
-  for (const localOption of localOptions) {
-    const applicationOption = applicationOptions?.find(
-      (option) => option.name === localOption.name
-    )
-
-    if (!applicationOption) {
-      return false
-    }
-    if (localOption.description !== applicationOption.description) {
-      return false
-    }
-    if (localOption.type !== applicationOption.type) {
-      return false
-    }
-    if (localOption.required !== applicationOption.required) {
-      return false
-    }
-    if (!isChoicesEquals(localOption.choices, applicationOption.choices)) {
-      return false
-    }
-  }
-
-  return true
-}
+import { ApplicationCommand, SlashCommandBuilder } from 'discord.js'
 
 export function isCommandsEqual(
-  localCommand: APIApplicationCommand,
-  applicationCommand: ApplicationCommand
+  locCommand: SlashCommandBuilder,
+  apiCommand: ApplicationCommand
 ): boolean {
-  if (localCommand.name !== applicationCommand.name) {
+  // name comparison
+  if (locCommand.name !== apiCommand.name) {
     return false
   }
-  if (localCommand.description !== applicationCommand.description) {
+  // description comparison
+  if (locCommand.description !== apiCommand.description) {
     return false
   }
-  if (localCommand.nsfw ?? false !== applicationCommand.nsfw) {
+  // nsfw comparison
+  if (locCommand.nsfw ?? false !== apiCommand.nsfw) {
     return false
   }
-  if (!isOptionsEquals(localCommand.options, applicationCommand.options)) {
+  // options count comparison
+  if (locCommand.options?.length !== apiCommand.options?.length) {
     return false
   }
-  if (
-    localCommand.default_member_permissions !==
-    applicationCommand.defaultMemberPermissions?.bitfield.toString()
-  ) {
-    return false
+  // deep options comparison
+  for (let i = 0; i < locCommand.options.length; i++) {
+    const locOption = locCommand.options[i].toJSON()
+    const apiOption = apiCommand.options[i]
+    // option name comparison
+    if (locOption.name !== apiOption.name) {
+      return false
+    }
+    // option description comparison
+    if (locOption.description !== apiOption.description) {
+      return false
+    }
+    // option type comparison
+    if (locOption.type !== apiOption.type) {
+      return false
+    }
+    // // deep option choices comparison
+    // for (let j = 0; j < locOption.choices.length; j++) {
+    //   // option name comparison
+    //   if (locOption[j].name !== apiOption[j].name) {
+    //     return false
+    //   }
+    //   // option value comparison
+    //   if (locOption[j].value !== apiOption[j].value) {
+    //     return false
+    //   }
+    // }
   }
-
   return true
 }

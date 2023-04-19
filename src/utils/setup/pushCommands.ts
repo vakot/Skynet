@@ -1,9 +1,4 @@
-import {
-  APIApplicationCommand,
-  ApplicationCommand,
-  Collection,
-  SlashCommandBuilder,
-} from 'discord.js'
+import { ApplicationCommand, Collection, SlashCommandBuilder } from 'discord.js'
 
 import logger from '../helpers/logger'
 import { isCommandsEqual } from '../helpers/compareCommands'
@@ -28,7 +23,7 @@ export async function pushCommands(client: Client, clear = false) {
   // delete all application commands
   // used in some development process cases
   if (clear) {
-    applicationCommands.forEach(
+    return await applicationCommands.forEach(
       async (command) =>
         await command
           .delete()
@@ -61,7 +56,7 @@ export async function pushCommands(client: Client, clear = false) {
     // update existing
     if (
       (existingCommand &&
-        !isCommandsEqual(data as APIApplicationCommand, existingCommand)) ||
+        !isCommandsEqual(data as SlashCommandBuilder, existingCommand)) ||
       forceUpdate
     ) {
       return await client.application.commands

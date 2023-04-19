@@ -1,13 +1,17 @@
 require('dotenv').config()
 
-import { Client, GatewayIntentBits } from 'discord.js'
+import { GatewayIntentBits } from 'discord.js'
 
-import { setupEvents } from './utils/setup/setupEvents'
-import { setupActions } from './utils/setup/setupActions'
+import { Client } from './models/Client'
 
 import logger from './utils/helpers/logger'
 
-const client = new Client({
+import { loadActions } from './utils/setup/loadActions'
+import { loadEvents } from './utils/setup/loadEvents'
+import { pushCommands } from './utils/setup/pushCommands'
+import { loadPlugins } from './utils/setup/loadPlugins'
+
+export const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildVoiceStates,
@@ -15,22 +19,41 @@ const client = new Client({
     GatewayIntentBits.MessageContent,
   ],
 })
-
 ;(async () => {
   console.clear()
 
   const startTime = Date.now()
 
+  await client.login(process.env.TOKEN)
+
   logger.info('[SYSTEM INITIALIZATION]')
   logger.info('RUNNING SKYSOFT KERNEL 4.92.384.42')
 
-  await setupActions().catch(logger.error)
+  logger.debug('Actions loading...')
+  await loadActions(client).catch((error) => {
+    logger.error('Error appears while actions loading')
+    logger.error(error)
+  })
 
-  await setupEvents(client).catch(logger.error)
+  logger.debug('Plugins loading...')
+  await loadPlugins(client).catch((error) => {
+    logger.error('Error appears while plugins loading')
+    logger.error(error)
+  })
+
+  logger.debug('Events loading...')
+  await loadEvents(client).catch((error) => {
+    logger.error('Error appears while events loading')
+    logger.error(error)
+  })
 
   logger.info(`Loaded in ${Date.now() - startTime}ms`)
 
-  client
-    .login(process.env.TOKEN)
-    .then(() => logger.info(`Logged in ${Date.now() - startTime}ms`))
+  logger.debug('Updating commands on remote')
+  await pushCommands(client).catch((error) => {
+    logger.error('Error appears while updating commands')
+    logger.error(error)
+  })
+
+  logger.info(`Logged in ${Date.now() - startTime}ms`)
 })()

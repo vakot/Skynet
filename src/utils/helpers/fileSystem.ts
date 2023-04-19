@@ -1,8 +1,6 @@
 import fs from 'fs'
 import path from 'path'
 
-import { compareObjectWithSchema } from './compareObjectWithSchema'
-
 import logger from './logger'
 
 export function* throughDirectory(directoryPath: string): Generator<string> {
@@ -11,13 +9,13 @@ export function* throughDirectory(directoryPath: string): Generator<string> {
 
     for (const file of files) {
       const filePath = path.join(directoryPath, file)
-      const stats = fs.statSync(filePath)
+      const data = fs.statSync(filePath)
 
-      if (stats.isDirectory()) {
+      if (data.isDirectory()) {
         yield* throughDirectory(filePath)
       }
 
-      if (stats.isFile()) {
+      if (data.isFile()) {
         yield filePath
       }
     }
@@ -28,7 +26,7 @@ export function* throughDirectory(directoryPath: string): Generator<string> {
 
 export async function getFiles<T>(
   directoryPath: string,
-  schema: object
+  type: new (...args: any) => T
 ): Promise<T[]> {
   const files: T[] = []
 
@@ -43,14 +41,15 @@ export async function getFiles<T>(
     try {
       const data = await import(filePath)
 
-      if (!compareObjectWithSchema(data.default, schema))
-        throw `File ${fileName} unresolvable`
+      if (!(new data.default() instanceof type)) {
+        throw ''
+      }
 
-      files.push(data.default)
+      files.push(new data.default())
 
       logger.log(`File ${fileName} loaded`)
-    } catch (error) {
-      logger.error(error)
+    } catch {
+      logger.warn(`File ${fileName} unresolvable`)
     }
   }
 

@@ -1,0 +1,65 @@
+import { Collection, Guild, User } from 'discord.js'
+import { Action } from '../../models/Action'
+
+import logger from './logger'
+
+import { devs, testServer } from '../../../config.json'
+
+import { client } from '../../index'
+
+export function validateAction(
+  action: Action,
+  guild: Guild,
+  user: User
+): string {
+  // if deleteble
+  if (action.deleteble) {
+    logger.warn(`${user.tag} - triggers <deleteble> action`)
+    return 'This action is marked to delete'
+  }
+
+  // if test only
+  if (action.testOnly) {
+    if (guild.id !== testServer) {
+      logger.warn(`${user.tag} - triggers <test only> action`)
+      return 'This action is only for test server'
+    }
+  }
+
+  // if devs only
+  if (action.devsOnly) {
+    if (!devs.includes(user.id)) {
+      logger.warn(`${user.tag} - triggers <devs only> action`)
+      return 'This action is only for developers'
+    }
+  }
+
+  // if overheated
+  if (action.cooldown) {
+    const timestamp = handleCooldown(action, user.id)
+    const now = Date.now()
+    if (timestamp > now) {
+      logger.warn(`${user.tag} - triggers <overheated> action`)
+      return `This action is overheated. Cooldown <t:${Math.round(
+        timestamp * 0.001
+      )}:R>`
+    }
+  }
+}
+
+export function handleCooldown(action: Action, userId: string): number {
+  if (!client.cooldowns.has(action.data.name)) {
+    client.cooldowns.set(action.data.name, new Collection())
+  }
+
+  const timestamps = client.cooldowns.get(action.data.name)
+
+  if (timestamps.has(userId)) {
+    // if user have cooldown - return it
+    return timestamps.get(userId)
+  } else {
+    // if user DONT have cooldown - create it
+    timestamps.set(userId, action.cooldown + Date.now())
+    setTimeout(() => timestamps.delete(userId), action.cooldown)
+  }
+}

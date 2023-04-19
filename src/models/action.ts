@@ -1,34 +1,29 @@
-import { ClientEvents, Events } from 'discord.js'
-import { Schema } from './schema'
+import { ClientEvents } from 'discord.js'
 
-export interface Action {
-  id: string
-  data?: any
+export class Action {
+  // data can be any, but important to set the action name
+  // name used as key to store action in Collection
+  data: {
+    name: string
+    [key: string]: any
+  }
+
   event: keyof ClientEvents
+  // for events like ClientReady to execute only once
   once?: boolean
-  deleteble?: boolean
+
+  // uses to determine user permission to execute this action
+  // validateAction.ts will do that so you dont have to
+  // P.S. (just not forget to call it)
   cooldown?: number
+  deleteble?: boolean
   testOnly?: boolean
   devsOnly?: boolean
-  forceUpdate?: boolean
-  init(...args: any): any
-  execute(...args: any): any
-}
 
-export const ActionSchema: Schema<Action> = {
-  id: { type: 'string', required: true },
-  data: { type: 'any', required: false },
-  event: {
-    type: (value: string) =>
-      (Object.values(Events) as string[]).includes(value),
-    required: true,
-  },
-  once: { type: 'boolean', required: false },
-  deleteble: { type: 'boolean', required: false },
-  cooldown: { type: 'boolean', required: false },
-  testOnly: { type: 'boolean', required: false },
-  devsOnly: { type: 'boolean', required: false },
-  forceUpdate: { type: 'boolean', required: false },
-  init: { type: 'function', required: true },
-  execute: { type: 'function', required: true },
+  // uses only with commands to force update it on remote
+  forceUpdate?: boolean
+
+  async init(...args: any): Promise<any> {}
+
+  async execute(...args: any): Promise<any> {}
 }

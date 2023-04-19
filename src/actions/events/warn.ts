@@ -1,21 +1,19 @@
-import { Events } from 'discord.js'
+import { ClientEvents, Events } from 'discord.js'
 
-import { nanoid } from 'nanoid'
+import { Action } from '../../models/Action'
 
 import logger from '../../utils/helpers/logger'
 
-import { Action } from '../../models/action'
+export default class WarnEvent extends Action {
+  data = { name: 'warn-event' }
 
-export default {
-  id: nanoid(),
+  event: keyof ClientEvents = Events.Warn
 
-  event: Events.Warn,
-
-  async init(info) {
+  async init(info): Promise<any> {
     return await this.execute(info)
-  },
+  }
 
-  async execute(info) {
+  async execute(info): Promise<any> {
     return await logger.warn(info)
-  },
-} as Action
+  }
+}

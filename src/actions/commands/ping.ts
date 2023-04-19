@@ -1,32 +1,29 @@
 import {
   ChatInputCommandInteraction,
-  Events,
   SlashCommandBuilder,
+  Events,
+  ClientEvents,
 } from 'discord.js'
 
-import { nanoid } from 'nanoid'
+import { Action } from '../../models/Action'
 
-import { Action } from '../../models/action'
-
-export default {
-  id: nanoid(),
-
-  data: new SlashCommandBuilder()
+export default class PingCommand extends Action {
+  data = new SlashCommandBuilder()
     .setName('ping')
-    .setDescription('Replies with "Pong!"'),
+    .setDescription('Replies with "Pong!"')
 
-  event: Events.InteractionCreate,
+  event: keyof ClientEvents = Events.InteractionCreate
 
-  async init(interaction: ChatInputCommandInteraction) {
-    if (interaction.commandName === this.data.name) {
-      return await this.execute(interaction)
-    }
-  },
+  async init(interaction: ChatInputCommandInteraction): Promise<any> {
+    if (interaction.commandName !== this.data.name) return
+
+    return await this.execute(interaction)
+  }
 
   async execute(interaction: ChatInputCommandInteraction) {
     return await interaction.reply({
       content: `:ping_pong: Pong!`,
       ephemeral: true,
     })
-  },
-} as Action
+  }
+}

@@ -1,81 +1,53 @@
 import {
-  ActionRowBuilder,
   ChatInputCommandInteraction,
-  Events,
   SlashCommandBuilder,
-  SlashCommandSubcommandBuilder,
-  StringSelectMenuBuilder,
+  Events,
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  ClientEvents,
 } from 'discord.js'
+import { Action } from '../../models/Action'
+import { validateAction } from '../../utils/helpers/validateAction'
 
-import { nanoid } from 'nanoid'
-
-import { validateInteraction } from '../../utils/interactions/validate'
-import responder from '../../utils/helpers/responder'
-
-import { Action } from '../../models/action'
-
-import menu from './select-menu'
-import button from './button'
-
-export default {
-  id: nanoid(),
-
-  data: new SlashCommandBuilder()
+export default class TestCommand extends Action {
+  data = new SlashCommandBuilder()
     .setName('test')
-    .setDescription('Test commands')
-    .addSubcommand(
-      new SlashCommandSubcommandBuilder()
-        .setName('send-button')
-        .setDescription('Send test button')
+    .setDescription('Testing features')
+
+  event: keyof ClientEvents = Events.InteractionCreate
+
+  devsOnly = true
+  testOnly = true
+
+  async init(interaction: ChatInputCommandInteraction): Promise<any> {
+    if (interaction.commandName !== this.data.name) return
+
+    const invalidation = validateAction(
+      this,
+      interaction.guild,
+      interaction.user
     )
-    .addSubcommand(
-      new SlashCommandSubcommandBuilder()
-        .setName('send-menu')
-        .setDescription('Send select menu')
-    ),
 
-  event: Events.InteractionCreate,
-
-  testOnly: true,
-  devsOnly: true,
-
-  async init(interaction: ChatInputCommandInteraction) {
-    if (interaction.commandName === this.data.name) {
-      const { user, guildId } = interaction
-
-      const invalidations = await validateInteraction(this, user, guildId)
-
-      if (invalidations.size) {
-        return await responder.deny.reply(
-          interaction,
-          invalidations,
-          this.data.name
-        )
-      } else {
-        return await this.execute(interaction)
-      }
-    }
-  },
-
-  async execute(interaction: ChatInputCommandInteraction) {
-    if (interaction.options.getSubcommand() === 'send-button') {
-      const row = new ActionRowBuilder<StringSelectMenuBuilder>().setComponents(
-        button.data
-      )
-
-      return await interaction.reply({
-        components: [row],
-      })
+    if (invalidation) {
+      return await interaction.reply({ content: invalidation, ephemeral: true })
     }
 
-    if (interaction.options.getSubcommand() === 'send-menu') {
-      const row = new ActionRowBuilder<StringSelectMenuBuilder>().setComponents(
-        menu.data
-      )
+    return await this.execute(interaction)
+  }
 
-      return await interaction.reply({
-        components: [row],
-      })
-    }
-  },
-} as Action
+  async execute(interaction: ChatInputCommandInteraction): Promise<any> {
+    const button = new ButtonBuilder()
+      .setCustomId('test-button')
+      .setLabel('Click!')
+      .setStyle(ButtonStyle.Danger)
+
+    const row = new ActionRowBuilder<ButtonBuilder>().setComponents(button)
+
+    return await interaction.reply({
+      content: 'test',
+      ephemeral: true,
+      components: [row],
+    })
+  }
+}

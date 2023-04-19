@@ -7,6 +7,17 @@ import { devs, testServer } from '../../../config.json'
 
 import { client } from '../../index'
 
+/**
+ * function used to determine user access to provided action
+ * need to be used with action that has the following properties:
+ * { cooldown, deleteble, testOnly, devsOnly }
+ * returns a message  that descripe reason why action is dissalowed
+ *
+ * @param {Action} action - instance of Action class
+ * @param {Guild} guild - guild instance provided by API
+ * @param {User} user - user instance provided by API
+ * @returns {string} - message that descripe reason why action is dissalowed
+ */
 export function validateAction(
   action: Action,
   guild: Guild,
@@ -47,6 +58,15 @@ export function validateAction(
   }
 }
 
+/**
+ * function to automatically handle users cooldowns
+ * each action have own cooldonws coolection, where
+ * each user have a timestamp of cooldown
+ *
+ * @param {Action} action - instance of Action class
+ * @param {string} userId - userId provided by API
+ * @returns {number} - timestamp where cooldown is over
+ */
 export function handleCooldown(action: Action, userId: string): number {
   if (!client.cooldowns.has(action.data.name)) {
     client.cooldowns.set(action.data.name, new Collection())

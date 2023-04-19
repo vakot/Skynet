@@ -37,38 +37,39 @@ export function* throughDirectory(directoryPath: string): Generator<string> {
  * and returns array of class instances
  *
  * @param {string} directoryPath - path to directory
- * @param {new (...args: any) => T} compareClass - class to compare with file
+ * @param {new (...args: any) => T} targetClass - class to compare with file
  * @returns {Promise<T[]>} - array of compareClass instances
  */
 export async function getFiles<T>(
   directoryPath: string,
-  compareClass: new (...args: any) => T
+  targetClass: new (...args: any) => T
 ): Promise<T[]> {
   const files: T[] = []
 
   for (const filePath of throughDirectory(directoryPath)) {
-    // just to be shure that all paths have same separator
+    // regex before pop() just to be sure that all paths have same format
     const fileName = filePath.replace(/\\/g, '/').split('/').pop()
     // ignore all non .js and non .ts files
     if (!filePath.endsWith('.ts') && !filePath.endsWith('.js')) {
-      logger.info(`File ${fileName} ignored`)
+      logger.info(`File <${fileName}> ignored`)
       continue
     }
     try {
       const data = await import(filePath)
       // get only files of provided class
-      if (!(new data.default() instanceof compareClass)) {
+      if (!(new data.default() instanceof targetClass)) {
         throw ''
       }
       // create instance and save
       files.push(new data.default())
-      logger.log(`File ${fileName} loaded`)
+      logger.log(`File <${fileName}> loaded`)
+      // logger.log(`[${data.default.name}] File <${fileName}> loaded`)
     } catch {
       // same error message for any purpose
       // data.default is not a class
       // data.default is not a provided class
       // other possible errors...
-      logger.warn(`File ${fileName} unresolvable`)
+      logger.warn(`File <${fileName}> unresolvable`)
     }
   }
 

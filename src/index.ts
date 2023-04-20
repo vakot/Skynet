@@ -22,42 +22,34 @@ export const client = new Client({
 ;(async () => {
   console.clear()
 
-  await client.login(process.env.TOKEN)
-
   const startTime = Date.now()
 
   logger.info('[SYSTEM INITIALIZATION]')
+  await client.login(process.env.TOKEN)
   logger.info('RUNNING SKYSOFT KERNEL 4.92.384.42')
 
-  logger.debug('Actions loading...')
-  await loadActions(client)
-    .then(() => logger.debug('Actions loaded'))
-    .catch((error) => {
-      logger.error('Error appears while actions loading')
-      logger.error(error)
-    })
+  logger.debug('Actions loading')
+  await loadActions(client).catch((error) => {
+    logger.error('Error appears while actions loading')
+    logger.error(error)
+  })
 
-  logger.debug('Plugins loading...')
-  await loadPlugins(client)
-    .then(() => logger.debug('Plugins loaded'))
-    .catch((error) => {
-      logger.error('Error appears while plugins loading')
-      logger.error(error)
-    })
+  await loadPlugins(client).catch((error) => {
+    logger.error('Error appears while plugins loading')
+    logger.error(error)
+  })
 
-  logger.debug('Events loading...')
-  await loadEvents(client)
-    .then(() => logger.debug('Events loaded'))
-    .catch((error) => {
-      logger.error('Error appears while events loading')
-      logger.error(error)
-    })
-
-  logger.info(`Loaded in ${Date.now() - startTime}ms`)
+  logger.debug('Events loading')
+  await loadEvents(client).catch((error) => {
+    logger.error('Error appears while events loading')
+    logger.error(error)
+  })
 
   logger.debug('Updating commands on remote')
   await pushCommands(client).catch((error) => {
     logger.error('Error appears while updating commands')
     logger.error(error)
   })
+
+  logger.info(`System startup in ${(Date.now() - startTime) * 0.001}s`)
 })()

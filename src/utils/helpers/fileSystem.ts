@@ -59,12 +59,8 @@ export async function getFiles<T>(
     try {
       // read
       const data = await import(filePath)
-
       // check
-      if (!(data.default instanceof targetClass)) {
-        throw ''
-      }
-
+      if (!(data.default instanceof targetClass)) throw ''
       // save
       files.push(data.default)
       logger.log(`File <${fileName}> loaded`)

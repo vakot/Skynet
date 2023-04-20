@@ -22,9 +22,9 @@ export const client = new Client({
 ;(async () => {
   console.clear()
 
-  const startTime = Date.now()
-
   await client.login(process.env.TOKEN)
+
+  const startTime = Date.now()
 
   logger.info('[SYSTEM INITIALIZATION]')
   logger.info('RUNNING SKYSOFT KERNEL 4.92.384.42')

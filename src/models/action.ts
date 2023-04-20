@@ -35,12 +35,12 @@ export class Action {
   ) {
     this.data = data
     this.event = event
-    this.once = once
-    this.cooldown = cooldown
-    this.deleteble = deleteble
-    this.testOnly = testOnly
-    this.devsOnly = devsOnly
-    this.forceUpdate = forceUpdate
+    this.once = once ?? false
+    this.cooldown = cooldown ?? 0
+    this.deleteble = deleteble ?? false
+    this.testOnly = testOnly ?? false
+    this.devsOnly = devsOnly ?? false
+    this.forceUpdate = forceUpdate ?? false
   }
 
   // conditions that determines this action possibility to be executed

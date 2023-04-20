@@ -1,4 +1,4 @@
-import { Events } from 'discord.js'
+import { ActivityType, Events } from 'discord.js'
 
 import { Client } from '../../models/Client'
 import { Action } from '../../models/Action'
@@ -16,6 +16,11 @@ export default new Action({
     return await this.execute(client)
   },
   async execute(client: Client) {
+    client.user?.setActivity({
+      name: 'Sky',
+      type: ActivityType.Watching,
+      url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    })
     return await logger.debug(`Logged in as ${client.user!.tag}`)
   },
 })

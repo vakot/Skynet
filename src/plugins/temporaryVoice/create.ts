@@ -42,7 +42,6 @@ export default new Action({
     if (invalidation) {
       // clear parrent voice
       await newState.member.voice.disconnect()
-
       // send temporary DM notification
       return await newState.member.user
         .send({

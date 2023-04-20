@@ -12,7 +12,7 @@ export default new Action({
 
   async init(oldState: VoiceState, newState: VoiceState) {
     // just in case to be sure
-    if ((!oldState && !newState) || !oldState.member || !newState.member) return
+    if ((!oldState && !newState) || !oldState.member) return
     // user streaming is also trigger VoiceStateUpdate. avoid it
     if (oldState.channelId === newState.channelId) return
     // delete channel only if user leave
@@ -21,13 +21,14 @@ export default new Action({
     if (oldState.channelId === parentId) return
     // move user back to existing temporary channel
     if (newState.channelId === parentId) {
+      if (!newState.member) return
       const channel = childrens.get(newState.member.id)
       if (channel) return await newState.member.voice.setChannel(channel)
     }
     // delete channel only if user have one
     if (!childrens.has(oldState.member.id)) return
 
-    return await this.execute(newState)
+    return await this.execute(oldState)
   },
   async execute(oldState: VoiceState) {
     const { channel, member } = oldState

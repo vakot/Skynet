@@ -1,5 +1,11 @@
 import { ClientEvents } from 'discord.js'
 
+interface Category {
+  name: string
+  description: string
+  // emoji: string
+}
+
 export class Action {
   // data can be any, but important to set the action name
   // name used as key to store action in Collection
@@ -49,7 +55,7 @@ export class Action {
     this.testOnly = options.testOnly ?? false
     this.devsOnly = options.devsOnly ?? false
     this.forceUpdate = options.forceUpdate ?? false
-    this.category = options.category ?? 'General'
+    this.category = options.category ?? '📢・General'
     this.init = options.init
     this.execute = options.execute
   }

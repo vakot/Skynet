@@ -10,6 +10,7 @@ import {
 import { Action } from '../../models/Action'
 
 export default new Action({
+  category: '⚙️・Utilities',
   data: new SlashCommandBuilder()
     .setName('clear-dms')
     .setDescription('Delete all bot messages in your DMs'),

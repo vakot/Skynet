@@ -11,6 +11,7 @@ import { Action } from '../../models/Action'
 import { validateAction } from '../../utils/helpers/validateAction'
 
 export default new Action({
+  category: '⚙️・Utilities',
   data: new SlashCommandBuilder()
     .setName('bulk-delete')
     .setDescription('Delete bulk of messages')
@@ -19,6 +20,7 @@ export default new Action({
       option
         .setName('count')
         .setDescription('Count of messages to delete (from 1 to 99)')
+        .setRequired(true)
     ),
 
   event: Events.InteractionCreate,

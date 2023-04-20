@@ -5,6 +5,7 @@ import { Action } from '../../models/Action'
 import { validateAction } from '../../utils/helpers/validateAction'
 
 export default new Action({
+  category: '🔒・Testing',
   data: { name: 'test-button-send-dm' },
 
   event: Events.InteractionCreate,

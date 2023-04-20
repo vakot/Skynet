@@ -6,7 +6,7 @@ import {
 import fs from 'fs'
 import axios from 'axios'
 
-import { Action } from '../../models/Action'
+import { Action } from '../../models/action'
 import logger from '../../utils/helpers/logger'
 import { validateAction } from '../../utils/helpers/validateAction'
 

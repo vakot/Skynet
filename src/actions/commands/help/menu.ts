@@ -6,8 +6,8 @@ import {
   StringSelectMenuInteraction,
 } from 'discord.js'
 
-import { Action } from '../../../models/Action'
-import { Client } from '../../../models/Client'
+import { Action } from '../../../models/action'
+import { Client } from '../../../models/client'
 
 export default new Action({
   data: { name: 'help-category-select-menu' },

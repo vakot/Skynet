@@ -5,7 +5,7 @@ import {
   SlashCommandBuilder,
 } from 'discord.js'
 
-import { Action } from '../../models/Action'
+import { Action } from '../../models/action'
 
 import { validateAction } from '../../utils/helpers/validateAction'
 

@@ -1,11 +1,5 @@
 import { ClientEvents } from 'discord.js'
 
-interface Category {
-  name: string
-  description: string
-  // emoji: string
-}
-
 export class Action {
   // data can be any, but important to set the action name
   // name used as key to store action in Collection

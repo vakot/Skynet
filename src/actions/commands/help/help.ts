@@ -8,13 +8,13 @@ import {
   StringSelectMenuBuilder,
 } from 'discord.js'
 
-import { Action } from '../../../models/Action'
-import { Client } from '../../../models/Client'
+import { Action } from '../../../models/action'
+import { Client } from '../../../models/client'
 
 import { validateAction } from '../../../utils/helpers/validateAction'
 
 export default new Action({
-  category: '❓・About',
+  category: 'About',
   data: new SlashCommandBuilder()
     .setName('help')
     .setDescription('Information about commands')

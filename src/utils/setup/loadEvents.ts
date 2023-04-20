@@ -1,6 +1,6 @@
 import { ClientEvents } from 'discord.js'
 
-import { Client } from '../../models/Client'
+import { Client } from '../../models/client'
 
 import logger from '../helpers/logger'
 

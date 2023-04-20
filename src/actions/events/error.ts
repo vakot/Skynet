@@ -1,6 +1,6 @@
 import { Events } from 'discord.js'
 
-import { Action } from '../../models/Action'
+import { Action } from '../../models/action'
 
 import logger from '../../utils/helpers/logger'
 

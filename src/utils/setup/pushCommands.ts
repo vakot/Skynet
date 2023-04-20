@@ -3,7 +3,7 @@ import { SlashCommandBuilder } from 'discord.js'
 import logger from '../helpers/logger'
 import { isCommandsEqual } from '../helpers/compareCommands'
 
-import { Client } from '../../models/Client'
+import { Client } from '../../models/client'
 
 export async function pushCommands(
   client: Client,

@@ -1,6 +1,6 @@
 import { Events, VoiceState } from 'discord.js'
 
-import { Action } from '../../models/Action'
+import { Action } from '../../models/action'
 
 import { childrens } from './create'
 import { parentId } from './config.json'

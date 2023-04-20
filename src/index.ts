@@ -2,7 +2,7 @@ require('dotenv').config()
 
 import { GatewayIntentBits } from 'discord.js'
 
-import { Client } from './models/Client'
+import { Client } from './models/client'
 
 import logger from './utils/helpers/logger'
 

@@ -1,6 +1,6 @@
 import { Collection, Guild, User } from 'discord.js'
 
-import { Action } from '../../models/Action'
+import { Action } from '../../models/action'
 import { client } from '../../index'
 
 import logger from './logger'

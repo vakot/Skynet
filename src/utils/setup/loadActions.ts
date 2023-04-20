@@ -1,7 +1,7 @@
 import path from 'path'
 
-import { Client } from '../../models/Client'
-import { Action } from '../../models/Action'
+import { Client } from '../../models/client'
+import { Action } from '../../models/action'
 
 import { getFiles } from '../helpers/fileSystem'
 

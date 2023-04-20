@@ -1,37 +1,48 @@
 import {
-  ChatInputCommandInteraction,
-  SlashCommandBuilder,
-  Events,
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
-  ClientEvents,
+  ChatInputCommandInteraction,
+  Events,
+  SlashCommandBuilder,
+  SlashCommandSubcommandBuilder,
   StringSelectMenuBuilder,
 } from 'discord.js'
+
 import { Action } from '../../models/Action'
+
 import { validateAction } from '../../utils/helpers/validateAction'
 
-export default class SlashCommand extends Action {
-  data = new SlashCommandBuilder()
+export default new Action({
+  category: 'Test',
+
+  data: new SlashCommandBuilder()
     .setName('test')
-    .setDescription('Testing features')
-    .addSubcommand((command) =>
-      command.setName('button').setDescription('Send test button')
+    .setDescription('Testing some features')
+    .addSubcommand(
+      new SlashCommandSubcommandBuilder()
+        .setName('button')
+        .setDescription('Send test button')
     )
-    .addSubcommand((command) =>
-      command.setName('menu').setDescription('Send test menu')
+    .addSubcommand(
+      new SlashCommandSubcommandBuilder()
+        .setName('menu')
+        .setDescription('Send test select menu')
     )
-    .addSubcommand((command) =>
-      command.setName('dms').setDescription('Send button to create DMs')
-    )
+    .addSubcommand(
+      new SlashCommandSubcommandBuilder()
+        .setName('dms')
+        .setDescription('Send button to create DMs')
+    ),
 
-  event: keyof ClientEvents = Events.InteractionCreate
+  event: Events.InteractionCreate,
 
-  devsOnly = true
-  testOnly = true
+  devsOnly: true,
+  testOnly: true,
+  cooldown: 20_000,
 
-  async init(interaction: ChatInputCommandInteraction): Promise<any> {
-    if (interaction.commandName !== this.data.name) return
+  async init(interaction: ChatInputCommandInteraction) {
+    if (this.data.name !== interaction.commandName) return
 
     const invalidation = validateAction(
       this,
@@ -40,13 +51,15 @@ export default class SlashCommand extends Action {
     )
 
     if (invalidation) {
-      return await interaction.reply({ content: invalidation, ephemeral: true })
+      return await interaction.reply({
+        content: invalidation,
+        ephemeral: true,
+      })
     }
 
     return await this.execute(interaction)
-  }
-
-  async execute(interaction: ChatInputCommandInteraction): Promise<any> {
+  },
+  async execute(interaction: ChatInputCommandInteraction) {
     if (interaction.options.getSubcommand() === 'button') {
       const button = new ButtonBuilder()
         .setCustomId('test-button')
@@ -103,5 +116,5 @@ export default class SlashCommand extends Action {
       content: 'Unknown subcommand',
       ephemeral: true,
     })
-  }
-}
+  },
+})

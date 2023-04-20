@@ -19,31 +19,38 @@ export class Action {
   devsOnly?: boolean
   // uses only with commands to force update it on remote
   forceUpdate?: boolean
-
-  constructor(
-    data: {
-      name: string
-      [key: string]: any
-    },
-    event: keyof ClientEvents,
-    once?: boolean,
-    cooldown?: number,
-    deleteble?: boolean,
-    testOnly?: boolean,
-    devsOnly?: boolean,
-    forceUpdate?: boolean
-  ) {
-    this.data = data
-    this.event = event
-    this.once = once ?? false
-    this.cooldown = cooldown ?? 0
-    this.deleteble = deleteble ?? false
-    this.testOnly = testOnly ?? false
-    this.devsOnly = devsOnly ?? false
-    this.forceUpdate = forceUpdate ?? false
-  }
-
+  // used only for /help command to sort all commands by categories
+  category?: string
   // conditions that determines this action possibility to be executed
   async init(...args: any): Promise<any> {}
   async execute(...args: any): Promise<any> {}
+
+  constructor(options: {
+    data: {
+      name: string
+      [key: string]: any
+    }
+    event: keyof ClientEvents
+    once?: boolean
+    cooldown?: number
+    deleteble?: boolean
+    testOnly?: boolean
+    devsOnly?: boolean
+    forceUpdate?: boolean
+    category?: string
+    init(...args: any): Promise<any>
+    execute(...args: any): Promise<any>
+  }) {
+    this.data = options.data
+    this.event = options.event
+    this.once = options.once ?? false
+    this.cooldown = options.cooldown ?? 0
+    this.deleteble = options.deleteble ?? false
+    this.testOnly = options.testOnly ?? false
+    this.devsOnly = options.devsOnly ?? false
+    this.forceUpdate = options.forceUpdate ?? false
+    this.category = options.category ?? 'General'
+    this.init = options.init
+    this.execute = options.execute
+  }
 }

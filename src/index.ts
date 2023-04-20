@@ -8,8 +8,8 @@ import logger from './utils/helpers/logger'
 
 import { loadActions } from './utils/setup/loadActions'
 import { loadEvents } from './utils/setup/loadEvents'
-import { pushCommands } from './utils/setup/pushCommands'
 import { loadPlugins } from './utils/setup/loadPlugins'
+import { pushCommands } from './utils/setup/pushCommands'
 
 export const client = new Client({
   intents: [
@@ -30,22 +30,28 @@ export const client = new Client({
   logger.info('RUNNING SKYSOFT KERNEL 4.92.384.42')
 
   logger.debug('Actions loading...')
-  await loadActions(client).catch((error) => {
-    logger.error('Error appears while actions loading')
-    logger.error(error)
-  })
+  await loadActions(client)
+    .then(() => logger.debug('Actions loaded'))
+    .catch((error) => {
+      logger.error('Error appears while actions loading')
+      logger.error(error)
+    })
 
   logger.debug('Plugins loading...')
-  await loadPlugins(client).catch((error) => {
-    logger.error('Error appears while plugins loading')
-    logger.error(error)
-  })
+  await loadPlugins(client)
+    .then(() => logger.debug('Plugins loaded'))
+    .catch((error) => {
+      logger.error('Error appears while plugins loading')
+      logger.error(error)
+    })
 
   logger.debug('Events loading...')
-  await loadEvents(client).catch((error) => {
-    logger.error('Error appears while events loading')
-    logger.error(error)
-  })
+  await loadEvents(client)
+    .then(() => logger.debug('Events loaded'))
+    .catch((error) => {
+      logger.error('Error appears while events loading')
+      logger.error(error)
+    })
 
   logger.info(`Loaded in ${Date.now() - startTime}ms`)
 
@@ -54,6 +60,4 @@ export const client = new Client({
     logger.error('Error appears while updating commands')
     logger.error(error)
   })
-
-  logger.info(`Logged in ${Date.now() - startTime}ms`)
 })()

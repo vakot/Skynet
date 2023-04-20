@@ -1,29 +1,27 @@
 import {
   ChatInputCommandInteraction,
-  SlashCommandBuilder,
   Events,
-  ClientEvents,
+  SlashCommandBuilder,
 } from 'discord.js'
 
 import { Action } from '../../models/Action'
 
-export default class SlashCommand extends Action {
-  data = new SlashCommandBuilder()
+export default new Action({
+  data: new SlashCommandBuilder()
     .setName('ping')
-    .setDescription('Replies with "Pong!"')
+    .setDescription('Replies with "Pong!"'),
 
-  event: keyof ClientEvents = Events.InteractionCreate
+  event: Events.InteractionCreate,
 
-  async init(interaction: ChatInputCommandInteraction): Promise<any> {
-    if (interaction.commandName !== this.data.name) return
+  async init(interaction: ChatInputCommandInteraction) {
+    if (this.data.name !== interaction.commandName) return
 
     return await this.execute(interaction)
-  }
-
+  },
   async execute(interaction: ChatInputCommandInteraction) {
     return await interaction.reply({
       content: `:ping_pong: Pong!`,
       ephemeral: true,
     })
-  }
-}
+  },
+})

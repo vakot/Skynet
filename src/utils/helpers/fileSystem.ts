@@ -49,26 +49,26 @@ export async function getFiles<T>(
   for (const filePath of throughDirectory(directoryPath)) {
     // regex before pop() just to be sure that all paths have same format
     const fileName = filePath.replace(/\\/g, '/').split('/').pop()
+
     // ignore all non .js and non .ts files
     if (!filePath.endsWith('.ts') && !filePath.endsWith('.js')) {
       logger.info(`File <${fileName}> ignored`)
       continue
     }
+
     try {
+      // read
       const data = await import(filePath)
-      // get only files of provided class
-      if (!(new data.default() instanceof targetClass)) {
+
+      // check
+      if (!(data.default instanceof targetClass)) {
         throw ''
       }
-      // create instance and save
-      files.push(new data.default())
+
+      // save
+      files.push(data.default)
       logger.log(`File <${fileName}> loaded`)
-      // logger.log(`[${data.default.name}] File <${fileName}> loaded`)
     } catch {
-      // same error message for any purpose
-      // data.default is not a class
-      // data.default is not a provided class
-      // other possible errors...
       logger.warn(`File <${fileName}> unresolvable`)
     }
   }

@@ -1,43 +1,39 @@
-import { ClientEvents, Events, VoiceState } from 'discord.js'
+import { Events, VoiceState } from 'discord.js'
+
 import { Action } from '../../models/Action'
-import { parentId } from './config.json'
+
 import { childrens } from './create'
+import { parentId } from './config.json'
 
-export default class TemporaryVoice extends Action {
-  data: { [key: string]: any; name: string } = {
-    name: 'temporary-voice-delete',
-  }
+export default new Action({
+  data: { name: '' },
 
-  event: keyof ClientEvents = Events.VoiceStateUpdate
+  event: Events.VoiceStateUpdate,
 
-  async init(oldState: VoiceState, newState: VoiceState): Promise<any> {
+  async init(oldState: VoiceState, newState: VoiceState) {
     // just in case to be sure
-    if (!oldState && !newState) return
-
-    // user streaming is also trigger VoiceStateUpdate. Avoid it
+    if ((!oldState && !newState) || !oldState.member || !newState.member) return
+    // user streaming is also trigger VoiceStateUpdate. avoid it
     if (oldState.channelId === newState.channelId) return
-
     // delete channel only if user leave
     if (!oldState && newState) return
-
     // don't delete parent channel
     if (oldState.channelId === parentId) return
-
     // move user back to existing temporary channel
-    if (newState.channelId === parentId)
-      return await newState.member.voice.setChannel(
-        childrens.get(newState.member.id)
-      )
-
+    if (newState.channelId === parentId) {
+      const channel = childrens.get(newState.member.id)
+      if (channel) return await newState.member.voice.setChannel(channel)
+    }
     // delete channel only if user have one
     if (!childrens.has(oldState.member.id)) return
 
-    return await this.execute(oldState)
-  }
-
-  async execute(oldState: VoiceState): Promise<any> {
+    return await this.execute(newState)
+  },
+  async execute(oldState: VoiceState) {
     const { channel, member } = oldState
 
+    if (!channel || !member) return
+
     return await channel.delete().then(() => childrens.delete(member.id))
-  }
-}
+  },
+})

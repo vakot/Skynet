@@ -1,20 +1,21 @@
-import { ClientEvents, Events } from 'discord.js'
+import { Events } from 'discord.js'
 
-import { Action } from '../../models/Action'
 import { Client } from '../../models/Client'
+import { Action } from '../../models/Action'
 
 import logger from '../../utils/helpers/logger'
 
-export default class ReadyEvent extends Action {
-  data = { name: 'ready-event' }
+export default new Action({
+  data: {
+    name: 'client-ready-event',
+  },
 
-  event: keyof ClientEvents = Events.ClientReady
+  event: Events.ClientReady,
 
-  async init(client: Client): Promise<any> {
+  async init(client: Client) {
     return await this.execute(client)
-  }
-
-  async execute(client: Client): Promise<any> {
-    return await logger.info(`Logged in as ${client.user!.tag}`)
-  }
-}
+  },
+  async execute(client: Client) {
+    return await logger.debug(`Logged in as ${client.user!.tag}`)
+  },
+})

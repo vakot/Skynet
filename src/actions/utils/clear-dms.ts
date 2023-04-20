@@ -1,28 +1,26 @@
 import {
-  ChatInputCommandInteraction,
-  SlashCommandBuilder,
-  Events,
-  ClientEvents,
-  ButtonBuilder,
   ActionRowBuilder,
+  ButtonBuilder,
   ButtonStyle,
+  ChatInputCommandInteraction,
+  Events,
+  SlashCommandBuilder,
 } from 'discord.js'
 
 import { Action } from '../../models/Action'
 
-export default class SlashCommand extends Action {
-  data = new SlashCommandBuilder()
+export default new Action({
+  data: new SlashCommandBuilder()
     .setName('clear-dms')
-    .setDescription('Delete all bot messages in your DMs')
+    .setDescription('Delete all bot messages in your DMs'),
 
-  event: keyof ClientEvents = Events.InteractionCreate
+  event: Events.InteractionCreate,
 
-  async init(interaction: ChatInputCommandInteraction): Promise<any> {
-    if (interaction.commandName !== this.data.name) return
+  async init(interaction: ChatInputCommandInteraction) {
+    if (this.data.name !== interaction.commandName) return
 
     return await this.execute(interaction)
-  }
-
+  },
   async execute(interaction: ChatInputCommandInteraction) {
     const acceptButton = new ButtonBuilder()
       .setCustomId('accept-clear-dms')
@@ -84,5 +82,5 @@ export default class SlashCommand extends Action {
       })
       return await setTimeout(() => interaction.deleteReply(), 10_000)
     }
-  }
-}
+  },
+})

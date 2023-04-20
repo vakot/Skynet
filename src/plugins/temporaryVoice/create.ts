@@ -1,39 +1,35 @@
 import {
   ChannelType,
-  ClientEvents,
   Collection,
   Events,
   PermissionFlagsBits,
   Snowflake,
   VoiceState,
 } from 'discord.js'
+
 import { Action } from '../../models/Action'
 
-import { parentId, categoryId } from './config.json'
 import { validateAction } from '../../utils/helpers/validateAction'
+
+import { parentId, categoryId } from './config.json'
 
 // userId > channelId
 export const childrens = new Collection<Snowflake, Snowflake>()
 
-export default class TemporaryVoice extends Action {
-  data: { [key: string]: any; name: string } = {
-    name: 'temporary-voice-create',
-  }
+export default new Action({
+  data: { name: 'create-temporary-voice-channel' },
 
-  event: keyof ClientEvents = Events.VoiceStateUpdate
+  event: Events.VoiceStateUpdate,
 
-  cooldown?: number = 20000
+  cooldown: 20_000,
 
-  async init(oldState: VoiceState, newState: VoiceState): Promise<any> {
+  async init(oldState: VoiceState, newState: VoiceState) {
     // just in case to be sure
-    if (!oldState && !newState) return
-
+    if ((!oldState && !newState) || !newState.member) return
     // user streaming is also trigger VoiceStateUpdate. Avoid it
     if (oldState.channelId === newState.channelId) return
-
     // create new only if join to parent channel
     if (newState.channelId !== parentId) return
-
     // create new only if user dont have temporary channel
     if (childrens.has(newState.member.user.id)) return
 
@@ -56,10 +52,11 @@ export default class TemporaryVoice extends Action {
     }
 
     return await this.execute(newState)
-  }
-
-  async execute(newState: VoiceState): Promise<any> {
+  },
+  async execute(newState: VoiceState) {
     const { guild, member, channel } = newState
+
+    if (!guild || !member || !channel) return
 
     return await guild.channels
       .create({
@@ -85,5 +82,5 @@ export default class TemporaryVoice extends Action {
         member.voice.setChannel(channel)
         childrens.set(member.user.id, channel.id)
       })
-  }
-}
+  },
+})

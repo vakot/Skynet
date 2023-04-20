@@ -1,33 +1,32 @@
 import {
   ChatInputCommandInteraction,
-  SlashCommandBuilder,
   Events,
-  ClientEvents,
   PermissionFlagsBits,
+  SlashCommandBuilder,
   TextChannel,
 } from 'discord.js'
 
 import { Action } from '../../models/Action'
+
 import { validateAction } from '../../utils/helpers/validateAction'
 
-export default class SlashCommand extends Action {
-  data = new SlashCommandBuilder()
+export default new Action({
+  data: new SlashCommandBuilder()
     .setName('bulk-delete')
-    .setDescription('Delete a bulk of messages')
+    .setDescription('Delete bulk of messages')
+    .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages)
     .addNumberOption((option) =>
       option
         .setName('count')
-        .setDescription('Count messages to delete (from 1 to 99)')
-        .setRequired(true)
-    )
-    .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages)
+        .setDescription('Count of messages to delete (from 1 to 99)')
+    ),
 
-  event: keyof ClientEvents = Events.InteractionCreate
+  event: Events.InteractionCreate,
 
-  cooldown = 10_000
+  cooldown: 10_000,
 
-  async init(interaction: ChatInputCommandInteraction): Promise<any> {
-    if (interaction.commandName !== this.data.name) return
+  async init(interaction: ChatInputCommandInteraction) {
+    if (this.data.name !== interaction.commandName) return
 
     const invalidation = validateAction(
       this,
@@ -36,12 +35,14 @@ export default class SlashCommand extends Action {
     )
 
     if (invalidation) {
-      return await interaction.reply({ content: invalidation, ephemeral: true })
+      return await interaction.reply({
+        content: invalidation,
+        ephemeral: true,
+      })
     }
 
     return await this.execute(interaction)
-  }
-
+  },
   async execute(interaction: ChatInputCommandInteraction) {
     const { channel } = interaction
 
@@ -61,5 +62,5 @@ export default class SlashCommand extends Action {
         ephemeral: true,
       })
     })
-  }
-}
+  },
+})

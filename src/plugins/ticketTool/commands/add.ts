@@ -55,11 +55,11 @@ export default new Action({
   },
 
   async execute(interaction: ChatInputCommandInteraction) {
-    const { user, guild } = interaction
+    const { user, guild, options } = interaction
 
     const ticket = new Ticket({
-      title: interaction.options.getString('title'),
-      reason: interaction.options.getString('reason'),
+      title: options.getString('title'),
+      reason: options.getString('reason'),
       authorId: user.id,
     })
 
@@ -87,31 +87,8 @@ export default new Action({
 
     ticket.setChannel(channel.id)
 
-    const ticketEmbed = new EmbedBuilder()
-      .setTitle(ticket.title)
-      .setDescription(
-        `<@${ticket.authorId}>, please wait. Support will respond as soon as possible`
-      )
-      .setFields(
-        {
-          name: 'Opened',
-          value: `<t:${Math.round(ticket.createdTimestamp * 0.001)}:R>`,
-          inline: true,
-        },
-        {
-          name: 'Reason',
-          value: ticket.reason,
-          inline: true,
-        },
-        {
-          name: 'Status',
-          value: ticket.status.toUpperCase(),
-          inline: true,
-        }
-      )
-
     const message = await channel.send({
-      embeds: [ticketEmbed],
+      embeds: [ticket.getEmbed()],
       components: [],
     })
 

@@ -10,6 +10,7 @@ import {
 import { Action } from '../../../models/action'
 
 import { tickets } from '../create'
+import { Ticket } from '../models/ticket'
 
 export default new Action({
   data: new SlashCommandBuilder()
@@ -21,14 +22,16 @@ export default new Action({
   async init(interaction: ChatInputCommandInteraction) {
     if (this.data.name !== interaction.commandName) return
 
-    return await this.execute(interaction)
-  },
-  async execute(interaction: ChatInputCommandInteraction) {
-    const { user, channelId, channel } = interaction
+    const ticket = tickets.get(interaction.user.id)
 
-    const ticket = tickets.get(user.id)
+    if (!ticket) {
+      return await interaction.reply({
+        content: 'You have no tickets created',
+        ephemeral: true,
+      })
+    }
 
-    if (channelId !== ticket?.channelId) {
+    if (interaction.channelId !== ticket?.channelId) {
       return await interaction.reply({
         content: "Ticket can be deleted only from it's own channel",
         ephemeral: true,
@@ -42,6 +45,38 @@ export default new Action({
       })
     }
 
+    return await this.execute(interaction, ticket)
+  },
+
+  async execute(interaction: ChatInputCommandInteraction, ticket: Ticket) {
+    const { user, channel } = interaction
+
+    if (!channel) {
+      return await interaction.reply({
+        content: 'Failde to delete a ticket',
+        ephemeral: true,
+      })
+    }
+
+    ticket.delete()
+
+    if (ticket.messageId) {
+      const messages = await channel?.messages.fetch()
+
+      const message = messages?.get(ticket.messageId)
+
+      message?.edit({
+        embeds: [ticket.getEmbed()],
+      })
+    } else {
+      const message = await channel.send({
+        embeds: [ticket.getEmbed()],
+        components: [],
+      })
+
+      ticket.setMessage(message.id)
+    }
+
     const button = new ButtonBuilder()
       .setCustomId('deny-ticket-delete')
       .setLabel('Decline')
@@ -50,9 +85,9 @@ export default new Action({
     const row = new ActionRowBuilder<ButtonBuilder>().setComponents(button)
 
     const response = await interaction.reply({
-      content: `Ticket will be deleted <t:${
-        Math.round(Date.now() * 0.001) + 20
-      }:R>`,
+      content: `**${ticket.title}** status updated to \`${
+        ticket.status
+      }\`\nTicket will be deleted <t:${Math.round(Date.now() * 0.001) + 20}:R>`,
       components: [row],
       fetchReply: true,
     })
@@ -67,6 +102,26 @@ export default new Action({
           content: 'Action cancelled\n⤷ Message will be deleted in `10s`',
           components: [],
         })
+
+        ticket.restore()
+
+        if (ticket.messageId) {
+          const messages = await channel?.messages.fetch()
+
+          const message = messages?.get(ticket.messageId)
+
+          message?.edit({
+            embeds: [ticket.getEmbed()],
+          })
+        } else {
+          const message = await channel.send({
+            embeds: [ticket.getEmbed()],
+            components: [],
+          })
+
+          ticket.setMessage(message.id)
+        }
+
         return await setTimeout(() => confirmation.deleteReply(), 10_000)
       }
     } catch (e) {

@@ -1,6 +1,5 @@
 import {
   ChatInputCommandInteraction,
-  EmbedBuilder,
   Events,
   SlashCommandBuilder,
 } from 'discord.js'
@@ -8,6 +7,7 @@ import {
 import { Action } from '../../../models/action'
 
 import { tickets } from '../create'
+import { Ticket } from '../models/ticket'
 
 export default new Action({
   data: new SlashCommandBuilder()
@@ -19,64 +19,59 @@ export default new Action({
   async init(interaction: ChatInputCommandInteraction) {
     if (this.data.name !== interaction.commandName) return
 
-    return await this.execute(interaction)
-  },
-  async execute(interaction: ChatInputCommandInteraction) {
-    const { user, channelId, channel } = interaction
+    const ticket = tickets.get(interaction.user.id)
 
-    if (!tickets.has(user.id)) {
+    if (!ticket) {
       return await interaction.reply({
-        content: 'You have no closed tickets',
+        content: 'You have no tickets created',
         ephemeral: true,
       })
     }
 
-    const ticket = tickets.get(user.id)
-
-    if (channelId !== ticket?.channelId) {
+    if (interaction.channelId !== ticket?.channelId) {
       return await interaction.reply({
         content: "Ticket can be opened only from it's own channel",
         ephemeral: true,
       })
     }
 
+    if (ticket.status === 'deleted') {
+      return await interaction.reply({
+        content: "You can't interact with ticket that will be deleted",
+        ephemeral: true,
+      })
+    }
+
+    return await this.execute(interaction, ticket)
+  },
+
+  async execute(interaction: ChatInputCommandInteraction, ticket: Ticket) {
+    const { channel } = interaction
+
+    if (!channel) {
+      return await interaction.reply({
+        content: 'Failde to re-open a ticket',
+        ephemeral: true,
+      })
+    }
+
     ticket.open()
 
-    const embed = new EmbedBuilder()
-      .setTitle(ticket.title)
-      .setDescription(
-        `<@${ticket.authorId}>, please wait. Support will respond as soon as possible`
-      )
-      .setFields(
-        {
-          name: 'Opened',
-          value: `<t:${Math.round(ticket.createdTimestamp * 0.001)}:R>`,
-          inline: true,
-        },
-        {
-          name: 'Reason',
-          value: ticket.reason,
-          inline: true,
-        },
-        {
-          name: 'Status',
-          value: ticket.status.toUpperCase(),
-          inline: true,
-        }
-      )
+    if (ticket.messageId) {
+      const messages = await channel?.messages.fetch()
 
-    const message = (await channel?.messages.fetch())?.get(
-      ticket.messageId || ''
-    )
+      const message = messages?.get(ticket.messageId)
 
-    if (message) {
-      await message.edit({
-        embeds: [embed],
+      message?.edit({
+        embeds: [ticket.getEmbed()],
       })
     } else {
-      await channel?.send({
-        embeds: [embed],
+      const message = await channel.send({
+        embeds: [ticket.getEmbed()],
+        components: [],
       })
+
+      ticket.setMessage(message.id)
     }
 
     return await interaction.reply(

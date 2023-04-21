@@ -23,6 +23,7 @@ export default new Action({
 
     return await this.execute(interaction)
   },
+
   async execute(interaction: ChatInputCommandInteraction) {
     return await interaction.reply({
       content: 'ticket_tool_base_message',

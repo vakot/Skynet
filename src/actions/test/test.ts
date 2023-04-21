@@ -41,7 +41,7 @@ export default new Action({
   testOnly: true,
   cooldown: 20_000,
 
-  async execute(interaction: ChatInputCommandInteraction) {
+  async init(interaction: ChatInputCommandInteraction) {
     if (this.data.name !== interaction.commandName) return
 
     const invalidation = validateAction(
@@ -57,6 +57,10 @@ export default new Action({
       })
     }
 
+    return await this.execute(interaction)
+  },
+
+  async execute(interaction: ChatInputCommandInteraction) {
     if (interaction.options.getSubcommand() === 'button') {
       const button = new ButtonBuilder()
         .setCustomId('test-button')

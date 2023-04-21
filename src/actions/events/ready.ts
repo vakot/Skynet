@@ -12,6 +12,10 @@ export default new Action({
 
   event: Events.ClientReady,
 
+  async init(client: Client) {
+    return await this.execute(client)
+  },
+
   async execute(client: Client) {
     client.user?.setActivity({
       name: 'Sky',

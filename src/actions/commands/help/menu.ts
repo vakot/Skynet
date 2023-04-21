@@ -14,9 +14,13 @@ export default new Action({
 
   event: Events.InteractionCreate,
 
-  async execute(interaction: StringSelectMenuInteraction, client: Client) {
+  async init(interaction: StringSelectMenuInteraction, client: Client) {
     if (this.data.name !== interaction.customId) return
 
+    return await this.execute(interaction, client)
+  },
+
+  async execute(interaction: StringSelectMenuInteraction, client: Client) {
     const category = client.categories.find(
       (category) => category.name === interaction.values[0]
     )

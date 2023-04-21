@@ -31,9 +31,13 @@ export default new Action({
 
   event: Events.InteractionCreate,
 
-  async execute(interaction: StringSelectMenuInteraction) {
+  async init(interaction: StringSelectMenuInteraction) {
     if (this.data.name !== interaction.customId) return
 
+    return await this.execute(interaction)
+  },
+
+  async execute(interaction: StringSelectMenuInteraction) {
     if (!interaction.member) return
 
     const memberRoles = interaction.member.roles as GuildMemberRoleManager

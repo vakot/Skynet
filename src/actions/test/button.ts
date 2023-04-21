@@ -14,9 +14,13 @@ export default new Action({
   testOnly: true,
   cooldown: 10_000,
 
-  async execute(interaction: ButtonInteraction) {
+  async init(interaction: ButtonInteraction) {
     if (this.data.name !== interaction.customId) return
 
+    return await this.execute(interaction)
+  },
+
+  async execute(interaction: ButtonInteraction) {
     const invalidation = validateAction(
       this,
       interaction.guild,

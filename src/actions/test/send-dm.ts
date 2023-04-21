@@ -14,7 +14,7 @@ export default new Action({
   testOnly: true,
   cooldown: 10_000,
 
-  async execute(interaction: ButtonInteraction) {
+  async init(interaction: ButtonInteraction) {
     if (this.data.name !== interaction.customId) return
 
     const invalidation = validateAction(
@@ -30,6 +30,10 @@ export default new Action({
       })
     }
 
+    return await this.execute(interaction)
+  },
+
+  async execute(interaction: ButtonInteraction) {
     await interaction.user.send('Test DM message')
 
     return await interaction.reply({

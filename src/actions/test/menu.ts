@@ -13,7 +13,7 @@ export default new Action({
   devsOnly: true,
   testOnly: true,
 
-  async execute(interaction: StringSelectMenuInteraction) {
+  async init(interaction: StringSelectMenuInteraction) {
     if (this.data.name !== interaction.customId) return
 
     const invalidation = validateAction(
@@ -29,6 +29,10 @@ export default new Action({
       })
     }
 
+    return await this.execute(interaction)
+  },
+
+  async execute(interaction: StringSelectMenuInteraction) {
     return await interaction.reply({
       content: 'Selected values: ' + interaction.values.sort().join(' | '),
       ephemeral: true,

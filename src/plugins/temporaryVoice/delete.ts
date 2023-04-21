@@ -10,7 +10,7 @@ export default new Action({
 
   event: Events.VoiceStateUpdate,
 
-  async init(oldState: VoiceState, newState: VoiceState) {
+  async execute(oldState: VoiceState, newState: VoiceState) {
     // just in case to be sure
     if ((!oldState && !newState) || !oldState.member) return
     // user streaming is also trigger VoiceStateUpdate. avoid it
@@ -28,9 +28,6 @@ export default new Action({
     // delete channel only if user have one
     if (!childrens.has(oldState.member.id)) return
 
-    return await this.execute(oldState)
-  },
-  async execute(oldState: VoiceState) {
     const { channel, member } = oldState
 
     if (!channel || !member) return

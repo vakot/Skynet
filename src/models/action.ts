@@ -21,8 +21,8 @@ export class Action {
   forceUpdate?: boolean
   // used only for /help command to sort all commands by categories
   category?: string
-  // conditions that determines this action possibility to be executed
-  async init(...args: any): Promise<any> {}
+  // don't forget to add conditions that determines this action
+  // possibility to be executed and indetifi between other actions
   async execute(...args: any): Promise<any> {}
 
   constructor(options: {
@@ -38,7 +38,6 @@ export class Action {
     devsOnly?: boolean
     forceUpdate?: boolean
     category?: string
-    init(...args: any): Promise<any>
     execute(...args: any): Promise<any>
   }) {
     this.data = options.data
@@ -50,7 +49,6 @@ export class Action {
     this.devsOnly = options.devsOnly ?? false
     this.forceUpdate = options.forceUpdate ?? false
     this.category = options.category ?? '📢・General'
-    this.init = options.init
     this.execute = options.execute
   }
 }

@@ -23,7 +23,7 @@ export default new Action({
 
   cooldown: 20_000,
 
-  async init(oldState: VoiceState, newState: VoiceState) {
+  async execute(oldState: VoiceState, newState: VoiceState) {
     // just in case to be sure
     if ((!oldState && !newState) || !newState.member) return
     // user streaming is also trigger VoiceStateUpdate. Avoid it
@@ -50,9 +50,6 @@ export default new Action({
         .then((message) => setTimeout(() => message.delete(), 20000))
     }
 
-    return await this.execute(newState)
-  },
-  async execute(newState: VoiceState) {
     const { guild, member, channel } = newState
 
     if (!guild || !member || !channel) return

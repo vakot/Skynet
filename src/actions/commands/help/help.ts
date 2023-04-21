@@ -27,12 +27,9 @@ export default new Action({
 
   event: Events.InteractionCreate,
 
-  async init(interaction: ChatInputCommandInteraction, client: Client) {
+  async execute(interaction: ChatInputCommandInteraction, client: Client) {
     if (this.data.name !== interaction.commandName) return
 
-    return await this.execute(interaction, client)
-  },
-  async execute(interaction: ChatInputCommandInteraction, client: Client) {
     const commands = client.localCommands
 
     const commandOption = interaction.options.getString('command')

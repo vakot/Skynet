@@ -11,9 +11,6 @@ export default new Action({
 
   event: Events.Warn,
 
-  async init(info: string) {
-    return await this.execute(info)
-  },
   async execute(info: string) {
     return await logger.warn(info)
   },

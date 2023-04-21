@@ -27,7 +27,7 @@ export default new Action({
   devsOnly: true,
   cooldown: 300_000,
 
-  async init(interaction: ChatInputCommandInteraction) {
+  async execute(interaction: ChatInputCommandInteraction) {
     if (this.data.name !== interaction.commandName) return
 
     const invalidation = validateAction(
@@ -43,9 +43,6 @@ export default new Action({
       })
     }
 
-    return await this.execute(interaction)
-  },
-  async execute(interaction: ChatInputCommandInteraction) {
     const image = interaction.options.getAttachment('image')
 
     if (!image) {

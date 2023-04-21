@@ -18,14 +18,18 @@ export async function loadEvents(client: Client): Promise<void> {
     client.on(event, (...args) => {
       actions
         .filter((action) => !action.once && action.event === event)
-        .forEach((action) => action.init(...args, client).catch(logger.error))
+        .forEach((action) =>
+          action.execute(...args, client).catch(logger.error)
+        )
     })
 
     // run all client.once event's
     client.once(event, (...args) => {
       actions
         .filter((action) => action.once && action.event === event)
-        .forEach((action) => action.init(...args, client).catch(logger.error))
+        .forEach((action) =>
+          action.execute(...args, client).catch(logger.error)
+        )
     })
 
     logger.log(`Listener <${event}> registered`)

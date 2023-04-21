@@ -14,7 +14,7 @@ export default new Action({
   testOnly: true,
   cooldown: 10_000,
 
-  async init(interaction: ButtonInteraction) {
+  async execute(interaction: ButtonInteraction) {
     if (this.data.name !== interaction.customId) return
 
     const invalidation = validateAction(
@@ -30,9 +30,6 @@ export default new Action({
       })
     }
 
-    return await this.execute(interaction)
-  },
-  async execute(interaction: ButtonInteraction) {
     return await interaction.reply({
       content:
         "We're no strangers to love\n" +

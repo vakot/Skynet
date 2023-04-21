@@ -23,7 +23,7 @@ export default new Action({
 
   cooldown: 120_000,
 
-  async init(interaction: ChatInputCommandInteraction) {
+  async execute(interaction: ChatInputCommandInteraction) {
     if (this.data.name !== interaction.commandName) return
 
     const invalidation = validateAction(
@@ -39,9 +39,6 @@ export default new Action({
       })
     }
 
-    return await this.execute(interaction)
-  },
-  async execute(interaction: ChatInputCommandInteraction) {
     const menu = new StringSelectMenuBuilder()
       .setCustomId('reaction-roles-select-menu')
       .setPlaceholder('Select a role to get it!')

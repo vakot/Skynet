@@ -1,10 +1,15 @@
 import fs from 'fs'
 import path from 'path'
 
-import { compareObjectWithSchema } from './compareObjectWithSchema'
-
 import logger from './logger'
 
+/**
+ * function recursively read all files in provided directory
+ * and it's subdirectories and returns paths of readed files
+ *
+ * @param {string} directoryPath - path to directory
+ * @returns {Generator<string>} - yielded paths
+ */
 export function* throughDirectory(directoryPath: string): Generator<string> {
   try {
     const files = fs.readdirSync(directoryPath)
@@ -13,10 +18,11 @@ export function* throughDirectory(directoryPath: string): Generator<string> {
       const filePath = path.join(directoryPath, file)
       const stats = fs.statSync(filePath)
 
+      // if directory - go deeper in recursion
       if (stats.isDirectory()) {
         yield* throughDirectory(filePath)
       }
-
+      // if file - return path
       if (stats.isFile()) {
         yield filePath
       }
@@ -26,31 +32,42 @@ export function* throughDirectory(directoryPath: string): Generator<string> {
   }
 }
 
+/**
+ * function read files in directory and it's subdirecoties
+ * than compare result to provided type paramether
+ * and returns array of class instances
+ *
+ * @param {string} directoryPath - path to directory
+ * @param {new (...args: any) => T} targetClass - class to compare with file
+ * @returns {Promise<T[]>} - array of compareClass instances
+ */
 export async function getFiles<T>(
   directoryPath: string,
-  schema: object
+  targetClass: new (...args: any) => T
 ): Promise<T[]> {
   const files: T[] = []
 
   for (const filePath of throughDirectory(directoryPath)) {
+    // regex before split() just to be sure that all paths have same format
     const fileName = filePath.replace(/\\/g, '/').split('/').pop()
+    const fileSize = (fs.statSync(filePath).size / 1024).toFixed(2)
 
+    // ignore all non .js and non .ts files
     if (!filePath.endsWith('.ts') && !filePath.endsWith('.js')) {
-      logger.info(`File ${fileName} ignored`)
+      logger.info(`File [${fileSize}Kb] <${fileName}> ignored`)
       continue
     }
 
     try {
+      // read
       const data = await import(filePath)
-
-      if (!compareObjectWithSchema(data.default, schema))
-        throw `File ${fileName} unresolvable`
-
+      // check
+      if (!(data.default instanceof targetClass)) throw ''
+      // save
       files.push(data.default)
-
-      logger.log(`File ${fileName} loaded`)
-    } catch (error) {
-      logger.error(error)
+      logger.log(`File [${fileSize}Kb] <${fileName}> loaded`)
+    } catch {
+      logger.warn(`File [${fileSize}Kb] <${fileName}> unresolvable`)
     }
   }
 

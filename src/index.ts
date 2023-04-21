@@ -1,13 +1,18 @@
 require('dotenv').config()
 
-import { Client, GatewayIntentBits } from 'discord.js'
+import { GatewayIntentBits } from 'discord.js'
 
-import { setupEvents } from './utils/setup/setupEvents'
-import { setupActions } from './utils/setup/setupActions'
+import { Client } from './models/client'
 
 import logger from './utils/helpers/logger'
 
-const client = new Client({
+import { loadActions } from './utils/setup/loadActions'
+import { loadPlugins } from './utils/setup/loadPlugins'
+import { loadEvents } from './utils/setup/loadEvents'
+import { loadCategories } from './utils/setup/loadCategories'
+import { pushCommands } from './utils/setup/pushCommands'
+
+export const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildVoiceStates,
@@ -15,22 +20,45 @@ const client = new Client({
     GatewayIntentBits.MessageContent,
   ],
 })
-
 ;(async () => {
   console.clear()
 
   const startTime = Date.now()
 
   logger.info('[SYSTEM INITIALIZATION]')
+  await client.login(process.env.TOKEN)
   logger.info('RUNNING SKYSOFT KERNEL 4.92.384.42')
 
-  await setupActions().catch(logger.error)
+  logger.debug('Actions loading')
+  await loadActions(client).catch((error) => {
+    logger.error('Error appears while actions loading')
+    logger.error(error)
+  })
 
-  await setupEvents(client).catch(logger.error)
+  await loadPlugins(client).catch((error) => {
+    logger.error('Error appears while plugins loading')
+    logger.error(error)
+  })
 
-  logger.info(`Loaded in ${Date.now() - startTime}ms`)
+  logger.debug('Categories loading')
+  await loadCategories(client).catch((error) => {
+    logger.error('Error appears while categories loading')
+    logger.error(error)
+  })
 
-  client
-    .login(process.env.TOKEN)
-    .then(() => logger.info(`Logged in ${Date.now() - startTime}ms`))
+  logger.debug('Event listreners creating')
+  await loadEvents(client).catch((error) => {
+    logger.error('Error appears while event listreners creating')
+    logger.error(error)
+  })
+
+  logger.debug('Updating commands on remote')
+  await pushCommands(client).catch((error) => {
+    logger.error('Error appears while updating commands')
+    logger.error(error)
+  })
+
+  logger.info(
+    `System startup in ${((Date.now() - startTime) * 0.001).toFixed(3)}s`
+  )
 })()

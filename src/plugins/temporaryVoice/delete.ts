@@ -1,48 +1,40 @@
-import { Events, VoiceState, Collection, Snowflake } from 'discord.js'
-
-import { nanoid } from 'nanoid'
-
-import store from '../../utils/helpers/store'
-import logger from '../../utils/helpers/logger'
+import { Events, VoiceState } from 'discord.js'
 
 import { Action } from '../../models/action'
 
+import { childrens } from './create'
 import { parentId } from './config.json'
 
-export default {
-  id: nanoid(),
+export default new Action({
+  data: { name: '' },
 
   event: Events.VoiceStateUpdate,
 
   async init(oldState: VoiceState, newState: VoiceState) {
-    const isLeft: boolean = !!oldState.channelId && !newState.channelId
-    const isMove: boolean =
-      !!oldState.channelId &&
-      !!newState.channelId &&
-      oldState.channelId !== newState.channelId
+    // just in case to be sure
+    if ((!oldState && !newState) || !oldState.member) return
+    // user streaming is also trigger VoiceStateUpdate. avoid it
+    if (oldState.channelId === newState.channelId) return
+    // delete channel only if user leave
+    if (!oldState && newState) return
+    // don't delete parent channel
+    if (oldState.channelId === parentId) return
+    // move user back to existing temporary channel
+    if (newState.channelId === parentId) {
+      if (!newState.member) return
+      const channel = childrens.get(newState.member.id)
+      if (channel) return await newState.member.voice.setChannel(channel)
+    }
+    // delete channel only if user have one
+    if (!childrens.has(oldState.member.id)) return
 
-    if (isLeft || isMove) return await this.execute(oldState, newState)
+    return await this.execute(oldState)
   },
-
-  async execute(oldState: VoiceState, newState: VoiceState) {
+  async execute(oldState: VoiceState) {
     const { channel, member } = oldState
 
-    if (oldState.channelId === parentId) return
+    if (!channel || !member) return
 
-    const childrens: Collection<Snowflake, string> =
-      store.get('temporary-voice')
-
-    if (!childrens || !childrens.has(member.user.id)) return
-
-    if (newState.channelId === parentId)
-      return await member.voice.setChannel(childrens.get(member.user.id))
-
-    childrens.delete(member.user.id)
-
-    store.set('temporary-voice', childrens)
-
-    return await channel
-      .delete()
-      .then(() => logger.info(`Channel ${channel.name} deleted`))
+    return await channel.delete().then(() => childrens.delete(member.id))
   },
-} as Action
+})

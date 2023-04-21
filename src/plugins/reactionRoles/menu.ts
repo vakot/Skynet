@@ -1,63 +1,45 @@
 import {
-  StringSelectMenuBuilder,
-  StringSelectMenuInteraction,
-  GuildMemberRoleManager,
-  GuildMember,
-  Snowflake,
   EmbedBuilder,
   Events,
+  GuildMember,
+  GuildMemberRoleManager,
+  Snowflake,
+  StringSelectMenuInteraction,
 } from 'discord.js'
 
-import { nanoid } from 'nanoid'
+import { Action } from '../../models/action'
 
-import logger from '../../../utils/helpers/logger'
-
-import { Action } from '../../../models/action'
-
-import { roles } from '../config.json'
+import { roles } from './config.json'
 
 function addRoles(member: GuildMember, roles: Snowflake[]) {
   if (!roles.length) return
 
   return roles.forEach(async (role) => {
-    await member.roles.add(role).catch(logger.error)
+    await member.roles.add(role)
   })
 }
 function removeRoles(member: GuildMember, roles: Snowflake[]) {
   if (!roles.length) return
 
   return roles.forEach(async (role) => {
-    await member.roles.remove(role).catch(logger.error)
+    await member.roles.remove(role)
   })
 }
 
-export default {
-  id: nanoid(),
-
-  data: new StringSelectMenuBuilder()
-    .setCustomId('reaction-roles-menu')
-    .setPlaceholder('Select a role to get it!')
-    .setOptions(...roles)
-    .setMinValues(0)
-    .setMaxValues(roles.length),
-
-  // SUCKS CAUSE THERE IS NO WAY TO SET UP AN POSSIBLE OPTIONS >_<
-  // data: new RoleSelectMenuBuilder()
-  //   .setCustomId('reaction-roles-menu-handle')
-  //   .setPlaceholder('Select a role to get it!')
-  //   .setOptions(...roles)
-  //   .setMinValues(0)
-  //   .setMaxValues(roles.length)
+export default new Action({
+  data: { name: 'reaction-roles-select-menu' },
 
   event: Events.InteractionCreate,
 
   async init(interaction: StringSelectMenuInteraction) {
-    if (interaction.customId === this.data.data.custom_id) {
-      return await this.execute(interaction)
-    }
+    if (this.data.name !== interaction.customId) return
+
+    return await this.execute(interaction)
   },
 
   async execute(interaction: StringSelectMenuInteraction) {
+    if (!interaction.member) return
+
     const memberRoles = interaction.member.roles as GuildMemberRoleManager
     const selectedRoles = interaction.values
     const possibleRoles = roles.map((role) => role.value)
@@ -69,7 +51,7 @@ export default {
       (role) => !selectedRoles.includes(role) && memberRoles.cache.has(role)
     )
 
-    // BULK ADD AND REMOVE ISN'T WORKING AND IDK WHY
+    // BULK ADD AND REMOVE ISN'T WORKING TOGETHER AND IT'S NOT MY FAULT
     // if (addedRoles.length)
     //   await (interaction.member.roles as GuildMemberRoleManager)
     //     .add(addedRoles)
@@ -95,13 +77,13 @@ export default {
       .addFields(
         {
           name: 'Added roles:',
-          value: `> ${
+          value: `${
             addedRoles?.map((role) => `<@&${role}>`).join(' | ') || '-'
           }`,
         },
         {
           name: 'Removed roles:',
-          value: `> ${
+          value: `${
             removedRoles?.map((role) => `<@&${role}>`).join(' | ') || '-'
           }`,
         }
@@ -112,4 +94,4 @@ export default {
       ephemeral: true,
     })
   },
-} as Action
+})

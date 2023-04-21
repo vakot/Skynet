@@ -1,5 +1,4 @@
 import moment from 'moment'
-import store from './store'
 
 function getTimestamp(): string {
   return moment(Date.now()).format('HH:mm:ss')
@@ -77,13 +76,13 @@ function save(
     }
   }
 
-  const savedLog: string[] = store.get('log')
+  // const savedLog: string[] = store.get('log')
 
-  if (savedLog) {
-    savedLog.push(colored())
-  } else {
-    store.set('log', [colored()])
-  }
+  // if (savedLog) {
+  //   savedLog.push(colored())
+  // } else {
+  //   store.set('log', [colored()])
+  // }
 }
 
 export default logger

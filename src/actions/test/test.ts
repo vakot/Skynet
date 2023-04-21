@@ -1,5 +1,7 @@
 import {
   ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
   ChatInputCommandInteraction,
   Events,
   SlashCommandBuilder,
@@ -7,75 +9,113 @@ import {
   StringSelectMenuBuilder,
 } from 'discord.js'
 
-import { nanoid } from 'nanoid'
-
-import { validateInteraction } from '../../utils/interactions/validate'
-import responder from '../../utils/helpers/responder'
-
 import { Action } from '../../models/action'
 
-import menu from './select-menu'
-import button from './button'
+import { validateAction } from '../../utils/helpers/validateAction'
 
-export default {
-  id: nanoid(),
+export default new Action({
+  category: 'Testing',
 
   data: new SlashCommandBuilder()
     .setName('test')
-    .setDescription('Test commands')
+    .setDescription('Testing some features')
     .addSubcommand(
       new SlashCommandSubcommandBuilder()
-        .setName('send-button')
+        .setName('button')
         .setDescription('Send test button')
     )
     .addSubcommand(
       new SlashCommandSubcommandBuilder()
-        .setName('send-menu')
-        .setDescription('Send select menu')
+        .setName('menu')
+        .setDescription('Send test select menu')
+    )
+    .addSubcommand(
+      new SlashCommandSubcommandBuilder()
+        .setName('dms')
+        .setDescription('Send button to create DMs')
     ),
 
   event: Events.InteractionCreate,
 
-  testOnly: true,
   devsOnly: true,
+  testOnly: true,
+  cooldown: 20_000,
 
   async init(interaction: ChatInputCommandInteraction) {
-    if (interaction.commandName === this.data.name) {
-      const { user, guildId } = interaction
+    if (this.data.name !== interaction.commandName) return
 
-      const invalidations = await validateInteraction(this, user, guildId)
+    const invalidation = validateAction(
+      this,
+      interaction.guild,
+      interaction.user
+    )
 
-      if (invalidations.size) {
-        return await responder.deny.reply(
-          interaction,
-          invalidations,
-          this.data.name
-        )
-      } else {
-        return await this.execute(interaction)
-      }
+    if (invalidation) {
+      return await interaction.reply({
+        content: invalidation,
+        ephemeral: true,
+      })
     }
+
+    return await this.execute(interaction)
   },
 
   async execute(interaction: ChatInputCommandInteraction) {
-    if (interaction.options.getSubcommand() === 'send-button') {
-      const row = new ActionRowBuilder<StringSelectMenuBuilder>().setComponents(
-        button.data
-      )
+    if (interaction.options.getSubcommand() === 'button') {
+      const button = new ButtonBuilder()
+        .setCustomId('test-button')
+        .setLabel('Click!')
+        .setStyle(ButtonStyle.Danger)
+
+      const row = new ActionRowBuilder<ButtonBuilder>().setComponents(button)
 
       return await interaction.reply({
+        ephemeral: true,
         components: [row],
       })
     }
 
-    if (interaction.options.getSubcommand() === 'send-menu') {
+    if (interaction.options.getSubcommand() === 'menu') {
+      const options = [
+        { label: 'Number 1', value: '1' },
+        { label: 'Number 2', value: '2' },
+        { label: 'Number 3', value: '3' },
+        { label: 'Number 4', value: '4' },
+        { label: 'Number 5', value: '5' },
+      ]
+      const menu = new StringSelectMenuBuilder()
+        .setCustomId('test-menu')
+        .addOptions(...options)
+        .setMinValues(0)
+        .setMaxValues(options.length)
+
       const row = new ActionRowBuilder<StringSelectMenuBuilder>().setComponents(
-        menu.data
+        menu
       )
 
       return await interaction.reply({
+        ephemeral: true,
         components: [row],
       })
     }
+
+    if (interaction.options.getSubcommand() === 'dms') {
+      const button = new ButtonBuilder()
+        .setCustomId('test-button-send-dm')
+        .setLabel('Send DM!')
+        .setStyle(ButtonStyle.Secondary)
+
+      const row = new ActionRowBuilder<ButtonBuilder>().setComponents(button)
+
+      return await interaction.reply({
+        ephemeral: true,
+        components: [row],
+      })
+    }
+
+    return await interaction.reply({
+      content: 'Unknown subcommand',
+      ephemeral: true,
+    })
   },
-} as Action
+})

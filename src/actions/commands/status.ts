@@ -1,49 +1,50 @@
 import {
   ChatInputCommandInteraction,
+  EmbedBuilder,
   Events,
   SlashCommandBuilder,
-  EmbedBuilder,
 } from 'discord.js'
 
-import { nanoid } from 'nanoid'
+import { Action } from '../../models/action'
 
-import { validateInteraction } from '../../../utils/interactions/validate'
-import responder from '../../../utils/helpers/responder'
+import { validateAction } from '../../utils/helpers/validateAction'
 
-import { Action } from '../../../models/action'
-
-export default {
-  id: nanoid(),
+export default new Action({
+  category: 'About',
 
   data: new SlashCommandBuilder()
     .setName('status')
     .setDescription('Short information about bot status'),
 
   event: Events.InteractionCreate,
-  cooldown: 10000,
 
   devsOnly: true,
 
   async init(interaction: ChatInputCommandInteraction) {
-    if (interaction.commandName === this.data.name) {
-      const { user, guildId } = interaction
+    if (this.data.name !== interaction.commandName) return
 
-      const invalidations = await validateInteraction(this, user, guildId)
+    const invalidation = validateAction(
+      this,
+      interaction.guild,
+      interaction.user
+    )
 
-      if (invalidations.size) {
-        return await responder.deny.reply(
-          interaction,
-          invalidations,
-          this.data.name
-        )
-      } else {
-        return await this.execute(interaction)
-      }
+    if (invalidation) {
+      return await interaction.reply({
+        content: invalidation,
+        ephemeral: true,
+      })
     }
+
+    return await this.execute(interaction)
   },
 
   async execute(interaction: ChatInputCommandInteraction) {
     const { guild, guildId, id } = interaction
+
+    if (!guild) return
+
+    const reply = await interaction.deferReply({ fetchReply: true })
 
     const botsCount = (await guild.fetchIntegrations()).filter(
       (i) => i.application && i.application.bot
@@ -51,18 +52,18 @@ export default {
 
     const embed = new EmbedBuilder().setFields(
       {
-        name: 'Owner',
+        name: 'Server owner',
         value: `<@${guild.ownerId}>`,
         inline: true,
       },
       {
         name: 'Server ID',
-        value: `\`${guildId}\``,
+        value: `||\`${guildId}\`||`,
         inline: true,
       },
       {
         name: 'Created at',
-        value: `<t:${Math.round(guild.createdTimestamp / 1000)}:D>`,
+        value: `<t:${Math.round(guild.createdTimestamp / 1000)}:f>`,
         inline: true,
       },
       {
@@ -74,12 +75,10 @@ export default {
       },
       {
         name: 'Event ID',
-        value: `\`${id}\``,
+        value: `||\`${id}\`||`,
         inline: true,
       }
     )
-
-    const reply = await interaction.deferReply({ fetchReply: true })
 
     return await interaction.editReply({
       content: '',
@@ -94,4 +93,4 @@ export default {
       ],
     })
   },
-} as Action
+})

@@ -1,54 +1,107 @@
-import {
-  ButtonBuilder,
-  ButtonInteraction,
-  ButtonStyle,
-  Events,
-} from 'discord.js'
-
-import { nanoid } from 'nanoid'
-
-import { validateInteraction } from '../../utils/interactions/validate'
-import responder from '../../utils/helpers/responder'
+import { ButtonInteraction, Events } from 'discord.js'
 
 import { Action } from '../../models/action'
 
-export default {
-  id: nanoid(),
+import { validateAction } from '../../utils/helpers/validateAction'
 
-  data: new ButtonBuilder()
-    .setCustomId('test-button')
-    .setLabel('Click!')
-    .setStyle(ButtonStyle.Success),
+export default new Action({
+  category: '🔒・Testing',
+  data: { name: 'test-button' },
 
   event: Events.InteractionCreate,
 
-  testOnly: true,
   devsOnly: true,
-
-  cooldown: 10000,
+  testOnly: true,
+  cooldown: 10_000,
 
   async init(interaction: ButtonInteraction) {
-    if (interaction.customId === this.data.data.custom_id) {
-      const { user, guildId } = interaction
+    if (this.data.name !== interaction.customId) return
 
-      const invalidations = await validateInteraction(this, user, guildId)
-
-      if (invalidations.size) {
-        return await responder.deny.reply(
-          interaction,
-          invalidations,
-          this.data.data.custom_id
-        )
-      } else {
-        return await this.execute(interaction)
-      }
-    }
+    return await this.execute(interaction)
   },
 
   async execute(interaction: ButtonInteraction) {
+    const invalidation = validateAction(
+      this,
+      interaction.guild,
+      interaction.user
+    )
+
+    if (invalidation) {
+      return await interaction.reply({
+        content: invalidation,
+        ephemeral: true,
+      })
+    }
+
     return await interaction.reply({
-      content: `Button is working!`,
+      content:
+        "We're no strangers to love\n" +
+        'You know the rules and so do I (do I)\n' +
+        "A full commitment's what I'm thinking of\n" +
+        "You wouldn't get this from any other guy\n" +
+        '\n' +
+        "I just wanna tell you how I'm feeling\n" +
+        'Gotta make you understand\n' +
+        '\n' +
+        'Never gonna give you up\n' +
+        'Never gonna let you down\n' +
+        'Never gonna run around and desert you\n' +
+        'Never gonna make you cry\n' +
+        'Never gonna say goodbye\n' +
+        'Never gonna tell a lie and hurt you\n' +
+        '\n' +
+        "We've known each other for so long\n" +
+        "Your heart's been aching, but you're too shy to say it (say it)\n" +
+        "Inside, we both know what's been going on (going on)\n" +
+        "We know the game and we're gonna play it\n" +
+        '\n' +
+        "And if you ask me how I'm feeling\n" +
+        "Don't tell me you're too blind to see\n" +
+        '\n' +
+        'Never gonna give you up\n' +
+        'Never gonna let you down\n' +
+        'Never gonna run around and desert you\n' +
+        'Never gonna make you cry\n' +
+        'Never gonna say goodbye\n' +
+        'Never gonna tell a lie and hurt you\n' +
+        '\n' +
+        'Never gonna give you up\n' +
+        'Never gonna let you down\n' +
+        'Never gonna run around and desert you\n' +
+        'Never gonna make you cry\n' +
+        'Never gonna say goodbye\n' +
+        'Never gonna tell a lie and hurt you\n' +
+        '\n' +
+        "We've known each other for so long\n" +
+        "Your heart's been aching, but you're too shy to say it (to say it)\n" +
+        "Inside, we both know what's been going on (going on)\n" +
+        "We know the game and we're gonna play it\n" +
+        '\n' +
+        "I just wanna tell you how I'm feeling\n" +
+        'Gotta make you understand\n' +
+        '\n' +
+        'Never gonna give you up\n' +
+        'Never gonna let you down\n' +
+        'Never gonna run around and desert you\n' +
+        'Never gonna make you cry\n' +
+        'Never gonna say goodbye\n' +
+        'Never gonna tell a lie and hurt you\n' +
+        '\n' +
+        'Never gonna give you up\n' +
+        'Never gonna let you down\n' +
+        'Never gonna run around and desert you\n' +
+        'Never gonna make you cry\n' +
+        'Never gonna say goodbye\n' +
+        'Never gonna tell a lie and hurt you\n' +
+        '\n' +
+        'Never gonna give you up\n' +
+        'Never gonna let you down\n' +
+        'Never gonna run around and desert you\n' +
+        'Never gonna make you cry\n' +
+        'Never gonna say goodbye\n' +
+        'Never gonna tell a lie and hurt you',
       ephemeral: true,
     })
   },
-} as Action
+})

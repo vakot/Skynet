@@ -14,7 +14,8 @@ import { Action } from '../../models/action'
 import { validateAction } from '../../utils/helpers/validateAction'
 
 export default new Action({
-  category: '🔒・Testing',
+  category: 'Testing',
+
   data: new SlashCommandBuilder()
     .setName('test')
     .setDescription('Testing some features')

@@ -10,6 +10,8 @@ import { Action } from '../../models/action'
 import { validateAction } from '../../utils/helpers/validateAction'
 
 export default new Action({
+  category: 'About',
+
   data: new SlashCommandBuilder()
     .setName('status')
     .setDescription('Short information about bot status'),

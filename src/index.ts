@@ -7,8 +7,9 @@ import { Client } from './models/client'
 import logger from './utils/helpers/logger'
 
 import { loadActions } from './utils/setup/loadActions'
-import { loadEvents } from './utils/setup/loadEvents'
 import { loadPlugins } from './utils/setup/loadPlugins'
+import { loadEvents } from './utils/setup/loadEvents'
+import { loadCategories } from './utils/setup/loadCategories'
 import { pushCommands } from './utils/setup/pushCommands'
 
 export const client = new Client({
@@ -39,9 +40,15 @@ export const client = new Client({
     logger.error(error)
   })
 
-  logger.debug('Events loading')
+  logger.debug('Categories loading')
+  await loadCategories(client).catch((error) => {
+    logger.error('Error appears while categories loading')
+    logger.error(error)
+  })
+
+  logger.debug('Event listreners creating')
   await loadEvents(client).catch((error) => {
-    logger.error('Error appears while events loading')
+    logger.error('Error appears while event listreners creating')
     logger.error(error)
   })
 
@@ -51,5 +58,7 @@ export const client = new Client({
     logger.error(error)
   })
 
-  logger.info(`System startup in ${(Date.now() - startTime) * 0.001}s`)
+  logger.info(
+    `System startup in ${((Date.now() - startTime) * 0.001).toFixed(3)}s`
+  )
 })()

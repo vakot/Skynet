@@ -14,6 +14,8 @@ import { validateAction } from '../../utils/helpers/validateAction'
 import { roles } from './config.json'
 
 export default new Action({
+  category: 'Utilities',
+
   data: new SlashCommandBuilder()
     .setName('create-reaction-roles')
     .setDescription("Send's reaction roles menu")

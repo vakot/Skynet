@@ -4,7 +4,6 @@ import {
   EmbedBuilder,
   Events,
   SlashCommandBuilder,
-  SlashCommandSubcommandBuilder,
   StringSelectMenuBuilder,
 } from 'discord.js'
 
@@ -12,9 +11,11 @@ import { Action } from '../../../models/action'
 import { Client } from '../../../models/client'
 
 import { validateAction } from '../../../utils/helpers/validateAction'
+import { generateCommandUsage } from '../../../utils/helpers/generateCommandUsage'
 
 export default new Action({
   category: 'About',
+
   data: new SlashCommandBuilder()
     .setName('help')
     .setDescription('Information about commands')
@@ -44,7 +45,7 @@ export default new Action({
         })
       }
 
-      const { name, description, options } = command.data as SlashCommandBuilder
+      const { description } = command.data as SlashCommandBuilder
 
       const invalidation = validateAction(
         command,
@@ -52,30 +53,31 @@ export default new Action({
         interaction.user
       )
 
+      const category = client.categories.get(command.category ?? 'General')
+
+      const usage = generateCommandUsage(
+        command.data as SlashCommandBuilder
+      ).join(' ')
+
+      // Usage                Category
+      // [command usage]      [category]
+      // Description          Accessibility
+      // [command desciption] [Allowed | Disallowed]
       const embed = new EmbedBuilder().addFields(
         {
           name: 'Usage',
-          value: `\`\`\`/${name} ${options
-
-            .map((option) => {
-              const { name, required } = option.toJSON()
-
-              return required || option instanceof SlashCommandSubcommandBuilder
-                ? `<${name}>`
-                : `(${name})`
-            })
-            ?.join('・')}\`\`\``,
+          value: `\`\`\`${usage || 'Unknown command'}\`\`\``,
           inline: true,
         },
         {
           name: 'Category',
-          value: `\`\`\`${command.category || '-'}\`\`\``,
+          value: `\`\`\`${category?.getName() || 'Unknown category'}\`\`\``,
           inline: true,
         },
         { name: ' ', value: ' ' },
         {
           name: 'Description',
-          value: `\`\`\`${description}\`\`\``,
+          value: `\`\`\`${description || '-'}\`\`\``,
           inline: true,
         },
         {
@@ -91,47 +93,49 @@ export default new Action({
       })
     }
 
-    const categories: string[] = [
-      ...new Set<string>(commands.map((command) => command.category ?? '')),
-    ]
-
     const menu = new StringSelectMenuBuilder()
       .setCustomId('help-category-select-menu')
       .setPlaceholder('Choose a category')
-      .setOptions(
-        ...categories.map((category) => ({
-          label: category,
-          value: category,
-        }))
-      )
-
-    const row = new ActionRowBuilder<StringSelectMenuBuilder>().setComponents(
-      menu
-    )
 
     const embed = new EmbedBuilder()
-      .setTitle(`About **${client.user?.username}** commands`)
+      .setTitle(`About **\`\`\` ${client.user?.username} \`\`\`** commands`)
       .setDescription(
-        '>>> Commands separated to categories. Please, choose a category below to see all commands in it'
+        ">>> Commands separated to categories. Please, choose a category below to see more information about it's commands"
       )
       .setFooter({
         text: 'Commands list may be updated in future',
         iconURL: client.user?.displayAvatarURL(),
       })
 
-    categories.forEach((category) => {
+    // Category
+    // [all] [category] [commands]
+    client.categories.forEach((category) => {
       const categoryCommands = commands.filter(
-        (command) => command.category === category
+        (command) => command.category === category.name
       )
 
-      embed.addFields({
-        name: category + ' commands',
-        value: categoryCommands
-          .map((command) => `\`/${command.data.name}\``)
-          .sort()
-          .join('・'),
+      if (!categoryCommands.size) return
+
+      const name = category.getName() + ' commands'
+
+      const value = categoryCommands
+        .sort()
+        .map((command) => `\`/${command.data.name}\``)
+        .join('・')
+
+      embed.addFields({ name: name, value: value })
+
+      menu.addOptions({
+        label: category.name,
+        value: category.name,
+        description: category.description,
+        emoji: category.emoji,
       })
     })
+
+    const row = new ActionRowBuilder<StringSelectMenuBuilder>().setComponents(
+      menu
+    )
 
     return await interaction.reply({
       embeds: [embed],

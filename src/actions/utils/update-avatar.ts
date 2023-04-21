@@ -11,7 +11,8 @@ import logger from '../../utils/helpers/logger'
 import { validateAction } from '../../utils/helpers/validateAction'
 
 export default new Action({
-  category: '⚙️・Utilities',
+  category: 'Utilities',
+
   data: new SlashCommandBuilder()
     .setName('update-avatar')
     .setDescription("Update bot's avatar")

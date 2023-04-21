@@ -11,7 +11,8 @@ import { Action } from '../../models/action'
 import { validateAction } from '../../utils/helpers/validateAction'
 
 export default new Action({
-  category: '⚙️・Utilities',
+  category: 'Utilities',
+
   data: new SlashCommandBuilder()
     .setName('bulk-delete')
     .setDescription('Delete bulk of messages')

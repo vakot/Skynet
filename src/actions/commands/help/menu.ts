@@ -2,12 +2,12 @@ import {
   EmbedBuilder,
   Events,
   SlashCommandBuilder,
-  SlashCommandSubcommandBuilder,
   StringSelectMenuInteraction,
 } from 'discord.js'
 
 import { Action } from '../../../models/action'
 import { Client } from '../../../models/client'
+import { generateCommandUsage } from '../../../utils/helpers/generateCommandUsage'
 
 export default new Action({
   data: { name: 'help-category-select-menu' },
@@ -17,7 +17,9 @@ export default new Action({
   async execute(interaction: StringSelectMenuInteraction, client: Client) {
     if (this.data.name !== interaction.customId) return
 
-    const category = interaction.values[0]
+    const category = client.categories.find(
+      (category) => category.name === interaction.values[0]
+    )
 
     if (!category) {
       return await interaction.reply({
@@ -28,33 +30,23 @@ export default new Action({
 
     const commands = Array.from(
       client.localCommands
-        .filter((command) => command.category === category)
+        .filter((command) => command.category === category.name)
         .values()
     ).sort((a, b) => (a.data.name < b.data.name ? -1 : 1))
 
     const embed = new EmbedBuilder()
-      .setTitle(`About the **${category}** category`)
-      .setDescription(
-        '>>> Note that not all information is shown here. Some commands have restricted access but still can be called by anyone'
-      )
+      .setTitle(`About the **\`\`\` ${category.getName()} \`\`\`** category`)
+
       .setFooter({
         text: '<option> - required ・ (option) - optional',
         iconURL: client.user?.displayAvatarURL(),
       })
 
+    if (category.description) {
+      embed.setDescription(`>>> ${category.description}`)
+    }
+
     commands.forEach((command, index) => {
-      const { name, description, options } = command.data as SlashCommandBuilder
-
-      let title = `\`/${name}\` ${options
-        .map((option) => {
-          const { name, required } = option.toJSON()
-
-          return required || option instanceof SlashCommandSubcommandBuilder
-            ? `\`<${name}>\``
-            : `\`(${name})\``
-        })
-        ?.join('・')}`
-
       if (index % 2 === 0) {
         embed.addFields({
           name: ' ',
@@ -63,9 +55,13 @@ export default new Action({
         })
       }
 
+      const usage = generateCommandUsage(command.data as SlashCommandBuilder)
+        .map((option) => `\`${option}\``)
+        .join(' ')
+
       embed.addFields({
-        name: title,
-        value: description,
+        name: usage || 'Unknown command',
+        value: command.data.description || 'Command have no description',
         inline: true,
       })
     })

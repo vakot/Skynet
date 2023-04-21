@@ -32,6 +32,6 @@ export async function loadEvents(client: Client): Promise<void> {
         )
     })
 
-    logger.log(`Listener <${event}> registered`)
+    logger.log(`Event <${event}> created`)
   }
 }

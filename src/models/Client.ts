@@ -8,8 +8,8 @@ export class Client extends DiscordClient {
   localActions = new Collection<string, Action>()
   // name > body
   localCommands = new Collection<string, Action>()
-  // name > body
-  localCommandsCategories = new Collection<string, Category>()
   // action-name > (user-id > timestamp in ms)
   cooldowns = new Collection<string, Collection<Snowflake, number>>()
+  // name > body
+  categories = new Collection<string, Category>()
 }

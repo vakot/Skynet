@@ -48,7 +48,7 @@ export class Action {
     this.testOnly = options.testOnly ?? false
     this.devsOnly = options.devsOnly ?? false
     this.forceUpdate = options.forceUpdate ?? false
-    this.category = options.category ?? '📢・General'
+    this.category = options.category ?? 'General'
     this.execute = options.execute
   }
 }

@@ -16,13 +16,14 @@ export function* throughDirectory(directoryPath: string): Generator<string> {
 
     for (const file of files) {
       const filePath = path.join(directoryPath, file)
-      const data = fs.statSync(filePath)
+      const stats = fs.statSync(filePath)
+
       // if directory - go deeper in recursion
-      if (data.isDirectory()) {
+      if (stats.isDirectory()) {
         yield* throughDirectory(filePath)
       }
       // if file - return path
-      if (data.isFile()) {
+      if (stats.isFile()) {
         yield filePath
       }
     }
@@ -47,12 +48,13 @@ export async function getFiles<T>(
   const files: T[] = []
 
   for (const filePath of throughDirectory(directoryPath)) {
-    // regex before pop() just to be sure that all paths have same format
+    // regex before split() just to be sure that all paths have same format
     const fileName = filePath.replace(/\\/g, '/').split('/').pop()
+    const fileSize = (fs.statSync(filePath).size / 1024).toFixed(2)
 
     // ignore all non .js and non .ts files
     if (!filePath.endsWith('.ts') && !filePath.endsWith('.js')) {
-      logger.info(`File <${fileName}> ignored`)
+      logger.info(`File [${fileSize}Kb] <${fileName}> ignored`)
       continue
     }
 
@@ -63,9 +65,9 @@ export async function getFiles<T>(
       if (!(data.default instanceof targetClass)) throw ''
       // save
       files.push(data.default)
-      logger.log(`File <${fileName}> loaded`)
+      logger.log(`File [${fileSize}Kb] <${fileName}> loaded`)
     } catch {
-      logger.warn(`File <${fileName}> unresolvable`)
+      logger.warn(`File [${fileSize}Kb] <${fileName}> unresolvable`)
     }
   }
 

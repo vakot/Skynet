@@ -53,7 +53,11 @@ export async function getFiles<T>(
     const fileSize = (fs.statSync(filePath).size / 1024).toFixed(2)
 
     // ignore all non .js and non .ts files
-    if (!filePath.endsWith('.ts') && !filePath.endsWith('.js')) {
+    if (
+      (!filePath.endsWith('.ts') && !filePath.endsWith('.js')) ||
+      fileName!.includes('.ignore.') ||
+      fileName!.includes('.i.')
+    ) {
       logger.info(`File [${fileSize}Kb] <${fileName}> ignored`)
       continue
     }

@@ -1,30 +1,34 @@
 import {
-  ChatInputCommandInteraction,
+  ButtonInteraction,
   Events,
-  SlashCommandBuilder,
+  PermissionFlagsBits,
+  TextChannel,
 } from 'discord.js'
 
 import { Action } from '../../../models/action'
+import { Ticket } from '../models/ticket.i'
 
 import { ticketManager } from '../models/ticketManager.i'
+
 import { validateAction } from '../../../utils/helpers/validateAction'
 
 export default new Action({
-  data: new SlashCommandBuilder()
-    .setName('open-ticket')
-    .setDescription('Open an existing ticket'),
+  data: { name: 'add-new-ticket-button' },
 
   event: Events.InteractionCreate,
 
-  cooldown: 6_000,
+  cooldown: 120_000,
 
-  async init(interaction: ChatInputCommandInteraction) {
-    if (this.data.name !== interaction.commandName) return
+  permissions: [PermissionFlagsBits.UseApplicationCommands],
+
+  async init(interaction: ButtonInteraction) {
+    if (this.data.name !== interaction.customId) return
 
     const invalidation = validateAction(
       this,
       interaction.guild,
-      interaction.user
+      interaction.user,
+      interaction.channel
     )
 
     if (invalidation) {
@@ -37,8 +41,8 @@ export default new Action({
     return await this.execute(interaction)
   },
 
-  async execute(interaction: ChatInputCommandInteraction) {
-    const { user, guildId, channelId } = interaction
+  async execute(interaction: ButtonInteraction) {
+    const { user, guildId } = interaction
 
     if (!guildId) {
       return await interaction.reply({
@@ -47,7 +51,13 @@ export default new Action({
       })
     }
 
-    const response = await ticketManager.open(user.id, guildId, channelId)
+    const ticket = new Ticket({
+      title: user.username + "'s Ticket",
+      authorId: user.id,
+      guildId: guildId,
+    })
+
+    const response = await ticketManager.add(ticket)
 
     return await interaction.reply({
       content: response,

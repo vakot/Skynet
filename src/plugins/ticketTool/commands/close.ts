@@ -6,8 +6,8 @@ import {
 
 import { Action } from '../../../models/action'
 
-import { tickets } from '../create'
-import { Ticket } from '../models/ticket'
+import { ticketManager } from '../models/ticketManager.i'
+import { validateAction } from '../../../utils/helpers/validateAction'
 
 export default new Action({
   data: new SlashCommandBuilder()
@@ -16,66 +16,42 @@ export default new Action({
 
   event: Events.InteractionCreate,
 
+  cooldown: 6_000,
+
   async init(interaction: ChatInputCommandInteraction) {
     if (this.data.name !== interaction.commandName) return
 
-    const ticket = tickets.get(interaction.user.id)
+    const invalidation = validateAction(
+      this,
+      interaction.guild,
+      interaction.user
+    )
 
-    if (!ticket) {
+    if (invalidation) {
       return await interaction.reply({
-        content: 'You have no tickets created',
+        content: invalidation,
         ephemeral: true,
       })
     }
 
-    if (interaction.channelId !== ticket?.channelId) {
-      return await interaction.reply({
-        content: "Ticket can be closed only from it's own channel",
-        ephemeral: true,
-      })
-    }
-
-    if (ticket.status === 'deleted') {
-      return await interaction.reply({
-        content: "You can't interact with ticket that will be deleted",
-        ephemeral: true,
-      })
-    }
-
-    return await this.execute(interaction, ticket)
+    return await this.execute(interaction)
   },
 
-  async execute(interaction: ChatInputCommandInteraction, ticket: Ticket) {
-    const { channel } = interaction
+  async execute(interaction: ChatInputCommandInteraction) {
+    const { user, guildId, channelId } = interaction
 
-    if (!channel) {
+    if (!guildId) {
       return await interaction.reply({
-        content: 'Failde to close a ticket',
+        content: 'You can interact with ticket-tool only from guild channels',
         ephemeral: true,
       })
     }
 
-    ticket.close()
+    const response = await ticketManager.close(user.id, guildId, channelId)
 
-    if (ticket.messageId) {
-      const messages = await channel?.messages.fetch()
-
-      const message = messages?.get(ticket.messageId)
-
-      message?.edit({
-        embeds: [ticket.getEmbed()],
-      })
-    } else {
-      const message = await channel.send({
-        embeds: [ticket.getEmbed()],
-        components: [],
-      })
-
-      ticket.setMessage(message.id)
-    }
-
-    return await interaction.reply(
-      `**${ticket.title}** status updated to \`${ticket.status}\``
-    )
+    return await interaction.reply({
+      content: response,
+      ephemeral: true,
+    })
   },
 })

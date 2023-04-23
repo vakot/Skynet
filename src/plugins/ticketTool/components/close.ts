@@ -1,30 +1,28 @@
-import {
-  ChatInputCommandInteraction,
-  Events,
-  SlashCommandBuilder,
-} from 'discord.js'
+import { ButtonInteraction, Events, PermissionFlagsBits } from 'discord.js'
 
 import { Action } from '../../../models/action'
 
 import { ticketManager } from '../models/ticketManager.i'
+
 import { validateAction } from '../../../utils/helpers/validateAction'
 
 export default new Action({
-  data: new SlashCommandBuilder()
-    .setName('open-ticket')
-    .setDescription('Open an existing ticket'),
+  data: { name: 'close-ticket-button' },
 
   event: Events.InteractionCreate,
 
   cooldown: 6_000,
 
-  async init(interaction: ChatInputCommandInteraction) {
-    if (this.data.name !== interaction.commandName) return
+  permissions: [PermissionFlagsBits.UseApplicationCommands],
+
+  async init(interaction: ButtonInteraction) {
+    if (this.data.name !== interaction.customId) return
 
     const invalidation = validateAction(
       this,
       interaction.guild,
-      interaction.user
+      interaction.user,
+      interaction.channel
     )
 
     if (invalidation) {
@@ -37,7 +35,7 @@ export default new Action({
     return await this.execute(interaction)
   },
 
-  async execute(interaction: ChatInputCommandInteraction) {
+  async execute(interaction: ButtonInteraction) {
     const { user, guildId, channelId } = interaction
 
     if (!guildId) {
@@ -47,7 +45,7 @@ export default new Action({
       })
     }
 
-    const response = await ticketManager.open(user.id, guildId, channelId)
+    const response = await ticketManager.close(user.id, guildId, channelId)
 
     return await interaction.reply({
       content: response,

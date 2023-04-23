@@ -23,6 +23,8 @@ export default new Action({
 
   cooldown: 20_000,
 
+  permissions: [PermissionFlagsBits.UseApplicationCommands],
+
   async init(oldState: VoiceState, newState: VoiceState) {
     // just in case to be sure
     if ((!oldState && !newState) || !newState.member) return
@@ -36,7 +38,8 @@ export default new Action({
     const invalidation = validateAction(
       this,
       newState.guild,
-      newState.member.user
+      newState.member.user,
+      newState.channel
     )
 
     if (invalidation) {

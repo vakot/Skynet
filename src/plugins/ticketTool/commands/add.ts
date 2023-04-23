@@ -1,18 +1,15 @@
 import {
-  ChannelType,
   ChatInputCommandInteraction,
-  EmbedBuilder,
   Events,
   SlashCommandBuilder,
 } from 'discord.js'
 
 import { Action } from '../../../models/action'
-import { Ticket } from '../models/ticket'
+import { Ticket } from '../models/ticket.i'
+
+import { ticketManager } from '../models/ticketManager.i'
 
 import { validateAction } from '../../../utils/helpers/validateAction'
-
-import { tickets } from '../create'
-import { categoryId } from '../config.json'
 
 export default new Action({
   data: new SlashCommandBuilder()
@@ -55,70 +52,26 @@ export default new Action({
   },
 
   async execute(interaction: ChatInputCommandInteraction) {
-    const { user, guild, options } = interaction
+    const { user, guildId, options } = interaction
+
+    if (!guildId) {
+      return await interaction.reply({
+        content: 'You can interact with ticket-tool only from guild channels',
+        ephemeral: true,
+      })
+    }
 
     const ticket = new Ticket({
       title: options.getString('title'),
       reason: options.getString('reason'),
       authorId: user.id,
+      guildId: guildId,
     })
 
-    if (tickets.has(ticket.authorId)) {
-      return await interaction.reply({
-        content: 'Only one ticket can be created per user',
-        ephemeral: true,
-      })
-    }
-
-    const channel = await guild?.channels.create({
-      name:
-        user.username + '-' + (tickets.size + 1).toString().padStart(4, '0'),
-      parent: categoryId || null,
-      type: ChannelType.GuildText,
-      // make channel private (only author and staff)
-    })
-
-    if (!channel) {
-      return await interaction.reply({
-        content: 'Failde to open a ticket',
-        ephemeral: true,
-      })
-    }
-
-    ticket.setChannel(channel.id)
-
-    const message = await channel.send({
-      embeds: [ticket.getEmbed()],
-      components: [],
-    })
-
-    ticket.setMessage(message.id)
-
-    tickets.set(ticket.authorId, ticket)
-
-    const embed = new EmbedBuilder()
-      .setTitle(ticket.title)
-      .setDescription(`Your ticket is opened here: <#${ticket.channelId}>`)
-      .setFields(
-        {
-          name: 'Opened by',
-          value: `<@${ticket.authorId}>`,
-          inline: true,
-        },
-        {
-          name: 'Opened at',
-          value: `<t:${Math.round(ticket.createdTimestamp * 0.001)}:f>`,
-          inline: true,
-        },
-        {
-          name: 'Reason',
-          value: ticket.reason,
-          inline: true,
-        }
-      )
+    const response = await ticketManager.add(ticket)
 
     return await interaction.reply({
-      embeds: [embed],
+      content: response,
       ephemeral: true,
     })
   },

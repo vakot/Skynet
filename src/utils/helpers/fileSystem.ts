@@ -48,19 +48,13 @@ export async function getFiles<T>(
   const files: T[] = []
 
   for (const filePath of throughDirectory(directoryPath)) {
+    // ignore all non .js and non .ts files and files marked to ignore
+    if (!filePath.endsWith('.ts') && !filePath.endsWith('.js')) continue
+    if (filePath.includes('.ignore.') || filePath.includes('.i.')) continue
+
     // regex before split() just to be sure that all paths have same format
     const fileName = filePath.replace(/\\/g, '/').split('/').pop()
     const fileSize = (fs.statSync(filePath).size / 1024).toFixed(2)
-
-    // ignore all non .js and non .ts files
-    if (
-      (!filePath.endsWith('.ts') && !filePath.endsWith('.js')) ||
-      fileName!.includes('.ignore.') ||
-      fileName!.includes('.i.')
-    ) {
-      logger.info(`File [${fileSize}Kb] <${fileName}> ignored`)
-      continue
-    }
 
     try {
       // read

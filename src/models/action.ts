@@ -1,4 +1,4 @@
-import { ClientEvents } from 'discord.js'
+import { ClientEvents, PermissionResolvable } from 'discord.js'
 
 export class Action {
   // data can be any, but important to set the action name
@@ -21,6 +21,9 @@ export class Action {
   forceUpdate?: boolean
   // used only for /help command to sort all commands by categories
   category?: string
+  // permissions can be ovewrited in SlashCommandBuilder for command
+  // but for components use this field
+  permissions?: PermissionResolvable[]
   // don't forget to add conditions that determines this action
   // possibility to be executed and indetifi between other actions
   async init(...args: any): Promise<any> {}
@@ -39,6 +42,7 @@ export class Action {
     devsOnly?: boolean
     forceUpdate?: boolean
     category?: string
+    permissions?: PermissionResolvable[]
     init(...args: any): Promise<any>
     execute(...args: any): Promise<any>
   }) {
@@ -51,6 +55,7 @@ export class Action {
     this.devsOnly = options.devsOnly ?? false
     this.forceUpdate = options.forceUpdate ?? false
     this.category = options.category ?? 'General'
+    this.permissions = options.permissions ?? []
     this.init = options.init
     this.execute = options.execute
   }

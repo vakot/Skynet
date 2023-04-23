@@ -1,4 +1,4 @@
-import { Collection, Guild, User } from 'discord.js'
+import { Collection, Guild, User, Channel, GuildChannel } from 'discord.js'
 
 import { Action } from '../../models/action'
 import { client } from '../../index'
@@ -14,14 +14,16 @@ import { devs, testServer } from '../../../config.json'
  * returns a message that descripe reason why action is dissalowed
  *
  * @param {Action} action - instance of Action class
- * @param {Guild} guild - guild instance provided by API
- * @param {User} user - user instance provided by API
+ * @param {Guild | null} guild - guild instance provided by API
+ * @param {User | null} user - user instance provided by API
+ * @param {Channel | null} channel - channel instance provided by API (to check permissions)
  * @returns {string | undefined} - message that descripe reason why action is dissalowed
  */
 export function validateAction(
   action: Action,
   guild: Guild | null,
-  user: User | null
+  user: User | null,
+  channel?: Channel | null
 ): string | undefined {
   if (!user) return 'Unknown user'
   if (!guild) return 'Unknown guild'
@@ -52,6 +54,14 @@ export function validateAction(
       return `This action is overheated. Cooldown <t:${Math.round(
         timestamp * 0.001
       )}:R>`
+    }
+  }
+
+  // if not enough permissions
+  if (channel && channel instanceof GuildChannel && action.permissions) {
+    if (!channel.permissionsFor(user)?.has(action.permissions, true)) {
+      logger.warn(`${user.tag} - triggers <higher permissions> action`)
+      return "You don't have enough permissions to use this action"
     }
   }
 }

@@ -9,7 +9,7 @@ import { client } from '../../..'
 
 import { Ticket } from './ticket.i'
 
-import { categoryId, moderationRoles } from '../config.json'
+import { categoryId, supportRoles } from '../config.json'
 
 class TicketManager {
   tickets: Ticket[]
@@ -51,17 +51,16 @@ class TicketManager {
     return null
   }
 
-  async add(ticket: Ticket): Promise<string> {
+  async create(ticket: Ticket): Promise<string> {
     const ticketToFind = this.getTicket(ticket.authorId, ticket.guildId)
     if (ticketToFind) {
       return 'Only one ticket can be created per user'
     }
 
-    const user = await client.users.fetch(ticket.authorId)
     const guild = await client.guilds.fetch(ticket.guildId)
 
-    const moderationPermissions = moderationRoles.map((moderationRole) => ({
-      id: moderationRole,
+    const supportPermissions = supportRoles.map((supportRole) => ({
+      id: supportRole,
       allow: [
         PermissionFlagsBits.ViewChannel,
         PermissionFlagsBits.ReadMessageHistory,
@@ -72,10 +71,7 @@ class TicketManager {
     }))
 
     const channel = await guild.channels.create({
-      name:
-        user.username +
-        '-' +
-        (this.ticketsCount() + 1).toString().padStart(4, '0'),
+      name: 'ticket-' + (this.ticketsCount() + 1).toString().padStart(4, '0'),
       parent: categoryId || null,
       type: ChannelType.GuildText,
       permissionOverwrites: [
@@ -97,7 +93,7 @@ class TicketManager {
             PermissionFlagsBits.AttachFiles,
           ],
         },
-        ...moderationPermissions,
+        ...supportPermissions,
       ],
       // make channel private (only author and staff)
     })

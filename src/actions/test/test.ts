@@ -9,7 +9,7 @@ import {
   StringSelectMenuBuilder,
 } from 'discord.js'
 
-import { Action } from '../../modules/models/action'
+import { Action } from '../../models/action'
 
 import { validateAction } from '../../utils/helpers/validateAction'
 

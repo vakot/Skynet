@@ -4,7 +4,7 @@ import { GatewayIntentBits } from 'discord.js'
 
 import mongoose from 'mongoose'
 
-import { Client } from './modules/models/client'
+import { Client } from './models/client'
 
 import logger from './utils/helpers/logger'
 

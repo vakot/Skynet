@@ -1,9 +1,8 @@
 import { Events, Message } from 'discord.js'
 
-import { Action } from '../../../modules/models/action'
-import { Ticket } from '../models/ticket.i'
+import { Action } from '../../../models/action'
 
-import { ticketManager } from '../models/ticketManager.i'
+import { ITicket, TicketTool } from '../models/ticket-tool.i'
 
 export default new Action({
   data: { name: 'sync-ticket-message' },
@@ -11,14 +10,18 @@ export default new Action({
   event: Events.MessageDelete,
 
   async init(message: Message) {
-    const ticket = ticketManager.tickets.find((t) => t.messageId === message.id)
+    // Yeh, check db on every messageDelete is sucks, but IDK...
+    const ticket = await TicketTool.findOne<ITicket>({
+      guildId: message.guildId,
+      messageId: message.id,
+    })
 
     if (!ticket) return
 
     return await this.execute(message, ticket)
   },
 
-  async execute(message: Message, ticket: Ticket) {
+  async execute(message: Message, ticket: ITicket) {
     const { channel, content, embeds, components } = message
 
     const newMessage = await channel.send({
@@ -27,6 +30,7 @@ export default new Action({
       components: components,
     })
 
-    ticket.setMessage(newMessage)
+    ticket.messageId = newMessage.id
+    return await ticket.save()
   },
 })

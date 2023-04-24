@@ -7,16 +7,13 @@ import {
   VoiceState,
 } from 'discord.js'
 
-import { Action } from '../../modules/models/action'
+import { Action } from '../../models/action'
 
 import { validateAction } from '../../utils/helpers/validateAction'
 
 import { parentId, categoryId } from './config.json'
 
-import {
-  ITemporaryVoice,
-  TemporaryVoice,
-} from './modules/schemas/temporary-voice.i'
+import { ITemporaryVoice, TemporaryVoice } from './models/temporary-voice.i'
 import { findOrCreate } from '../../utils/helpers/findOrCreate'
 
 // userId > channelId
@@ -44,6 +41,7 @@ export default new Action({
       guildId: guild.id,
       categoryId: categoryId,
       parentId: parentId,
+      createdAt: Date.now(),
     })
 
     const guildTemporaryVoice = (await findOrCreate(

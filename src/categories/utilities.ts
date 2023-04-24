@@ -1,4 +1,4 @@
-import { Category } from '../modules/models/category'
+import { Category } from '../models/category'
 
 export default new Category({
   name: 'Utilities',

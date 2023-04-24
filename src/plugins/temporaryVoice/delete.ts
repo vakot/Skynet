@@ -1,11 +1,8 @@
 import { Events, VoiceState } from 'discord.js'
 
-import { Action } from '../../modules/models/action'
+import { Action } from '../../models/action'
 
-import {
-  ITemporaryVoice,
-  TemporaryVoice,
-} from './modules/schemas/temporary-voice.i'
+import { ITemporaryVoice, TemporaryVoice } from './models/temporary-voice.i'
 import { findOrCreate } from '../../utils/helpers/findOrCreate'
 import { parentId, categoryId } from './config.json'
 

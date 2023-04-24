@@ -1,8 +1,8 @@
 import path from 'path'
 import fs from 'fs'
 
-import { Client } from '../../modules/models/client'
-import { Action } from '../../modules/models/action'
+import { Client } from '../../models/client'
+import { Action } from '../../models/action'
 
 import { getFiles } from '../helpers/fileSystem'
 import logger from '../helpers/logger'

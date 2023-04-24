@@ -7,7 +7,7 @@ import {
   StringSelectMenuInteraction,
 } from 'discord.js'
 
-import { Action } from '../../modules/models/action'
+import { Action } from '../../models/action'
 
 import { roles } from './config.json'
 

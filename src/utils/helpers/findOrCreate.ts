@@ -1,9 +1,6 @@
-import { Document, Model } from 'mongoose'
+import { Model } from 'mongoose'
 
-export interface IDocument extends Document {
-  createdAt: Date
-  updatedAt: Date
-}
+import { IDocument } from '../../models/document'
 
 export async function findOrCreate<T extends Model<IDocument>>(
   model: T,

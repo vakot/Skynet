@@ -1,7 +1,7 @@
 import path from 'path'
 
-import { Client } from '../../modules/models/client'
-import { DataBaseAction } from '../../modules/models/dbaction'
+import { Client } from '../../models/client'
+import { DataBaseAction } from '../../models/dbaction'
 
 import { getFiles } from '../helpers/fileSystem'
 

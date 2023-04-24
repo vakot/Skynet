@@ -2,11 +2,14 @@ require('dotenv').config()
 
 import { GatewayIntentBits } from 'discord.js'
 
+import mongoose from 'mongoose'
+
 import { Client } from './models/client'
 
 import logger from './utils/helpers/logger'
 
 import { loadActions } from './utils/setup/loadActions'
+import { loadDBActions } from './utils/setup/loadDBActions'
 import { loadPlugins } from './utils/setup/loadPlugins'
 import { loadEvents } from './utils/setup/loadEvents'
 import { loadCategories } from './utils/setup/loadCategories'
@@ -26,7 +29,7 @@ export const client = new Client({
   const startTime = Date.now()
 
   logger.info('[SYSTEM INITIALIZATION]')
-  await client.login(process.env.TOKEN)
+  await client.login(process.env.TOKEN || '')
   logger.info('RUNNING SKYSOFT KERNEL 4.92.384.42')
 
   logger.debug('Actions loading')
@@ -46,6 +49,12 @@ export const client = new Client({
     logger.error(error)
   })
 
+  logger.debug('DB Actions loading')
+  await loadDBActions(client).catch((error) => {
+    logger.error('Error appears while actions loading')
+    logger.error(error)
+  })
+
   logger.debug('Event listreners creating')
   await loadEvents(client).catch((error) => {
     logger.error('Error appears while event listreners creating')
@@ -55,6 +64,11 @@ export const client = new Client({
   logger.debug('Updating commands on remote')
   await pushCommands(client).catch((error) => {
     logger.error('Error appears while updating commands')
+    logger.error(error)
+  })
+
+  await mongoose.connect(process.env.MONGODB_TOKEN || '').catch((error) => {
+    logger.error('Error appears while connectiong to database')
     logger.error(error)
   })
 

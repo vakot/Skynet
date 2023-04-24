@@ -7,11 +7,17 @@ import {
   VoiceState,
 } from 'discord.js'
 
-import { Action } from '../../models/action'
+import { Action } from '../../modules/models/action'
 
 import { validateAction } from '../../utils/helpers/validateAction'
 
 import { parentId, categoryId } from './config.json'
+
+import {
+  ITemporaryVoice,
+  TemporaryVoice,
+} from './modules/schemas/temporary-voice.i'
+import { findOrCreate } from '../../utils/helpers/findOrCreate'
 
 // userId > channelId
 export const childrens = new Collection<Snowflake, Snowflake>()
@@ -30,33 +36,47 @@ export default new Action({
     if ((!oldState && !newState) || !newState.member) return
     // user streaming is also trigger VoiceStateUpdate. Avoid it
     if (oldState.channelId === newState.channelId) return
-    // create new only if join to parent channel
-    if (newState.channelId !== parentId) return
-    // create new only if user dont have temporary channel
-    if (childrens.has(newState.member.user.id)) return
 
-    const invalidation = validateAction(
-      this,
-      newState.guild,
-      newState.member.user,
-      newState.channel
-    )
+    const { guild, member, channel } = newState
+
+    const condition = { guildId: guild.id }
+    const defaults: ITemporaryVoice = new TemporaryVoice({
+      guildId: guild.id,
+      categoryId: categoryId,
+      parentId: parentId,
+    })
+
+    const guildTemporaryVoice = (await findOrCreate(
+      TemporaryVoice,
+      condition,
+      defaults
+    )) as ITemporaryVoice
+
+    if (!guildTemporaryVoice) return
+
+    // create new only if user dont have temporary channel
+    if (guildTemporaryVoice.childrens.has(member.id)) return
+
+    // create new only if join to parent channel
+    if (newState.channelId !== guildTemporaryVoice.parentId) return
+
+    const invalidation = validateAction(this, guild, member.user, channel)
 
     if (invalidation) {
       // clear parrent voice
-      await newState.member.voice.disconnect()
+      await member.voice.disconnect()
       // send temporary DM notification
-      return await newState.member.user
+      return await member.user
         .send({
           content: invalidation + '\n⤷ Message will be deleted in `20s`',
         })
         .then((message) => setTimeout(() => message.delete(), 20000))
     }
 
-    return await this.execute(newState)
+    return await this.execute(newState, guildTemporaryVoice)
   },
 
-  async execute(newState: VoiceState) {
+  async execute(newState: VoiceState, guildTemporaryVoice: ITemporaryVoice) {
     const { guild, member, channel } = newState
 
     if (!guild || !member || !channel) return
@@ -68,7 +88,7 @@ export default new Action({
         parent: categoryId || channel.parent,
         permissionOverwrites: [
           {
-            id: member.user.id,
+            id: member.id,
             allow: [
               PermissionFlagsBits.ViewChannel,
               PermissionFlagsBits.ManageChannels,
@@ -81,9 +101,10 @@ export default new Action({
           },
         ],
       })
-      .then((channel) => {
-        member.voice.setChannel(channel)
-        childrens.set(member.user.id, channel.id)
+      .then(async (channel) => {
+        await member.voice.setChannel(channel)
+        await guildTemporaryVoice.childrens.set(member.id, channel.id)
+        await guildTemporaryVoice.save()
       })
   },
 })

@@ -1,7 +1,7 @@
 import { ClientEvents } from 'discord.js'
 import { connection } from 'mongoose'
 
-import { Client } from '../../models/client'
+import { Client } from '../../modules/models/client'
 
 import logger from '../helpers/logger'
 

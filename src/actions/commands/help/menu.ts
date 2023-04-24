@@ -5,8 +5,8 @@ import {
   StringSelectMenuInteraction,
 } from 'discord.js'
 
-import { Action } from '../../../models/action'
-import { Client } from '../../../models/client'
+import { Action } from '../../../modules/models/action'
+import { Client } from '../../../modules/models/client'
 import { generateCommandUsage } from '../../../utils/helpers/generateCommandUsage'
 
 export default new Action({

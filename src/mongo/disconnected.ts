@@ -1,4 +1,7 @@
-import { DataBaseAction, DataBaseActionEvents } from '../models/dbaction'
+import {
+  DataBaseAction,
+  DataBaseActionEvents,
+} from '../modules/models/dbaction'
 
 import logger from '../utils/helpers/logger'
 

@@ -1,7 +1,7 @@
 import { ActivityType, Events } from 'discord.js'
 
-import { Client } from '../../models/client'
-import { Action } from '../../models/action'
+import { Client } from '../../modules/models/client'
+import { Action } from '../../modules/models/action'
 
 import logger from '../../utils/helpers/logger'
 

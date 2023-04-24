@@ -1,6 +1,6 @@
 import { Events, Message } from 'discord.js'
 
-import { Action } from '../../../models/action'
+import { Action } from '../../../modules/models/action'
 import { Ticket } from '../models/ticket.i'
 
 import { ticketManager } from '../models/ticketManager.i'

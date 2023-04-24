@@ -4,7 +4,7 @@ import {
   SlashCommandBuilder,
 } from 'discord.js'
 
-import { Action } from '../../models/action'
+import { Action } from '../../modules/models/action'
 
 export default new Action({
   data: new SlashCommandBuilder()

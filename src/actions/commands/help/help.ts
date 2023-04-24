@@ -7,8 +7,8 @@ import {
   StringSelectMenuBuilder,
 } from 'discord.js'
 
-import { Action } from '../../../models/action'
-import { Client } from '../../../models/client'
+import { Action } from '../../../modules/models/action'
+import { Client } from '../../../modules/models/client'
 
 import { validateAction } from '../../../utils/helpers/validateAction'
 import { generateCommandUsage } from '../../../utils/helpers/generateCommandUsage'

@@ -1,7 +1,7 @@
 import path from 'path'
 
-import { Client } from '../../models/client'
-import { Category } from '../../models/category'
+import { Client } from '../../modules/models/client'
+import { Category } from '../../modules/models/category'
 
 import { getFiles } from '../helpers/fileSystem'
 

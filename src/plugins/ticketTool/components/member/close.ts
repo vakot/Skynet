@@ -1,18 +1,17 @@
 import { ButtonInteraction, Events, PermissionFlagsBits } from 'discord.js'
 
-import { Action } from '../../../models/action'
-import { Ticket } from '../models/ticket.i'
+import { Action } from '../../../../models/action'
 
-import { ticketManager } from '../models/ticketManager.i'
+import { validateAction } from '../../../../utils/helpers/validateAction'
 
-import { validateAction } from '../../../utils/helpers/validateAction'
+import { ticketManager } from '../../models/ticketManager.i'
 
 export default new Action({
-  data: { name: 'open-ticket-button' },
+  data: { name: 'close-ticket-button' },
 
   event: Events.InteractionCreate,
 
-  cooldown: 6_000,
+  cooldown: 5_000,
 
   permissions: [PermissionFlagsBits.UseApplicationCommands],
 
@@ -37,20 +36,20 @@ export default new Action({
   },
 
   async execute(interaction: ButtonInteraction) {
-    const { user, guildId, channelId } = interaction
+    const { user, guild } = interaction
 
-    if (!guildId) {
+    if (!guild) {
       return await interaction.reply({
         content: 'You can interact with ticket-tool only from guild channels',
         ephemeral: true,
       })
     }
 
-    const response = await ticketManager.open(user.id, guildId, channelId)
+    const { status, message } = await ticketManager.close(user.id, guild.id)
 
     return await interaction.reply({
-      content: response,
-      ephemeral: true,
+      content: message + (status ? ` by <@${user.id}>` : ''),
+      ephemeral: !status,
     })
   },
 })

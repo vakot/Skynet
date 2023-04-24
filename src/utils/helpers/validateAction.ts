@@ -46,6 +46,36 @@ export function validateAction(
     return 'This action is only for developers'
   }
 
+  // if not enough permissions
+  if (
+    channel &&
+    channel instanceof GuildChannel &&
+    action.permissions?.length
+  ) {
+    const userPermissions = channel.permissionsFor(user, true)
+
+    const hasAllPermissions = action.permissions.every((permission) =>
+      userPermissions?.has(permission, true)
+    )
+
+    if (!hasAllPermissions) {
+      logger.warn(`${user.tag} - triggers <higher permissions> action`)
+      return "You don't have enough permissions to use this action"
+    }
+  }
+
+  // if has role requirement
+  if (action.roles?.length) {
+    const member = guild.members.cache.find((m) => m.user.id === user.id)
+
+    console.log(action.roles)
+
+    if (member && !member.roles.cache.hasAny(...action.roles)) {
+      logger.warn(`${user.tag} - triggers <higher role> action`)
+      return "You don't have any of required roles to use this action"
+    }
+  }
+
   // if overheated
   if (action.cooldown) {
     const timestamp = handleCooldown(action, user.id)
@@ -54,14 +84,6 @@ export function validateAction(
       return `This action is overheated. Cooldown <t:${Math.round(
         timestamp * 0.001
       )}:R>`
-    }
-  }
-
-  // if not enough permissions
-  if (channel && channel instanceof GuildChannel && action.permissions) {
-    if (!channel.permissionsFor(user)?.has(action.permissions, true)) {
-      logger.warn(`${user.tag} - triggers <higher permissions> action`)
-      return "You don't have enough permissions to use this action"
     }
   }
 }

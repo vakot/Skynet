@@ -1,23 +1,24 @@
 import {
   ButtonInteraction,
   Events,
+  GuildMemberRoleManager,
   PermissionFlagsBits,
-  TextChannel,
 } from 'discord.js'
 
-import { Action } from '../../../models/action'
-import { Ticket } from '../models/ticket.i'
+import { Action } from '../../../../models/action'
 
-import { ticketManager } from '../models/ticketManager.i'
+import { validateAction } from '../../../../utils/helpers/validateAction'
 
-import { validateAction } from '../../../utils/helpers/validateAction'
+import { ticketManager } from '../../models/ticketManager.i'
+
+import { isSupport } from '../../utils/isSupport.i'
 
 export default new Action({
-  data: { name: 'add-new-ticket-button' },
+  data: { name: 'open-ticket-button' },
 
   event: Events.InteractionCreate,
 
-  cooldown: 120_000,
+  cooldown: 5_000,
 
   permissions: [PermissionFlagsBits.UseApplicationCommands],
 
@@ -42,26 +43,27 @@ export default new Action({
   },
 
   async execute(interaction: ButtonInteraction) {
-    const { user, guildId } = interaction
+    const { member, user, guild } = interaction
 
-    if (!guildId) {
+    if (!guild) {
       return await interaction.reply({
         content: 'You can interact with ticket-tool only from guild channels',
         ephemeral: true,
       })
     }
 
-    const ticket = new Ticket({
-      title: user.username + "'s Ticket",
-      authorId: user.id,
-      guildId: guildId,
-    })
+    if (!isSupport(member?.roles as GuildMemberRoleManager)) {
+      return await interaction.reply({
+        content: 'This action availible only for support team',
+        ephemeral: true,
+      })
+    }
 
-    const response = await ticketManager.add(ticket)
+    const { status, message } = await ticketManager.open(user.id, guild.id)
 
     return await interaction.reply({
-      content: response,
-      ephemeral: true,
+      content: message + (status ? ` by <@${user.id}>` : ''),
+      ephemeral: !status,
     })
   },
 })

@@ -19,14 +19,14 @@ export default new Action({
   },
 
   async execute(message: Message, ticket: Ticket) {
-    const { channel } = message
+    const { channel, content, embeds, components } = message
 
     const newMessage = await channel.send({
-      content: message.content,
-      components: message.components,
-      embeds: message.embeds,
+      content: content,
+      embeds: embeds,
+      components: components,
     })
 
-    ticket.setMessage(newMessage.id)
+    ticket.setMessage(newMessage)
   },
 })

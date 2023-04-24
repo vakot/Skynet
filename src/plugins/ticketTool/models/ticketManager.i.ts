@@ -1,47 +1,36 @@
 import {
-  Snowflake,
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
   ChannelType,
-  TextChannel,
+  EmbedBuilder,
   PermissionFlagsBits,
+  Snowflake,
 } from 'discord.js'
-
-import { client } from '../../..'
 
 import { Ticket } from './ticket.i'
 
 import { categoryId, supportRoles } from '../config.json'
 
 class TicketManager {
-  tickets: Ticket[]
+  tickets: Ticket[] = []
+  count: number = 0
 
-  ticketsCount = (): number => this.tickets.length
-
-  removeTicket(ticket: Ticket): void {
+  removeTicket(ticket: Ticket) {
     this.tickets = this.tickets.filter(
-      (t) => t.authorId !== ticket.authorId && t.guildId !== ticket.guildId
+      (t) =>
+        t.authorId !== ticket.authorId &&
+        t.channelId !== ticket.channelId &&
+        t.guildId !== ticket.guildId
     )
   }
-
-  getTicketStatus(
-    userId: Snowflake,
-    guildId: Snowflake
-  ): 'active' | 'closed' | 'deleted' {
-    const ticket = this.getTicket(userId, guildId)
-
-    if (!ticket) {
-      return 'deleted'
-    }
-
-    return ticket.status
-  }
-
   getTicket(
-    userId: Snowflake,
+    authorId: Snowflake,
     guildId: Snowflake,
-    status?: 'active' | 'closed' | 'deleted'
+    status?: 'active' | 'closed'
   ): Ticket | null {
     const ticket = this.tickets.find(
-      (t) => t.authorId === userId && t.guildId === guildId
+      (t) => t.authorId === authorId && t.guildId === guildId
     )
 
     if (!ticket) return null
@@ -52,184 +41,180 @@ class TicketManager {
   }
 
   async create(ticket: Ticket): Promise<string> {
-    const ticketToFind = this.getTicket(ticket.authorId, ticket.guildId)
-    if (ticketToFind) {
+    if (this.getTicket(ticket.authorId, ticket.guildId)) {
       return 'Only one ticket can be created per user'
     }
 
-    const guild = await client.guilds.fetch(ticket.guildId)
+    if (!ticket.guild) return 'Failed to create a ticket'
 
+    const authorPermissions = {
+      id: ticket.authorId,
+      allow: [
+        PermissionFlagsBits.ViewChannel,
+        PermissionFlagsBits.AttachFiles,
+        PermissionFlagsBits.ReadMessageHistory,
+        PermissionFlagsBits.SendMessages,
+        PermissionFlagsBits.UseApplicationCommands,
+      ],
+    }
+    const everyonePermissions = {
+      id: ticket.guild.roles.everyone,
+      deny: [PermissionFlagsBits.ViewChannel],
+    }
     const supportPermissions = supportRoles.map((supportRole) => ({
       id: supportRole,
       allow: [
         PermissionFlagsBits.ViewChannel,
+        PermissionFlagsBits.AttachFiles,
         PermissionFlagsBits.ReadMessageHistory,
         PermissionFlagsBits.SendMessages,
-        PermissionFlagsBits.ManageChannels,
-        PermissionFlagsBits.AttachFiles,
+        PermissionFlagsBits.UseApplicationCommands,
       ],
     }))
 
-    const channel = await guild.channels.create({
-      name: 'ticket-' + (this.ticketsCount() + 1).toString().padStart(4, '0'),
+    ticket.channel = await ticket.guild.channels.create({
+      name: 'ticket-' + (this.count + 1).toString().padStart(4, '0'),
       parent: categoryId || null,
       type: ChannelType.GuildText,
       permissionOverwrites: [
-        {
-          id: guild.roles.everyone,
-          deny: [PermissionFlagsBits.ViewChannel],
-        },
-        {
-          id: client.user!.id,
-          allow: [PermissionFlagsBits.ViewChannel],
-        },
-        {
-          id: ticket.authorId,
-          allow: [
-            PermissionFlagsBits.ViewChannel,
-            PermissionFlagsBits.ReadMessageHistory,
-            PermissionFlagsBits.SendMessages,
-            PermissionFlagsBits.ManageChannels,
-            PermissionFlagsBits.AttachFiles,
-          ],
-        },
+        authorPermissions,
+        everyonePermissions,
         ...supportPermissions,
       ],
-      // make channel private (only author and staff)
     })
 
-    const message = await channel?.send({
+    if (!ticket.channel) return 'Failed to create a ticket channel'
+
+    const message = await ticket.channel?.send({
       embeds: [ticket.getEmbed()],
       components: [ticket.getActionRow()],
     })
 
-    ticket.setChannel(channel.id)
-    ticket.setMessage(message.id)
+    if (!message) return 'Failed to create a ticket message'
+
+    ticket.setMessage(message)
 
     this.tickets.push(ticket)
 
-    return `Ticket is opened here: <#${ticket.channelId}>`
+    this.count++
+
+    return `Ticket is opened here: <#${ticket.channel.id}>`
   }
 
   async open(
-    userId: Snowflake,
-    guildId: Snowflake,
-    channelId: Snowflake
-  ): Promise<string> {
-    const ticket = this.getTicket(userId, guildId)
-    if (!ticket || ticket.status !== 'closed') {
-      return 'You have no closed ticket to open'
+    authorId: Snowflake,
+    guildId: Snowflake
+  ): Promise<{ status: boolean; message: string }> {
+    const ticket = this.getTicket(authorId, guildId, 'closed')
+
+    if (!ticket) {
+      return {
+        status: false,
+        message: 'You have no closed ticket to open',
+      }
     }
-    if (ticket.channelId !== channelId) {
-      return "Ticket status can be changed only from it's own channel"
-    }
 
-    const guild = await client.guilds.fetch(ticket.guildId)
-    const channel = (await guild.channels.fetch(
-      ticket.getChannel()
-    )) as TextChannel
-    const message = await channel.messages.fetch(ticket.getMessage())
+    ticket.status = 'active'
 
-    ticket.open()
-
-    message.edit({
+    // because of sync i'm sure that the message is exists
+    ticket.message!.edit({
       embeds: [ticket.getEmbed()],
       components: [ticket.getActionRow()],
     })
 
-    return `**${ticket.title}** status updated to \`${ticket.status}\``
+    // because of sync i'm sure that the channel is exists
+    ticket.channel!.permissionOverwrites.set([
+      {
+        id: ticket.authorId,
+        allow: [
+          PermissionFlagsBits.SendMessages,
+          PermissionFlagsBits.UseApplicationCommands,
+        ],
+      },
+    ])
+
+    return {
+      status: true,
+      message: 'Ticket `opened`',
+    }
   }
 
   async close(
-    userId: Snowflake,
-    guildId: Snowflake,
-    channelId: Snowflake
-  ): Promise<string> {
-    const ticket = this.getTicket(userId, guildId)
-    if (!ticket || ticket.status !== 'active') {
-      return 'You have no active ticket to close'
+    authorId: Snowflake,
+    guildId: Snowflake
+  ): Promise<{ status: boolean; message: string }> {
+    const ticket = this.getTicket(authorId, guildId, 'active')
+
+    if (!ticket) {
+      return {
+        status: false,
+        message: 'You have no opened ticket to close',
+      }
     }
-    if (ticket.channelId !== channelId) {
-      return "Ticket status can be changed only from it's own channel"
-    }
 
-    const guild = await client.guilds.fetch(ticket.guildId)
-    const channel = (await guild.channels.fetch(
-      ticket.getChannel()
-    )) as TextChannel
-    const message = await channel.messages.fetch(ticket.getMessage())
+    ticket.status = 'closed'
 
-    ticket.close()
-
-    message.edit({
+    // because of sync i'm sure that the message is exists
+    ticket.message!.edit({
       embeds: [ticket.getEmbed()],
       components: [ticket.getActionRow()],
     })
 
-    return `**${ticket.title}** status updated to \`${ticket.status}\``
+    // because of sync i'm sure that the channel is exists
+    ticket.channel!.permissionOverwrites.set([
+      {
+        id: ticket.authorId,
+        deny: [
+          PermissionFlagsBits.SendMessages,
+          PermissionFlagsBits.UseApplicationCommands,
+        ],
+      },
+    ])
+
+    const embed = new EmbedBuilder().setDescription(
+      '```' + 'Support team controls section' + '```'
+    )
+
+    const openButton = new ButtonBuilder()
+      .setCustomId('open-ticket-button')
+      .setLabel('Open')
+      .setEmoji('🔓')
+      .setStyle(ButtonStyle.Success)
+
+    const deleteButton = new ButtonBuilder()
+      .setCustomId('delete-ticket-button')
+      .setLabel('Delete')
+      .setEmoji('🗑')
+      .setStyle(ButtonStyle.Danger)
+
+    const row = new ActionRowBuilder<ButtonBuilder>().setComponents(
+      openButton,
+      deleteButton
+    )
+
+    ticket.channel?.send({
+      embeds: [embed],
+      components: [row],
+    })
+
+    return {
+      status: true,
+      message: 'Ticket `closed`',
+    }
   }
 
   async delete(
-    userId: Snowflake,
-    guildId: Snowflake,
-    channelId: Snowflake
-  ): Promise<string> {
-    const ticket = this.getTicket(userId, guildId)
-    if (!ticket || ticket.status !== 'closed') {
-      return 'You have no closed ticket to delete'
-    }
-    if (ticket.channelId !== channelId) {
-      return "Ticket status can be changed only from it's own channel"
-    }
-
-    const guild = await client.guilds.fetch(ticket.guildId)
-    const channel = (await guild.channels.fetch(
-      ticket.getChannel()
-    )) as TextChannel
-    const message = await channel.messages.fetch(ticket.getMessage())
-
-    ticket.delete()
-
-    message.edit({
-      embeds: [ticket.getEmbed()],
-      components: [ticket.getActionRow()],
-    })
-
-    return `**${ticket.title}** status updated to \`${ticket.status}\``
-  }
-
-  async restore(
-    userId: Snowflake,
-    guildId: Snowflake,
-    channelId?: Snowflake | null
+    authorId: Snowflake,
+    guildId: Snowflake
   ): Promise<string | void> {
-    const ticket = this.getTicket(userId, guildId)
-    if (!ticket || ticket.status !== 'deleted') {
-      return 'You have no deleted ticket to restore'
-    }
-    if (ticket.channelId !== channelId) {
-      return "Ticket status can be changed only from it's own channel"
-    }
+    const ticket = this.getTicket(authorId, guildId, 'closed')
 
-    const guild = await client.guilds.fetch(ticket.guildId)
-    const channel = (await guild.channels.fetch(
-      ticket.getChannel()
-    )) as TextChannel
-    const message = await channel.messages.fetch(ticket.getMessage())
+    if (!ticket) return 'Ticket must be closed to delete!'
 
-    ticket.restore()
+    this.removeTicket(ticket)
 
-    message.edit({
-      embeds: [ticket.getEmbed()],
-      components: [ticket.getActionRow()],
-    })
-
-    return `**${ticket.title}** status updated to \`${ticket.status}\``
-  }
-
-  constructor(options: { tickets?: Ticket[] }) {
-    this.tickets = options.tickets ?? []
+    ticket.channel!.delete()
   }
 }
 
-export const ticketManager = new TicketManager({})
+export const ticketManager = new TicketManager()

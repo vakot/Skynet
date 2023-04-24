@@ -1,21 +1,25 @@
 import {
   ChatInputCommandInteraction,
   Events,
+  GuildMemberRoleManager,
   SlashCommandBuilder,
   SlashCommandSubcommandBuilder,
 } from 'discord.js'
 
 import { Action } from '../../../models/action'
 
-import { ticketManager } from '../models/ticketManager.i'
 import { validateAction } from '../../../utils/helpers/validateAction'
+
 import { Ticket } from '../models/ticket.i'
-import { handleTicketDelete } from '../utils/handleDelete.i'
+
+import { ticketManager } from '../models/ticketManager.i'
+
+import { isSupport } from '../utils/isSupport.i'
 
 export default new Action({
   data: new SlashCommandBuilder()
     .setName('ticket')
-    .setDescription('Open an existing ticket')
+    .setDescription('Ticket-Tool commands')
     .addSubcommand(
       new SlashCommandSubcommandBuilder()
         .setName('create')
@@ -51,7 +55,7 @@ export default new Action({
 
   event: Events.InteractionCreate,
 
-  cooldown: 6_000,
+  cooldown: 5_000,
 
   async init(interaction: ChatInputCommandInteraction) {
     if (this.data.name !== interaction.commandName) return
@@ -73,41 +77,71 @@ export default new Action({
   },
 
   async execute(interaction: ChatInputCommandInteraction) {
-    const { user, guildId, channelId, options } = interaction
+    const { user, guild, options, member } = interaction
 
-    if (!guildId) {
+    if (!guild) {
       return await interaction.reply({
         content: 'You can interact with ticket-tool only from guild channels',
         ephemeral: true,
       })
     }
 
-    const response = await (async () => {
-      if (options.getSubcommand() === 'create') {
-        const ticket = new Ticket({
-          title: options.getString('title'),
-          reason: options.getString('reason'),
-          authorId: user.id,
-          guildId: guildId,
-        })
-        return await ticketManager.create(ticket)
-      } else if (options.getSubcommand() === 'open') {
-        return await ticketManager.open(user.id, guildId, channelId)
-      } else if (options.getSubcommand() === 'close') {
-        return await ticketManager.close(user.id, guildId, channelId)
-      } else if (options.getSubcommand() === 'delete') {
-        const response = await ticketManager.delete(user.id, guildId, channelId)
-        const status = ticketManager.getTicketStatus(user.id, guildId)
-        if (status === 'deleted') handleTicketDelete(user.id, guildId)
-        return response
-      } else {
-        return 'Unknown subcommand'
-      }
-    })()
+    if (options.getSubcommand() === 'create') {
+      const ticket = new Ticket({
+        title: options.getString('title'),
+        reason: options.getString('reason'),
+        author: user,
+        guild: guild,
+      })
 
-    return await interaction.reply({
-      content: response,
-      ephemeral: true,
-    })
+      const response = await ticketManager.create(ticket)
+
+      return await interaction.reply({
+        content: response,
+        ephemeral: true,
+      })
+    } else if (options.getSubcommand() === 'close') {
+      const { status, message } = await ticketManager.close(user.id, guild.id)
+
+      return await interaction.reply({
+        content: message + (status ? ` by <@${user.id}>` : ''),
+        ephemeral: !status,
+      })
+    } else if (options.getSubcommand() === 'open') {
+      if (!isSupport(member?.roles as GuildMemberRoleManager)) {
+        return await interaction.reply({
+          content: 'This action availible only for support team',
+          ephemeral: true,
+        })
+      }
+
+      const { status, message } = await ticketManager.open(user.id, guild.id)
+
+      return await interaction.reply({
+        content: message + (status ? ` by <@${user.id}>` : ''),
+        ephemeral: !status,
+      })
+    } else if (options.getSubcommand() === 'delete') {
+      if (!isSupport(member?.roles as GuildMemberRoleManager)) {
+        return await interaction.reply({
+          content: 'This action availible only for support team',
+          ephemeral: true,
+        })
+      }
+
+      const response = await ticketManager.delete(user.id, guild.id)
+
+      if (!response) return
+
+      return await interaction.reply({
+        content: response,
+        ephemeral: true,
+      })
+    } else {
+      return await interaction.reply({
+        content: 'Unknown subcommand',
+        ephemeral: true,
+      })
+    }
   },
 })

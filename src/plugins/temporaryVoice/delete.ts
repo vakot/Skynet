@@ -21,18 +21,9 @@ export default new Action({
 
     const { guild, member } = oldState
 
-    const condition = { guildId: guild.id }
-    const defaults: ITemporaryVoice = new TemporaryVoice({
+    const guildTemporaryVoice = await TemporaryVoice.findOne({
       guildId: guild.id,
-      categoryId: categoryId || null,
-      parentId: parentId,
     })
-
-    const guildTemporaryVoice = (await findOrCreate(
-      TemporaryVoice,
-      condition,
-      defaults
-    )) as ITemporaryVoice
 
     // delete temporary channel only if user have one
     if (!guildTemporaryVoice.childrens.has(member.id)) return

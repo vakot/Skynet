@@ -3,8 +3,12 @@ import {
   ChatInputCommandInteraction,
   Events,
   GuildMember,
+  PermissionFlagsBits,
   SlashCommandBuilder,
   SlashCommandSubcommandBuilder,
+  TextChannel,
+  ThreadAutoArchiveDuration,
+  ThreadChannel,
 } from 'discord.js'
 
 import { Action } from '../../../models/action'
@@ -14,6 +18,8 @@ import { isSupport } from '../utils/isSupport.i'
 import { getEmbed } from '../utils/getEmbed.i'
 
 import { ITicket, TicketTool } from '../models/ticket-tool.i'
+
+import { supportRoles, parentId } from '../config.json'
 
 export default new Action({
   data: new SlashCommandBuilder()
@@ -45,16 +51,11 @@ export default new Action({
       new SlashCommandSubcommandBuilder()
         .setName('close')
         .setDescription('Close an existing opened ticket')
-    )
-    .addSubcommand(
-      new SlashCommandSubcommandBuilder()
-        .setName('delete')
-        .setDescription('Delete an existing closed ticket')
     ),
 
   event: Events.InteractionCreate,
 
-  cooldown: 10_000,
+  cooldown: 6_000,
 
   async init(interaction: ChatInputCommandInteraction) {
     if (this.data.name !== interaction.commandName) return
@@ -86,6 +87,20 @@ export default new Action({
     }
 
     if (options.getSubcommand() === 'create') {
+      if (!(channel instanceof TextChannel)) {
+        return await interaction.reply({
+          content: "You can create ticket only from text channel's",
+          ephemeral: true,
+        })
+      }
+
+      if (parentId && channel.id !== parentId) {
+        return await interaction.reply({
+          content: `You can create ticket only from <#${parentId}>`,
+          ephemeral: true,
+        })
+      }
+
       const ticket = await TicketTool.findOne<ITicket>({
         guildId: guild.id,
         authorId: user.id,
@@ -98,36 +113,45 @@ export default new Action({
         })
       }
 
-      const ticketChannel = await guild.channels.create({
-        type: ChannelType.GuildText,
+      const newTicket = new TicketTool({
+        title: options.getString('title') ?? 'Untitled ticket',
+        reason: options.getString('reason') ?? 'General support',
+        authorId: user.id,
+        authorAvatar: user.displayAvatarURL(),
+        guildId: guild.id,
+        parentId: channel.id,
+        supportTeam: supportRoles,
+        createdAt: new Date(),
+      }) as ITicket
+
+      const ticketThread = await channel.threads.create({
         name: user.username + '-' + user.discriminator,
+        autoArchiveDuration: ThreadAutoArchiveDuration.OneHour,
+        type: ChannelType.PrivateThread,
+        reason: options.getString('reason') ?? 'General support',
       })
 
-      if (!ticketChannel) {
+      if (!ticketThread) {
         return await interaction.reply({
           content: 'Failed to create a ticket',
           ephemeral: true,
         })
       }
 
-      const newTicket = new TicketTool({
-        title: options.getString('title') ?? 'Untitled ticket',
-        reason: options.getString('reason') ?? 'General support',
-        authorId: user.id,
-        guildId: guild.id,
-        channelId: ticketChannel.id,
-        createdAt: new Date(),
-      }) as ITicket
-
-      const ticketMessage = await ticketChannel.send({
-        embeds: [getEmbed(newTicket).setThumbnail(user.displayAvatarURL())],
+      const ticketMessage = await ticketThread.send({
+        content: `<@${newTicket.authorId}> | ${newTicket.supportTeam
+          .map((role) => `<@&${role}>`)
+          .join(' | ')}`,
+        embeds: [getEmbed(newTicket)],
       })
 
+      newTicket.parentId = channel.id
+      newTicket.threadId = ticketThread.id
       newTicket.messageId = ticketMessage.id
       newTicket.save()
 
       return await interaction.reply({
-        content: `Your ticket created here: <#${ticketChannel.id}>`,
+        content: `Your ticket created here: <#${newTicket.threadId}>`,
         ephemeral: true,
       })
     } else if (options.getSubcommand() === 'open') {
@@ -140,7 +164,7 @@ export default new Action({
 
       const ticket = await TicketTool.findOne<ITicket>({
         guildId: guild.id,
-        channelId: channel.id,
+        threadId: channel.id,
       })
 
       if (!ticket || !ticket.closed) {
@@ -153,11 +177,18 @@ export default new Action({
       ticket.closed = false
       ticket.save()
 
-      const ticketMessage = await channel.messages.fetch(ticket.messageId)
+      const ticketThread = channel as ThreadChannel
+      await ticketThread.members.add(
+        ticket.authorId,
+        `Ticket is re-opened, look's like ${guild.name} Support Team still need you to resolve a problem`
+      )
 
-      await ticketMessage.edit({
-        embeds: [getEmbed(ticket).setThumbnail(user.displayAvatarURL())],
-      })
+      const ticketMessage = await ticketThread.messages.fetch(ticket.messageId)
+      if (ticketMessage) {
+        await ticketMessage.edit({
+          embeds: [getEmbed(ticket)],
+        })
+      }
 
       return await interaction.reply(`Ticket \`OPENED\` by <@${user.id}>`)
     } else if (options.getSubcommand() === 'close') {
@@ -173,7 +204,7 @@ export default new Action({
         })
       }
 
-      if (channel.id !== ticket.channelId) {
+      if (channel.id !== ticket.threadId) {
         return await interaction.reply({
           content: "You can update ticket status only from it's own channel",
           ephemeral: true,
@@ -183,39 +214,20 @@ export default new Action({
       ticket.closed = true
       ticket.save()
 
-      const ticketMessage = await channel.messages.fetch(ticket.messageId)
-
-      await ticketMessage.edit({
-        embeds: [getEmbed(ticket).setThumbnail(user.displayAvatarURL())],
-      })
-
-      return await interaction.reply(`Ticket \`CLOSED\` by <@${user.id}>`)
-    } else if (options.getSubcommand() === 'delete') {
-      if (member && !isSupport(member as GuildMember)) {
-        return await interaction.reply({
-          content: 'This action is only for support team',
-          ephemeral: true,
+      const ticketThread = channel as ThreadChannel
+      const ticketMessage = await ticketThread.messages.fetch(ticket.messageId)
+      if (ticketMessage) {
+        await ticketMessage.edit({
+          embeds: [getEmbed(ticket)],
         })
       }
 
-      const ticket = await TicketTool.findOne<ITicket>({
-        guildId: guild.id,
-        channelId: channel.id,
-      })
+      await interaction.reply(`Ticket \`CLOSED\` by <@${user.id}>`)
 
-      if (!ticket || !ticket.closed) {
-        return await interaction.reply({
-          content: "Look's like there is no closed ticket's to delete",
-          ephemeral: true,
-        })
-      }
-
-      const ticketChannel = await guild.channels.fetch(ticket.channelId)
-      await TicketTool.deleteOne({
-        guildId: guild.id,
-        channelId: channel.id,
-      })
-      return await ticketChannel?.delete()
+      return await ticketThread.members.remove(
+        ticket.authorId,
+        `Ticket is closed, leave other work to ${guild.name} Support Team`
+      )
     } else {
       return await interaction.reply({
         content: 'Unknown subcommand',

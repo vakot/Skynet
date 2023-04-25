@@ -4,26 +4,30 @@ import { IDocument } from '../../../models/document'
 
 export interface ITicket extends IDocument {
   _id: ObjectId
-  guildId: string
   title: string
   reason: string
   closed: boolean
+  guildId: string
   authorId: string
-  channelId: string
+  authorAvatar: string | null
+  parentId: string
+  threadId: string
   messageId: string
-  categoryId: string | null
+  supportTeam: [string]
   createdAt: Date
 }
 
 const TicketToolSchema = new Schema<ITicket>({
-  guildId: { type: String, required: true },
   title: { type: String, required: true },
   reason: { type: String, required: true },
   closed: { type: Boolean, default: false },
+  guildId: { type: String, required: true },
   authorId: { type: String, required: true },
-  channelId: { type: String, required: true },
+  authorAvatar: { type: String, default: null },
+  parentId: { type: String, required: true },
+  threadId: { type: String, required: true },
   messageId: { type: String, required: false },
-  categoryId: { type: String, default: null },
+  supportTeam: { type: [String], default: [] },
   createdAt: { type: Date, required: true },
 })
 

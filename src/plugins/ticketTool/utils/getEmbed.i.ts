@@ -1,5 +1,6 @@
 import { EmbedBuilder } from 'discord.js'
 import { ITicket } from '../models/ticket-tool.i'
+import { client } from '../../..'
 
 export function getEmbed(ticket: ITicket): EmbedBuilder {
   return new EmbedBuilder()
@@ -9,7 +10,7 @@ export function getEmbed(ticket: ITicket): EmbedBuilder {
     )
     .setFields(
       {
-        name: 'Opened',
+        name: 'Created',
         value: `<t:${Math.round(ticket.createdAt.getTime() * 0.001)}:R>`,
         inline: true,
       },
@@ -24,4 +25,5 @@ export function getEmbed(ticket: ITicket): EmbedBuilder {
         inline: true,
       }
     )
+    .setThumbnail(ticket.authorAvatar)
 }

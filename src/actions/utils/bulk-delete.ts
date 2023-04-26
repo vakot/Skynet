@@ -1,9 +1,9 @@
 import {
+  BaseGuildTextChannel,
   ChatInputCommandInteraction,
   Events,
   PermissionFlagsBits,
   SlashCommandBuilder,
-  TextChannel,
 } from 'discord.js'
 
 import { Action } from '../../models/action'
@@ -50,7 +50,7 @@ export default new Action({
   async execute(interaction: ChatInputCommandInteraction) {
     const { channel } = interaction
 
-    if (!(channel instanceof TextChannel)) return
+    if (!channel || !channel.isTextBased() || channel.isDMBased()) return
 
     const count = interaction.options.getNumber('count')
 

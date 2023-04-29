@@ -6,12 +6,15 @@ import { isCommandsEqual } from '../helpers/compareCommands'
 import logger from '../helpers/logger'
 
 export async function pushCommands(client: SkynetClient, clear = false): Promise<void> {
-  const actions = client.localActions
+  const actions = client.clientActions
 
   const commands = actions.filter((action) => action.data instanceof SlashCommandBuilder).sort()
 
-  // save for some reasons (like for /help command list)
-  commands.forEach((command) => client.localCommands.set(command.data.name, command))
+  // save for some reasons (like for /help command)
+  commands.forEach((command) => {
+    client.localCommands.set(command.data.name, command)
+    if (command.category) client.categories.set(command.category.name, command.category)
+  })
 
   const applicationCommands = await client.application?.commands.fetch()
 

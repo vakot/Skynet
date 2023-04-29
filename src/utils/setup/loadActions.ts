@@ -13,7 +13,7 @@ export async function loadActions(client: SkynetClient): Promise<void> {
 
   const actions = await getFiles(actionsPath, Action)
 
-  actions.forEach((action) => client.localActions.set(action.data.name, action))
+  actions.forEach((action) => client.clientActions.set(action.data.name, action))
 
   const mongoActionsPath = path.join(__dirname, '..', '..', 'mongo')
 

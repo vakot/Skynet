@@ -2,6 +2,8 @@ import { PermissionResolvable, Snowflake } from 'discord.js'
 
 import { DataBaseEvents, IEvent } from './event'
 
+import { ActionCategories, ICategory } from './category'
+
 // TODO: test out interface IAction instead of class (main problem is dynamic file loading)
 // export interface IAction {
 //   data: {
@@ -43,8 +45,9 @@ export class Action {
 
   // uses only with commands to force update it on remote
   readonly forceUpdate?: boolean
+
   // used only for /help command to sort all commands by categories
-  readonly category?: string
+  readonly category?: ICategory
 
   readonly runs: { userId: Snowflake; timestamp: Date }[] = []
 
@@ -67,7 +70,7 @@ export class Action {
     testOnly?: boolean
     devsOnly?: boolean
     forceUpdate?: boolean
-    category?: string
+    category?: ICategory
     permissions?: PermissionResolvable[]
     roles?: Snowflake[]
     execute(...args: any): Promise<any>
@@ -81,7 +84,7 @@ export class Action {
       testOnly = false,
       devsOnly = false,
       forceUpdate = false,
-      category = 'General',
+      category = ActionCategories.General,
       permissions = [],
       roles = [],
       execute,

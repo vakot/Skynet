@@ -2,6 +2,7 @@ import { ChatInputCommandInteraction, EmbedBuilder, SlashCommandBuilder } from '
 
 import { Action } from '../../models/action'
 import { ActionEvents } from '../../models/event'
+import { ActionCategories } from '../../models/category'
 
 export default new Action({
   data: new SlashCommandBuilder()
@@ -9,6 +10,8 @@ export default new Action({
     .setDescription('Short information about bot status'),
 
   event: ActionEvents.CommandInteraction,
+
+  category: ActionCategories.General,
 
   devsOnly: true,
   testOnly: true,

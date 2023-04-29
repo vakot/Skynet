@@ -20,13 +20,15 @@ export const client = new SkynetClient({
     GatewayIntentBits.MessageContent,
   ],
 })
-;(async () => {
+
+async function main() {
   console.clear()
 
   const startTime = Date.now()
 
   logger.info('[SYSTEM INITIALIZATION]')
   await client.login(process.env.TOKEN || '')
+  await client.setMaxListeners(0)
   logger.info('RUNNING SKYSOFT KERNEL 4.92.384.42')
 
   await loadActions(client).catch((error) => {
@@ -55,4 +57,6 @@ export const client = new SkynetClient({
   })
 
   logger.info(`System startup in ${((Date.now() - startTime) * 0.001).toFixed(3)}s`)
-})()
+}
+
+main()

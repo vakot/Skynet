@@ -1,18 +1,39 @@
-export class Category {
+export interface ICategory {
   name: string
   description?: string
   emoji?: string
+}
 
-  getName(): string {
-    const name = []
-    if (this.emoji) name.push(this.emoji)
-    name.push(this.name)
-    return name.join('・')
-  }
+export function getCategoryName(category: ICategory): string {
+  const name = []
+  if (category.emoji) name.push(category.emoji)
+  name.push(category.name)
+  return name.join('・')
+}
 
-  constructor(options: { name: string; description?: string; emoji?: string }) {
-    this.name = options.name
-    this.description = options.description
-    this.emoji = options.emoji
-  }
+export const ActionCategories = {
+  General: {
+    name: 'General',
+    description: 'general_description',
+  } as ICategory,
+
+  Utils: {
+    name: 'Utilities',
+    description: 'utilities_description',
+  } as ICategory,
+
+  Moderation: {
+    name: 'Moderation',
+    description: 'mod_description',
+  } as ICategory,
+
+  Fun: {
+    name: 'Fun',
+    description: 'fun_description',
+  } as ICategory,
+
+  Test: {
+    name: 'Test',
+    description: 'test_description',
+  } as ICategory,
 }

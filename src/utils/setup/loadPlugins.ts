@@ -17,6 +17,6 @@ export async function loadPlugins(client: SkynetClient): Promise<void> {
 
     const actions = await getFiles(pluginPath, Action)
 
-    actions.forEach((action) => client.localActions.set(action.data.name, action))
+    actions.forEach((action) => client.clientActions.set(action.data.name, action))
   }
 }

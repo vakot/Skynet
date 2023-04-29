@@ -7,7 +7,7 @@ import logger from '../helpers/logger'
 export async function loadEvents(client: SkynetClient): Promise<void> {
   logger.debug('Events loading')
 
-  client.localActions.forEach((action) => {
+  client.clientActions.forEach((action) => {
     const { once, event } = action
 
     client[once ? 'once' : 'on'](event.name, (...args) =>

@@ -1,13 +1,13 @@
 import path from 'path'
 import fs from 'fs'
 
-import { Client } from '../../models/client'
+import { SkynetClient } from '../../models/client'
 import { Action } from '../../models/action'
 
 import { getFiles } from '../helpers/fileSystem'
 import logger from '../helpers/logger'
 
-export async function loadPlugins(client: Client): Promise<void> {
+export async function loadPlugins(client: SkynetClient): Promise<void> {
   const pluginsPath = path.join(__dirname, '..', '..', 'plugins')
 
   for (const pluginFolder of await fs.readdirSync(pluginsPath)) {
@@ -17,8 +17,6 @@ export async function loadPlugins(client: Client): Promise<void> {
 
     const actions = await getFiles(pluginPath, Action)
 
-    actions.forEach((action) =>
-      client.localActions.set(action.data.name, action)
-    )
+    actions.forEach((action) => client.localActions.set(action.data.name, action))
   }
 }

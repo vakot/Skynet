@@ -1,23 +1,18 @@
-import { ActivityType, Events } from 'discord.js'
+import { ActivityType } from 'discord.js'
 
-import { Client } from '../../models/client'
+import { SkynetClient } from '../../models/client'
 import { Action } from '../../models/action'
 
 import logger from '../../utils/helpers/logger'
+import { ActionEvents } from '../../models/event'
 
 export default new Action({
-  data: {
-    name: 'client-ready-event',
-  },
+  data: { name: 'client-ready-event' },
 
-  event: Events.ClientReady,
+  event: ActionEvents.ClientReady,
 
-  async init(client: Client) {
-    return await this.execute(client)
-  },
-
-  async execute(client: Client) {
-    client.user?.setActivity({
+  async execute(client: SkynetClient) {
+    await client.user?.setActivity({
       name: 'Sky',
       type: ActivityType.Watching,
       url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',

@@ -1,10 +1,8 @@
-import { Collection, Client as DiscordClient, Snowflake } from 'discord.js'
+import { Collection, Client, Snowflake } from 'discord.js'
 
-import { Action } from './action'
-import { Category } from './category'
-import { DataBaseAction } from './dbaction'
+import { Action, DataBaseAction } from './action'
 
-export class Client extends DiscordClient {
+export class SkynetClient<Ready extends boolean = boolean> extends Client<Ready> {
   // name > body
   localActions = new Collection<string, Action>()
   // name > body
@@ -13,6 +11,4 @@ export class Client extends DiscordClient {
   localCommands = new Collection<string, Action>()
   // action-name > (user-id > timestamp in ms)
   cooldowns = new Collection<string, Collection<Snowflake, number>>()
-  // name > body
-  categories = new Collection<string, Category>()
 }

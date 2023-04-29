@@ -1,50 +1,24 @@
-import {
-  ChatInputCommandInteraction,
-  EmbedBuilder,
-  Events,
-  SlashCommandBuilder,
-} from 'discord.js'
+import { ChatInputCommandInteraction, EmbedBuilder, SlashCommandBuilder } from 'discord.js'
 
 import { Action } from '../../models/action'
-
-import { validateAction } from '../../utils/helpers/validateAction'
+import { ActionEvents } from '../../models/event'
 
 export default new Action({
-  category: 'About',
-
   data: new SlashCommandBuilder()
     .setName('status')
     .setDescription('Short information about bot status'),
 
-  event: Events.InteractionCreate,
+  event: ActionEvents.CommandInteraction,
 
   devsOnly: true,
-
-  async init(interaction: ChatInputCommandInteraction) {
-    if (this.data.name !== interaction.commandName) return
-
-    const invalidation = validateAction(
-      this,
-      interaction.guild,
-      interaction.user
-    )
-
-    if (invalidation) {
-      return await interaction.reply({
-        content: invalidation,
-        ephemeral: true,
-      })
-    }
-
-    return await this.execute(interaction)
-  },
+  testOnly: true,
 
   async execute(interaction: ChatInputCommandInteraction) {
     const { guild, guildId, id } = interaction
 
     if (!guild) return
 
-    const reply = await interaction.deferReply({ fetchReply: true })
+    const reply = await interaction.deferReply({ ephemeral: true, fetchReply: true })
 
     const botsCount = (await guild.fetchIntegrations()).filter(
       (i) => i.application && i.application.bot
@@ -68,9 +42,7 @@ export default new Action({
       },
       {
         name: 'Members',
-        value: `User: \`${
-          guild.memberCount - botsCount
-        }\` | Bot: \`${botsCount}\``,
+        value: `User: \`${guild.memberCount - botsCount}\` | Bot: \`${botsCount}\``,
         inline: true,
       },
       {
@@ -85,9 +57,9 @@ export default new Action({
       embeds: [
         embed.addFields({
           name: 'Execution time',
-          value: `Bot: \`${
-            Date.now() - reply.createdTimestamp
-          }ms\` | Websocket: \`${interaction.client.ws.ping}ms\``,
+          value: `Bot: \`${Date.now() - reply.createdTimestamp}ms\` | Websocket: \`${
+            interaction.client.ws.ping
+          }ms\``,
           inline: true,
         }),
       ],

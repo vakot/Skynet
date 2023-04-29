@@ -1,11 +1,12 @@
-import { DataBaseAction, DataBaseActionEvents } from '../models/dbaction'
+import { DataBaseAction } from '../models/action'
+import { DataBaseEvents } from '../models/event'
 
 import logger from '../utils/helpers/logger'
 
 export default new DataBaseAction({
   data: { name: 'database-connected' },
 
-  event: DataBaseActionEvents.Connected,
+  event: DataBaseEvents.Connected,
 
   async execute() {
     return await logger.info('Connected to database')

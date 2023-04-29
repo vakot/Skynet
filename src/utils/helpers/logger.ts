@@ -75,14 +75,6 @@ function save(
       return `\`\`\`${message}\`\`\``
     }
   }
-
-  // const savedLog: string[] = store.get('log')
-
-  // if (savedLog) {
-  //   savedLog.push(colored())
-  // } else {
-  //   store.set('log', [colored()])
-  // }
 }
 
 export default logger

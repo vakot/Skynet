@@ -1,24 +1,17 @@
 import { SlashCommandBuilder } from 'discord.js'
 
-import logger from '../helpers/logger'
+import { SkynetClient } from '../../models/client'
+
 import { isCommandsEqual } from '../helpers/compareCommands'
+import logger from '../helpers/logger'
 
-import { Client } from '../../models/client'
-
-export async function pushCommands(
-  client: Client,
-  clear = false
-): Promise<void> {
+export async function pushCommands(client: SkynetClient, clear = false): Promise<void> {
   const actions = client.localActions
 
-  const commands = actions
-    .filter((action) => action.data instanceof SlashCommandBuilder)
-    .sort()
+  const commands = actions.filter((action) => action.data instanceof SlashCommandBuilder).sort()
 
   // save for some reasons (like for /help command list)
-  commands.forEach((command) =>
-    client.localCommands.set(command.data.name, command)
-  )
+  commands.forEach((command) => client.localCommands.set(command.data.name, command))
 
   const applicationCommands = await client.application?.commands.fetch()
 
@@ -27,9 +20,7 @@ export async function pushCommands(
   if (clear) {
     return await applicationCommands?.forEach(
       async (command) =>
-        await command
-          .delete()
-          .then((command) => logger.warn(`Command /${command.name} deleted`))
+        await command.delete().then((command) => logger.warn(`Command /${command.name} deleted`))
     )
   }
 
@@ -37,9 +28,7 @@ export async function pushCommands(
     const { data, deleteble, forceUpdate } = command
 
     // collect existing command
-    const existingCommand = await applicationCommands?.find(
-      (cmd) => cmd.name === data.name
-    )
+    const existingCommand = await applicationCommands?.find((cmd) => cmd.name === data.name)
 
     // create new command
     if (!existingCommand && !deleteble) {
@@ -50,15 +39,12 @@ export async function pushCommands(
 
     // delete existing
     if (existingCommand && deleteble) {
-      return await existingCommand
-        .delete()
-        .then(() => logger.warn(`Command /${data.name} deleted`))
+      return await existingCommand.delete().then(() => logger.warn(`Command /${data.name} deleted`))
     }
 
     // update existing
     if (
-      (existingCommand &&
-        !isCommandsEqual(data as SlashCommandBuilder, existingCommand)) ||
+      (existingCommand && !isCommandsEqual(data as SlashCommandBuilder, existingCommand)) ||
       forceUpdate
     ) {
       return await client.application?.commands

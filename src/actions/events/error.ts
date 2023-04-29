@@ -1,19 +1,12 @@
-import { Events } from 'discord.js'
-
 import { Action } from '../../models/action'
+import { ActionEvents } from '../../models/event'
 
 import logger from '../../utils/helpers/logger'
 
 export default new Action({
-  data: {
-    name: 'client-error-event',
-  },
+  data: { name: 'client-error-event' },
 
-  event: Events.Error,
-
-  async init(info: string) {
-    return await this.execute(info)
-  },
+  event: ActionEvents.ClientError,
 
   async execute(info: string) {
     return await logger.error(info)

@@ -1,66 +1,27 @@
-import { ClientEvents } from 'discord.js'
 import { connection } from 'mongoose'
 
-import { Client } from '../../models/client'
+import { SkynetClient } from '../../models/client'
 
 import logger from '../helpers/logger'
 
-export async function loadEvents(client: Client): Promise<void> {
-  const actions = client.localActions
-  const events = new Set<keyof ClientEvents>()
+export async function loadEvents(client: SkynetClient): Promise<void> {
+  logger.debug('Events loading')
 
-  // get all event's
-  actions.forEach((action) => {
-    events.add(action.event)
+  client.localActions.forEach((action) => {
+    const { once, event } = action
+
+    client[once ? 'once' : 'on'](event.name, (...args) =>
+      event.init(...args, client, action).catch(logger.error)
+    )
   })
+  logger.log('Events <client> loaded')
 
-  for (const event of events) {
-    // run all client.on event's
-    client.on(event, (...args) => {
-      actions
-        .filter((action) => !action.once && action.event === event)
-        .forEach((action) => action.init(...args, client).catch(logger.error))
-    })
+  client.dataBaseActions.forEach((action) => {
+    const { once, event } = action
 
-    // run all client.once event's
-    client.once(event, (...args) => {
-      actions
-        .filter((action) => action.once && action.event === event)
-        .forEach((action) => action.init(...args, client).catch(logger.error))
-    })
-
-    logger.log(`Event <${event}> created`)
-  }
-
-  const dbactions = client.dataBaseActions
-  const dbevents = new Set<
-    'error' | 'connected' | 'disconnected' | 'connecting'
-  >()
-
-  // get all dbevent's
-  dbactions.forEach((action) => {
-    dbevents.add(action.event)
+    connection[once ? 'once' : 'on'](event, (...args) =>
+      action.execute(...args, client).catch(logger.error)
+    )
   })
-
-  for (const dbevent of dbevents) {
-    // run all client.on event's
-    connection.on(dbevent, (...args) => {
-      dbactions
-        .filter((action) => !action.once && action.event === dbevent)
-        .forEach((action) =>
-          action.execute(...args, client).catch(logger.error)
-        )
-    })
-
-    // run all client.once event's
-    connection.once(dbevent, (...args) => {
-      dbactions
-        .filter((action) => action.once && action.event === dbevent)
-        .forEach((action) =>
-          action.execute(...args, client).catch(logger.error)
-        )
-    })
-
-    logger.log(`DB Event <${dbevent}> created`)
-  }
+  logger.log('Events <data-base> loaded')
 }

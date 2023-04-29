@@ -14,12 +14,12 @@ export default new Action({
   event: Events.InteractionCreate,
 
   async init(interaction: ChatInputCommandInteraction) {
+    if (this.data.name !== interaction.commandName) return
+
     return await this.execute(interaction)
   },
 
   async execute(interaction: ChatInputCommandInteraction) {
-    if (this.data.name !== interaction.commandName) return
-
     return await interaction.reply({
       content: `:ping_pong: Pong!`,
       ephemeral: true,

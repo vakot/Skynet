@@ -2,11 +2,12 @@ import { Events, VoiceState } from 'discord.js'
 
 import { Action } from '../../models/action'
 
-import { childrens } from './create'
-import { parentId } from './config.json'
+import { ITemporaryVoice, TemporaryVoice } from './models/temporary-voice.i'
+import { findOrCreate } from '../../utils/helpers/findOrCreate'
+import { parentId, categoryId } from './config.json'
 
 export default new Action({
-  data: { name: '' },
+  data: { name: 'delete-temporary-voice-channel' },
 
   event: Events.VoiceStateUpdate,
 
@@ -17,24 +18,38 @@ export default new Action({
     if (oldState.channelId === newState.channelId) return
     // delete channel only if user leave
     if (!oldState && newState) return
+
+    const { guild, member } = oldState
+
+    const guildTemporaryVoice = await TemporaryVoice.findOne({
+      guildId: guild.id,
+    })
+
+    // delete temporary channel only if user have one
+    if (!guildTemporaryVoice.childrens.has(member.id)) return
+
     // don't delete parent channel
-    if (oldState.channelId === parentId) return
+    if (oldState.channelId === guildTemporaryVoice.parentId) return
+
     // move user back to existing temporary channel
-    if (newState.channelId === parentId) {
+    if (newState.channelId === guildTemporaryVoice.parentId) {
       if (!newState.member) return
-      const channel = childrens.get(newState.member.id)
+
+      const channel = guildTemporaryVoice.childrens.get(newState.member.id)
+
       if (channel) return await newState.member.voice.setChannel(channel)
     }
-    // delete channel only if user have one
-    if (!childrens.has(oldState.member.id)) return
 
-    return await this.execute(oldState)
+    return await this.execute(oldState, guildTemporaryVoice)
   },
-  async execute(oldState: VoiceState) {
+  async execute(oldState: VoiceState, guildTemporaryVoice: ITemporaryVoice) {
     const { channel, member } = oldState
 
     if (!channel || !member) return
 
-    return await channel.delete().then(() => childrens.delete(member.id))
+    return await channel.delete().then(async () => {
+      await guildTemporaryVoice.childrens.delete(member.id)
+      await guildTemporaryVoice.save()
+    })
   },
 })

@@ -1,7 +1,6 @@
 import {
   ChatInputCommandInteraction,
   Events,
-  GuildMemberRoleManager,
   SlashCommandBuilder,
   SlashCommandSubcommandBuilder,
 } from 'discord.js'
@@ -9,12 +8,10 @@ import {
 import { Action } from '../../../models/action'
 
 import { validateAction } from '../../../utils/helpers/validateAction'
-
-import { Ticket } from '../models/ticket.i'
-
-import { ticketManager } from '../models/ticketManager.i'
-
-import { isSupport } from '../utils/isSupport.i'
+import { createTicket } from '../utils/ticket/create.i'
+import { openTicket } from '../utils/ticket/open.i'
+import { closeTicket } from '../utils/ticket/close.i'
+import { deleteTicket } from '../utils/ticket/delete.i'
 
 export default new Action({
   data: new SlashCommandBuilder()
@@ -55,7 +52,7 @@ export default new Action({
 
   event: Events.InteractionCreate,
 
-  cooldown: 5_000,
+  cooldown: 6_000,
 
   async init(interaction: ChatInputCommandInteraction) {
     if (this.data.name !== interaction.commandName) return
@@ -77,66 +74,16 @@ export default new Action({
   },
 
   async execute(interaction: ChatInputCommandInteraction) {
-    const { user, guild, options, member } = interaction
-
-    if (!guild) {
-      return await interaction.reply({
-        content: 'You can interact with ticket-tool only from guild channels',
-        ephemeral: true,
-      })
-    }
+    const { options } = interaction
 
     if (options.getSubcommand() === 'create') {
-      const ticket = new Ticket({
-        title: options.getString('title'),
-        reason: options.getString('reason'),
-        author: user,
-        guild: guild,
-      })
-
-      const response = await ticketManager.create(ticket)
-
-      return await interaction.reply({
-        content: response,
-        ephemeral: true,
-      })
-    } else if (options.getSubcommand() === 'close') {
-      const { status, message } = await ticketManager.close(user.id, guild.id)
-
-      return await interaction.reply({
-        content: message + (status ? ` by <@${user.id}>` : ''),
-        ephemeral: !status,
-      })
+      return await createTicket(interaction)
     } else if (options.getSubcommand() === 'open') {
-      if (!isSupport(member?.roles as GuildMemberRoleManager)) {
-        return await interaction.reply({
-          content: 'This action availible only for support team',
-          ephemeral: true,
-        })
-      }
-
-      const { status, message } = await ticketManager.open(user.id, guild.id)
-
-      return await interaction.reply({
-        content: message + (status ? ` by <@${user.id}>` : ''),
-        ephemeral: !status,
-      })
+      return await openTicket(interaction)
+    } else if (options.getSubcommand() === 'close') {
+      return await closeTicket(interaction)
     } else if (options.getSubcommand() === 'delete') {
-      if (!isSupport(member?.roles as GuildMemberRoleManager)) {
-        return await interaction.reply({
-          content: 'This action availible only for support team',
-          ephemeral: true,
-        })
-      }
-
-      const response = await ticketManager.delete(user.id, guild.id)
-
-      if (!response) return
-
-      return await interaction.reply({
-        content: response,
-        ephemeral: true,
-      })
+      return await deleteTicket(interaction)
     } else {
       return await interaction.reply({
         content: 'Unknown subcommand',

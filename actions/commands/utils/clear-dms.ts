@@ -3,30 +3,23 @@ import {
   ButtonBuilder,
   ButtonStyle,
   ChatInputCommandInteraction,
-  Events,
   SlashCommandBuilder,
 } from 'discord.js'
 
-import { Action } from '../../modules/models/action'
+import { Action } from '@modules/models/action'
+import { ActionEvents } from '@modules/libs/events'
+import { ActionCategories } from '@modules/libs/categories'
 
 export default new Action({
-  category: 'Utilities',
-
   data: new SlashCommandBuilder()
     .setName('clear-dms')
     .setDescription('Delete all bot messages in your DMs'),
 
-  event: Events.InteractionCreate,
+  event: ActionEvents.CommandInteraction,
 
-  async init(interaction: ChatInputCommandInteraction) {
-    if (this.data.name !== interaction.commandName) return
-
-    return await this.execute(interaction)
-  },
+  category: ActionCategories.Utils,
 
   async execute(interaction: ChatInputCommandInteraction) {
-    if (this.data.name !== interaction.commandName) return
-
     const acceptButton = new ButtonBuilder()
       .setCustomId('accept-clear-dms')
       .setLabel('Do it!')

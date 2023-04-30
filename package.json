@@ -27,7 +27,6 @@
     "ts-node": "^10.9.1"
   },
   "_moduleAliases": {
-    "@root": ".",
     "@modules": "modules",
     "@utils": "utils"
   }

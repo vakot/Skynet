@@ -199,7 +199,7 @@ export const Pages = {
     const embed = new EmbedBuilder().addFields(
       {
         name: 'Usage',
-        value: `\`\`\`${usage || 'Unknown command'}\`\`\``,
+        value: `\`\`\`${usage.join(' ') || 'Unknown command'}\`\`\``,
         inline: true,
       },
       {
@@ -235,4 +235,9 @@ export const Pages = {
       components: [row],
     }
   },
+
+  // .setFooter({
+  //   text: '<option> - required ・ (option) - optional',
+  //   iconURL: client.user?.displayAvatarURL(),
+  // })
 }

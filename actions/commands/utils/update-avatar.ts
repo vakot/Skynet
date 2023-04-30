@@ -1,14 +1,15 @@
-import { ChatInputCommandInteraction, Events, SlashCommandBuilder } from 'discord.js'
-import fs from 'fs'
-import axios from 'axios'
+import { ChatInputCommandInteraction, SlashCommandBuilder } from 'discord.js'
 
-import { Action } from '../../modules/models/action'
-import logger from '../../utils/helpers/logger'
-import { validateAction } from '../../utils/helpers/validateAction'
+import axios from 'axios'
+import fs from 'fs'
+
+import { Action } from '@modules/models/action'
+import { ActionEvents } from '@modules/libs/events'
+import { ActionCategories } from '@modules/libs/categories'
+
+import logger from '@utils/helpers/logger'
 
 export default new Action({
-  category: 'Utilities',
-
   data: new SlashCommandBuilder()
     .setName('update-avatar')
     .setDescription("Update bot's avatar")
@@ -19,25 +20,12 @@ export default new Action({
         .setRequired(true)
     ),
 
-  event: Events.InteractionCreate,
+  event: ActionEvents.CommandInteraction,
+
+  category: ActionCategories.Utils,
 
   devsOnly: true,
-  cooldown: 300_000,
-
-  async init(interaction: ChatInputCommandInteraction) {
-    if (this.data.name !== interaction.commandName) return
-
-    const invalidation = validateAction(this, interaction.guild, interaction.user)
-
-    if (invalidation) {
-      return await interaction.reply({
-        content: invalidation,
-        ephemeral: true,
-      })
-    }
-
-    return await this.execute(interaction)
-  },
+  testOnly: true,
 
   async execute(interaction: ChatInputCommandInteraction) {
     const image = interaction.options.getAttachment('image')

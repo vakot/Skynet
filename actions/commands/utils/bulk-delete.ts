@@ -1,18 +1,10 @@
-import {
-  BaseGuildTextChannel,
-  ChatInputCommandInteraction,
-  Events,
-  PermissionFlagsBits,
-  SlashCommandBuilder,
-} from 'discord.js'
+import { ChatInputCommandInteraction, PermissionFlagsBits, SlashCommandBuilder } from 'discord.js'
 
-import { Action } from '../../modules/models/action'
-
-import { validateAction } from '../../utils/helpers/validateAction'
+import { Action } from '@modules/models/action'
+import { ActionCategories } from '@modules/libs/categories'
+import { ActionEvents } from '@modules/libs/events'
 
 export default new Action({
-  category: 'Utilities',
-
   data: new SlashCommandBuilder()
     .setName('bulk-delete')
     .setDescription('Delete bulk of messages')
@@ -24,24 +16,9 @@ export default new Action({
         .setRequired(true)
     ),
 
-  event: Events.InteractionCreate,
+  event: ActionEvents.CommandInteraction,
 
-  cooldown: 10_000,
-
-  async init(interaction: ChatInputCommandInteraction) {
-    if (this.data.name !== interaction.commandName) return
-
-    const invalidation = validateAction(this, interaction.guild, interaction.user)
-
-    if (invalidation) {
-      return await interaction.reply({
-        content: invalidation,
-        ephemeral: true,
-      })
-    }
-
-    return await this.execute(interaction)
-  },
+  category: ActionCategories.Utils,
 
   async execute(interaction: ChatInputCommandInteraction) {
     const { channel } = interaction

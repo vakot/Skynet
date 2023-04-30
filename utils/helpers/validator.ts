@@ -10,11 +10,11 @@ import {
 } from 'discord.js'
 
 import { Action } from '@modules/models/action'
-import { client } from '@root/index'
 
 import logger from '@utils/helpers/logger'
 
-import { devs, testServer } from '@root/config.json'
+import { client } from '../..'
+import { devs, testServer } from '../../config.json'
 
 /**
  * function to automatically handle users cooldowns

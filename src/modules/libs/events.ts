@@ -1,24 +1,20 @@
 import {
-  ButtonInteraction as DiscordButtonInteraction,
-  ChatInputCommandInteraction,
-  ClientEvents,
   Events,
+  ChatInputCommandInteraction,
+  AnySelectMenuInteraction,
   VoiceState,
   Message,
   GuildChannel,
   TextChannel,
   NewsChannel,
-  AnySelectMenuInteraction,
+  ButtonInteraction as DiscordButtonInteraction,
 } from 'discord.js'
 
-import { SkynetClient } from './client'
-import { Action } from './action'
-import Validator from '../utils/helpers/validator'
+import { Action } from '../models/action'
+import { SkynetClient } from '../models/client'
+import { IEvent } from '../models/event'
 
-export interface IEvent {
-  name: keyof ClientEvents
-  init: (...args: any) => any
-}
+import Validator from '../../utils/helpers/validator'
 
 export const ActionEvents = {
   // #region Client

@@ -1,15 +1,4 @@
-export interface ICategory {
-  name: string
-  description?: string
-  emoji?: string
-}
-
-export function getCategoryName(category: ICategory): string {
-  const name = []
-  if (category.emoji) name.push(category.emoji)
-  name.push(category.name)
-  return name.join('・')
-}
+import { ICategory } from '../models/category'
 
 export const ActionCategories = {
   General: {

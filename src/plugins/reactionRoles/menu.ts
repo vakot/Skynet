@@ -7,7 +7,7 @@ import {
   StringSelectMenuInteraction,
 } from 'discord.js'
 
-import { Action } from '../../models/action'
+import { Action } from '../../modules/models/action'
 
 import { roles } from './config.json'
 
@@ -77,15 +77,11 @@ export default new Action({
       .addFields(
         {
           name: 'Added roles:',
-          value: `${
-            addedRoles?.map((role) => `<@&${role}>`).join(' | ') || '-'
-          }`,
+          value: `${addedRoles?.map((role) => `<@&${role}>`).join(' | ') || '-'}`,
         },
         {
           name: 'Removed roles:',
-          value: `${
-            removedRoles?.map((role) => `<@&${role}>`).join(' | ') || '-'
-          }`,
+          value: `${removedRoles?.map((role) => `<@&${role}>`).join(' | ') || '-'}`,
         }
       )
 

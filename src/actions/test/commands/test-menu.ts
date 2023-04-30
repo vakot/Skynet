@@ -5,8 +5,8 @@ import {
   StringSelectMenuBuilder,
 } from 'discord.js'
 
-import { Action } from '../../../models/action'
-import { ActionEvents } from '../../../models/event'
+import { Action } from '../../../modules/models/action'
+import { ActionEvents } from '../../../modules/libs/events'
 
 import logger from '../../../utils/helpers/logger'
 

@@ -7,7 +7,7 @@ import {
   StringSelectMenuBuilder,
 } from 'discord.js'
 
-import { Action } from '../../models/action'
+import { Action } from '../../modules/models/action'
 
 import { validateAction } from '../../utils/helpers/validateAction'
 
@@ -28,11 +28,7 @@ export default new Action({
   async init(interaction: ChatInputCommandInteraction) {
     if (this.data.name !== interaction.commandName) return
 
-    const invalidation = validateAction(
-      this,
-      interaction.guild,
-      interaction.user
-    )
+    const invalidation = validateAction(this, interaction.guild, interaction.user)
 
     if (invalidation) {
       return await interaction.reply({
@@ -52,9 +48,7 @@ export default new Action({
       .setMinValues(0)
       .setMaxValues(roles.length)
 
-    const row = new ActionRowBuilder<StringSelectMenuBuilder>().setComponents(
-      menu
-    )
+    const row = new ActionRowBuilder<StringSelectMenuBuilder>().setComponents(menu)
 
     return await interaction.channel?.send({
       components: [row],

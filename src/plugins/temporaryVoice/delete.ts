@@ -1,6 +1,6 @@
 import { Events, VoiceState } from 'discord.js'
 
-import { Action } from '../../models/action'
+import { Action } from '../../modules/models/action'
 
 import { ITemporaryVoice, TemporaryVoice } from './models/temporary-voice.i'
 import { findOrCreate } from '../../utils/helpers/findOrCreate'

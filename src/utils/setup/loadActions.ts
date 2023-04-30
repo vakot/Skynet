@@ -1,7 +1,7 @@
 import path from 'path'
 
-import { SkynetClient } from '../../models/client'
-import { Action, DataBaseAction } from '../../models/action'
+import { SkynetClient } from '../../modules/models/client'
+import { Action, DataBaseAction } from '../../modules/models/action'
 
 import { getFiles } from '../helpers/fileSystem'
 import logger from '../helpers/logger'

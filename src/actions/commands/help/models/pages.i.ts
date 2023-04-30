@@ -7,10 +7,11 @@ import {
   SlashCommandBuilder,
   StringSelectMenuBuilder,
 } from 'discord.js'
-import { Action } from '../../../../models/action'
-import { ICategory, getCategoryName } from '../../../../models/category'
-import { SkynetClient } from '../../../../models/client'
-import { generateCommandUsage } from '../../../../utils/helpers/generateCommandUsage'
+import { Action } from '../../../../modules/models/action'
+import { ICategory } from '../../../../modules/models/category'
+import { SkynetClient } from '../../../../modules/models/client'
+import { getCommandUsage } from '../../../../utils/helpers/getCommandUsage'
+import { getCategoryName } from '../../../../utils/helpers/getCategoryName'
 
 export interface IPage {
   embeds: EmbedBuilder[]
@@ -152,7 +153,7 @@ export const Pages = {
 
     let index = 0
     commands.forEach((command) => {
-      const usage = generateCommandUsage(command.data as SlashCommandBuilder)
+      const usage = getCommandUsage(command.data as SlashCommandBuilder)
       const description = command.data.description ?? '-'
 
       embed.addFields({
@@ -191,7 +192,7 @@ export const Pages = {
   },
 
   command(command: Action, isAllowed: boolean = true): InteractionReplyOptions {
-    const usage = generateCommandUsage(command.data as SlashCommandBuilder)
+    const usage = getCommandUsage(command.data as SlashCommandBuilder)
 
     const embed = new EmbedBuilder().addFields(
       {

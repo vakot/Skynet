@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from 'discord.js'
 
-import { SkynetClient } from '../../models/client'
+import { SkynetClient } from '../../modules/models/client'
 
 import { isCommandsEqual } from '../helpers/compareCommands'
 import logger from '../helpers/logger'

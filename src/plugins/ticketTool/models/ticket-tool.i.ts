@@ -1,6 +1,6 @@
 import mongoose, { Schema, ObjectId } from 'mongoose'
 
-import { IDocument } from '../../../models/document'
+import { IDocument } from '../../../modules/models/document'
 
 export interface ITicket extends IDocument {
   _id: ObjectId
@@ -32,5 +32,4 @@ const TicketToolSchema = new Schema<ITicket>({
 })
 
 export const TicketTool =
-  mongoose.models.TicketToolSchema ||
-  mongoose.model('TicketTool', TicketToolSchema)
+  mongoose.models.TicketToolSchema || mongoose.model('TicketTool', TicketToolSchema)

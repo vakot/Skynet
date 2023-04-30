@@ -1,6 +1,6 @@
 import { connection } from 'mongoose'
 
-import { SkynetClient } from '../../models/client'
+import { SkynetClient } from '../../modules/models/client'
 
 import logger from '../helpers/logger'
 

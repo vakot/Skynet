@@ -1,8 +1,8 @@
 import { InteractionUpdateOptions, StringSelectMenuInteraction } from 'discord.js'
 
-import { Action } from '../../../../models/action'
-import { ActionEvents } from '../../../../models/event'
-import { SkynetClient } from '../../../../models/client'
+import { Action } from '../../../../modules/models/action'
+import { ActionEvents } from '../../../../modules/libs/events'
+import { SkynetClient } from '../../../../modules/models/client'
 
 import { Pages } from '../models/pages.i'
 

@@ -3,7 +3,7 @@ require('dotenv').config()
 import { GatewayIntentBits } from 'discord.js'
 import mongoose from 'mongoose'
 
-import { SkynetClient } from './models/client'
+import { SkynetClient } from './modules/models/client'
 
 import { loadActions } from './utils/setup/loadActions'
 // import { loadPlugins } from './utils/setup/loadPlugins'

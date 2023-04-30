@@ -1,5 +1,5 @@
-import { DataBaseAction } from '../models/action'
-import { DataBaseEvents } from '../models/event'
+import { DataBaseAction } from '../modules/models/action'
+import { DataBaseEvents } from '../modules/libs/events'
 
 import logger from '../utils/helpers/logger'
 

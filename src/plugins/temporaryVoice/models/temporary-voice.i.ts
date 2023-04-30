@@ -1,6 +1,6 @@
 import mongoose, { Schema, ObjectId } from 'mongoose'
 
-import { IDocument } from '../../../models/document'
+import { IDocument } from '../../../modules/models/document'
 
 export interface ITemporaryVoice extends IDocument {
   _id: ObjectId
@@ -20,5 +20,4 @@ const TemporaryVoiceSchema = new Schema<ITemporaryVoice>({
 })
 
 export const TemporaryVoice =
-  mongoose.models.TemporaryVoiceSchema ||
-  mongoose.model('TemporaryVoice', TemporaryVoiceSchema)
+  mongoose.models.TemporaryVoiceSchema || mongoose.model('TemporaryVoice', TemporaryVoiceSchema)

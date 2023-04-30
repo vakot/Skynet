@@ -5,7 +5,7 @@ import {
   SlashCommandSubcommandBuilder,
 } from 'discord.js'
 
-import { Action } from '../../../models/action'
+import { Action } from '../../../modules/models/action'
 
 import { validateAction } from '../../../utils/helpers/validateAction'
 import { createTicket } from '../utils/ticket/create.i'
@@ -22,16 +22,10 @@ export default new Action({
         .setName('create')
         .setDescription('Create a new ticket')
         .addStringOption((option) =>
-          option
-            .setName('title')
-            .setDescription('Title of your ticket')
-            .setRequired(false)
+          option.setName('title').setDescription('Title of your ticket').setRequired(false)
         )
         .addStringOption((option) =>
-          option
-            .setName('reason')
-            .setDescription('Why you create a ticket?')
-            .setRequired(false)
+          option.setName('reason').setDescription('Why you create a ticket?').setRequired(false)
         )
     )
     .addSubcommand(
@@ -57,11 +51,7 @@ export default new Action({
   async init(interaction: ChatInputCommandInteraction) {
     if (this.data.name !== interaction.commandName) return
 
-    const invalidation = validateAction(
-      this,
-      interaction.guild,
-      interaction.user
-    )
+    const invalidation = validateAction(this, interaction.guild, interaction.user)
 
     if (invalidation) {
       return await interaction.reply({

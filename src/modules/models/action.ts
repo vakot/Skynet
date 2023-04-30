@@ -1,8 +1,10 @@
 import { PermissionResolvable, Snowflake } from 'discord.js'
 
-import { DataBaseEvents, IEvent } from './event'
+import { IEvent } from './event'
+import { DataBaseEvents } from '../libs/events'
 
-import { ActionCategories, ICategory } from './category'
+import { ICategory } from './category'
+import { ActionCategories } from '../libs/categories'
 
 // TODO: test out interface IAction instead of class (main problem is dynamic file loading)
 // export interface IAction {

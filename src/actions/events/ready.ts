@@ -1,10 +1,10 @@
 import { ActivityType } from 'discord.js'
 
-import { SkynetClient } from '../../models/client'
-import { Action } from '../../models/action'
+import { SkynetClient } from '../../modules/models/client'
+import { Action } from '../../modules/models/action'
+import { ActionEvents } from '../../modules/libs/events'
 
 import logger from '../../utils/helpers/logger'
-import { ActionEvents } from '../../models/event'
 
 export default new Action({
   data: { name: 'client-ready-event' },

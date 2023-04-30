@@ -6,13 +6,11 @@ import {
   PermissionResolvable,
   Snowflake,
   User,
-  APIInteractionGuildMember,
-  TextBasedChannel,
   APIUser,
 } from 'discord.js'
 
 import { devs, testServer } from '../../../config.json'
-import { Action } from '../../models/action'
+import { Action } from '../../modules/models/action'
 import { client } from '../..'
 import logger from './logger'
 

@@ -1,7 +1,7 @@
 import { Events, ThreadChannel } from 'discord.js'
 
-import { Action } from '../../../models/action'
-import { Client } from '../../../models/client'
+import { Action } from '../../../modules/models/action'
+import { Client } from '../../../modules/models/client'
 
 import { ITicket, TicketTool } from '../models/ticket-tool.i'
 
@@ -33,8 +33,6 @@ export default new Action({
       ? 'Your ticket finally resolved. Now you can create a new one'
       : "Your ticket was accidentally deleted with it's thread"
 
-    return await user.send(
-      message + '\n⤷ You can delete this message with `/clear-dms`'
-    )
+    return await user.send(message + '\n⤷ You can delete this message with `/clear-dms`')
   },
 })

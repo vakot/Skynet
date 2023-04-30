@@ -1,17 +1,11 @@
-import {
-  ChatInputCommandInteraction,
-  ButtonInteraction,
-  GuildMember,
-} from 'discord.js'
+import { ChatInputCommandInteraction, ButtonInteraction, GuildMember } from 'discord.js'
 
 import { TicketTool, ITicket } from '../../models/ticket-tool.i'
 
 import { isSupport } from '../isSupport.i'
 
-export async function deleteTicket(
-  interaction: ChatInputCommandInteraction | ButtonInteraction
-) {
-  const { channel, guild, user, member } = interaction
+export async function deleteTicket(interaction: ChatInputCommandInteraction | ButtonInteraction) {
+  const { channel, guild, member } = interaction
 
   if (!guild || !channel) {
     return await interaction.reply({

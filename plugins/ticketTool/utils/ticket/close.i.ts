@@ -12,9 +12,7 @@ import { TicketTool, ITicket } from '../../models/ticket-tool.i'
 
 import { getEmbed } from '../getEmbed.i'
 
-export async function closeTicket(
-  interaction: ChatInputCommandInteraction | ButtonInteraction
-) {
+export async function closeTicket(interaction: ChatInputCommandInteraction | ButtonInteraction) {
   const { channel, guild, user } = interaction
 
   if (!guild || !channel) {
@@ -82,13 +80,8 @@ export async function closeTicket(
     .setDisabled(!ticket.closed)
     .setStyle(ButtonStyle.Danger)
 
-  const supportEmbed = new EmbedBuilder().setDescription(
-    '```' + 'Support controls' + '```'
-  )
-  const supportRow = new ActionRowBuilder<ButtonBuilder>().setComponents(
-    openButton,
-    deleteButton
-  )
+  const supportEmbed = new EmbedBuilder().setDescription('```' + 'Support controls' + '```')
+  const supportRow = new ActionRowBuilder<ButtonBuilder>().setComponents(openButton, deleteButton)
 
   return await channel.send({
     embeds: [supportEmbed],

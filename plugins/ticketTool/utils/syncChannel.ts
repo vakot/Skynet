@@ -1,27 +1,32 @@
 import { Events, ThreadChannel } from 'discord.js'
 
-import { Action } from '../../../modules/models/action'
-import { Client } from '../../../modules/models/client'
+import { Action } from '@modules/models/action'
+import { SkynetClient } from '@modules/models/client'
 
 import { ITicket, TicketTool } from '../models/ticket-tool.i'
+import { ActionEvents } from '@modules/libs/events'
 
 export default new Action({
   data: { name: 'sync-ticket-thread' },
 
-  event: Events.ThreadDelete,
+  event: ActionEvents.ThreadDelete,
 
-  async init(thread: ThreadChannel, client: Client) {
+  async precondition(thread: ThreadChannel) {
     const ticket = await TicketTool.findOne<ITicket>({
       guildId: thread.guildId,
       threadId: thread.id,
     })
 
-    if (!ticket) return
-
-    return await this.execute(ticket, client)
+    return !!ticket
   },
 
-  async execute(ticket: ITicket, client: Client) {
+  async execute(thread: ThreadChannel, client: SkynetClient) {
+    const ticket = await TicketTool.findOne<ITicket>({
+      guildId: thread.guildId,
+      threadId: thread.id,
+    })
+    if (!ticket) return
+
     const user = await client.users.fetch(ticket.authorId)
 
     await TicketTool.deleteOne({

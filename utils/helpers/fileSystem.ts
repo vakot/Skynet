@@ -64,9 +64,7 @@ export async function getFiles<T>(
       // save
       files.push(data.default)
       logger.log(`File [${fileSize}Kb] <${fileName}> loaded`)
-    } catch (e) {
-      console.log(e)
-
+    } catch {
       logger.warn(`File [${fileSize}Kb] <${fileName}> unresolvable`)
     }
   }

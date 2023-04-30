@@ -58,7 +58,9 @@ export class Action {
     this.runs.push({ userId, timestamp })
   }
 
-  async execute(...args: any): Promise<any> {}
+  readonly precondition: (...args: any) => Promise<boolean>
+
+  readonly execute: (...args: any) => Promise<any>
 
   constructor(options: {
     data: {
@@ -75,7 +77,8 @@ export class Action {
     category?: ICategory
     permissions?: PermissionResolvable[]
     roles?: Snowflake[]
-    execute(...args: any): Promise<any>
+    precondition?: (...args: any) => Promise<boolean>
+    execute: (...args: any) => Promise<any>
   }) {
     const {
       data,
@@ -89,6 +92,7 @@ export class Action {
       category = ActionCategories.General,
       permissions = [],
       roles = [],
+      precondition = async () => true,
       execute,
     } = options
 
@@ -103,6 +107,7 @@ export class Action {
     this.category = category
     this.permissions = permissions
     this.roles = roles
+    this.precondition = precondition
     this.execute = execute
   }
 }

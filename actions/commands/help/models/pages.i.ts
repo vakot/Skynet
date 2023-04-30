@@ -96,7 +96,9 @@ export const Pages = {
         "Skynet command's separated to categories. Please choose which category you are interested for"
       )
 
-    client.categories.forEach((category) => {
+    const categories = client.categories.filter((category) => !category?.private)
+
+    categories.forEach((category) => {
       const commands = client.localCommands
         .filter((command) => command.category?.name === category.name)
         .map((command) => `\`/${command.data.name}\``)
@@ -114,7 +116,7 @@ export const Pages = {
       .setCustomId('help-select-menu-category')
       .setPlaceholder('Select category')
 
-    client.categories.forEach((category) =>
+    categories.forEach((category) =>
       menu.addOptions({
         label: category.name,
         value: category.name,

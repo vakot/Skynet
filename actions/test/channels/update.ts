@@ -10,7 +10,7 @@ export default new Action({
 
   event: ActionEvents.ChannelUpdate,
 
-  async execute(oldState: GuildChannel, newState: GuildChannel) {
-    return await logger.log(`Channel <${oldState.name}> updated to <${newState.name}>`)
+  async execute(oldChannel: GuildChannel, newChannel: GuildChannel) {
+    return await logger.log(`Channel <${oldChannel.name}> updated to <${newChannel.name}>`)
   },
 })

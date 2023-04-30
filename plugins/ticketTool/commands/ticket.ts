@@ -1,17 +1,18 @@
 import {
   ChatInputCommandInteraction,
-  Events,
   SlashCommandBuilder,
+  SlashCommandStringOption,
   SlashCommandSubcommandBuilder,
 } from 'discord.js'
 
-import { Action } from '../../../modules/models/action'
+import { Action } from '@modules/models/action'
+import { ActionEvents } from '@modules/libs/events'
 
-import { validateAction } from '../../../utils/helpers/validateAction'
-import { createTicket } from '../utils/ticket/create.i'
-import { openTicket } from '../utils/ticket/open.i'
 import { closeTicket } from '../utils/ticket/close.i'
+import { createTicket } from '../utils/ticket/create.i'
 import { deleteTicket } from '../utils/ticket/delete.i'
+import { openTicket } from '../utils/ticket/open.i'
+import { ICategory } from '@modules/models/category'
 
 export default new Action({
   data: new SlashCommandBuilder()
@@ -21,11 +22,17 @@ export default new Action({
       new SlashCommandSubcommandBuilder()
         .setName('create')
         .setDescription('Create a new ticket')
-        .addStringOption((option) =>
-          option.setName('title').setDescription('Title of your ticket').setRequired(false)
+        .addStringOption(
+          new SlashCommandStringOption()
+            .setName('title')
+            .setDescription('Title of your ticket')
+            .setRequired(false)
         )
-        .addStringOption((option) =>
-          option.setName('reason').setDescription('Why you create a ticket?').setRequired(false)
+        .addStringOption(
+          new SlashCommandStringOption()
+            .setName('reason')
+            .setDescription('Why you create a ticket?')
+            .setRequired(false)
         )
     )
     .addSubcommand(
@@ -44,24 +51,15 @@ export default new Action({
         .setDescription('Delete an existing closed ticket')
     ),
 
-  event: Events.InteractionCreate,
+  category: {
+    name: 'Ticket Tool',
+    description: "Ticket-tool command's group",
+    emoji: '📩',
+  } as ICategory,
+
+  event: ActionEvents.CommandInteraction,
 
   cooldown: 6_000,
-
-  async init(interaction: ChatInputCommandInteraction) {
-    if (this.data.name !== interaction.commandName) return
-
-    const invalidation = validateAction(this, interaction.guild, interaction.user)
-
-    if (invalidation) {
-      return await interaction.reply({
-        content: invalidation,
-        ephemeral: true,
-      })
-    }
-
-    return await this.execute(interaction)
-  },
 
   async execute(interaction: ChatInputCommandInteraction) {
     const { options } = interaction

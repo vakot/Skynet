@@ -1,41 +1,22 @@
 import {
   EmbedBuilder,
-  Events,
   GuildMember,
   GuildMemberRoleManager,
-  Snowflake,
   StringSelectMenuInteraction,
 } from 'discord.js'
 
-import { Action } from '../../modules/models/action'
+import { Action } from '@modules/models/action'
+import { ActionEvents } from '@modules/libs/events'
+
+import { addRoles } from './utils/addRoles.i'
+import { removeRoles } from './utils/removeRoles.i'
 
 import { roles } from './config.json'
-
-function addRoles(member: GuildMember, roles: Snowflake[]) {
-  if (!roles.length) return
-
-  return roles.forEach(async (role) => {
-    await member.roles.add(role)
-  })
-}
-function removeRoles(member: GuildMember, roles: Snowflake[]) {
-  if (!roles.length) return
-
-  return roles.forEach(async (role) => {
-    await member.roles.remove(role)
-  })
-}
 
 export default new Action({
   data: { name: 'reaction-roles-select-menu' },
 
-  event: Events.InteractionCreate,
-
-  async init(interaction: StringSelectMenuInteraction) {
-    if (this.data.name !== interaction.customId) return
-
-    return await this.execute(interaction)
-  },
+  event: ActionEvents.SelectMenuInteraction,
 
   async execute(interaction: StringSelectMenuInteraction) {
     if (!interaction.member) return
@@ -77,11 +58,11 @@ export default new Action({
       .addFields(
         {
           name: 'Added roles:',
-          value: `${addedRoles?.map((role) => `<@&${role}>`).join(' | ') || '-'}`,
+          value: `${addedRoles?.map((role) => `<@&${role}>`).join('・') || '-'}`,
         },
         {
           name: 'Removed roles:',
-          value: `${removedRoles?.map((role) => `<@&${role}>`).join(' | ') || '-'}`,
+          value: `${removedRoles?.map((role) => `<@&${role}>`).join('・') || '-'}`,
         }
       )
 

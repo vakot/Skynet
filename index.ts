@@ -7,7 +7,7 @@ import mongoose from 'mongoose'
 import { SkynetClient } from '@modules/models/client'
 
 import { loadActions } from '@utils/setup/loadActions'
-// import { loadPlugins } from '@utils/setup/loadPlugins'
+import { loadPlugins } from '@utils/setup/loadPlugins'
 import { pushCommands } from '@utils/setup/pushCommands'
 import { loadEvents } from '@utils/setup/loadEvents'
 
@@ -37,10 +37,10 @@ async function main() {
     logger.error(error)
   })
 
-  // await loadPlugins(client).catch((error) => {
-  //   logger.error('Error appears while plugins loading')
-  //   logger.error(error)
-  // })
+  await loadPlugins(client).catch((error) => {
+    logger.error('Error appears while plugins loading')
+    logger.error(error)
+  })
 
   await loadEvents(client).catch((error) => {
     logger.error('Error appears while events loading')

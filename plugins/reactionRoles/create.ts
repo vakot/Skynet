@@ -1,44 +1,33 @@
 import {
-  ActionRowBuilder,
-  ChatInputCommandInteraction,
-  Events,
-  PermissionFlagsBits,
   SlashCommandBuilder,
+  PermissionFlagsBits,
+  ChatInputCommandInteraction,
   StringSelectMenuBuilder,
+  ActionRowBuilder,
 } from 'discord.js'
 
-import { Action } from '../../modules/models/action'
-
-import { validateAction } from '../../utils/helpers/validateAction'
+import { Action } from '@modules/models/action'
+import { ActionEvents } from '@modules/libs/events'
+import { ICategory } from '@modules/models/category'
 
 import { roles } from './config.json'
 
 export default new Action({
-  category: 'Utilities',
-
   data: new SlashCommandBuilder()
     .setName('create-reaction-roles')
     .setDescription("Send's reaction roles menu")
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
 
-  event: Events.InteractionCreate,
+  event: ActionEvents.CommandInteraction,
+
+  category: {
+    name: 'Reaction Roles',
+    description: 'Reaction-roles commands group',
+    emoji: '🎭',
+    private: true,
+  } as ICategory,
 
   cooldown: 120_000,
-
-  async init(interaction: ChatInputCommandInteraction) {
-    if (this.data.name !== interaction.commandName) return
-
-    const invalidation = validateAction(this, interaction.guild, interaction.user)
-
-    if (invalidation) {
-      return await interaction.reply({
-        content: invalidation,
-        ephemeral: true,
-      })
-    }
-
-    return await this.execute(interaction)
-  },
 
   async execute(interaction: ChatInputCommandInteraction) {
     const menu = new StringSelectMenuBuilder()

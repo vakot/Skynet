@@ -1,55 +1,52 @@
-import { Events, VoiceState } from 'discord.js'
+import { VoiceState } from 'discord.js'
 
-import { Action } from '../../modules/models/action'
+import { Action } from '@modules/models/action'
+import { ActionEvents } from '@modules/libs/events'
 
 import { ITemporaryVoice, TemporaryVoice } from './models/temporary-voice.i'
-import { findOrCreate } from '../../utils/helpers/findOrCreate'
-import { parentId, categoryId } from './config.json'
 
 export default new Action({
   data: { name: 'delete-temporary-voice-channel' },
 
-  event: Events.VoiceStateUpdate,
+  event: ActionEvents.VoiceLeave,
 
-  async init(oldState: VoiceState, newState: VoiceState) {
-    // just in case to be sure
-    if ((!oldState && !newState) || !oldState.member) return
-    // user streaming is also trigger VoiceStateUpdate. avoid it
-    if (oldState.channelId === newState.channelId) return
-    // delete channel only if user leave
-    if (!oldState && newState) return
+  async precondition(oldState: VoiceState, newState: VoiceState) {
+    if (!oldState.member || !oldState.guild) return false
 
-    const { guild, member } = oldState
-
-    const guildTemporaryVoice = await TemporaryVoice.findOne({
-      guildId: guild.id,
-    })
+    const condition = { guildId: oldState.guild.id }
+    const guildTemporaryVoice = await TemporaryVoice.findOne(condition)
+    if (!guildTemporaryVoice) return false
 
     // delete temporary channel only if user have one
-    if (!guildTemporaryVoice.childrens.has(member.id)) return
-
-    // don't delete parent channel
-    if (oldState.channelId === guildTemporaryVoice.parentId) return
+    if (!guildTemporaryVoice.childrens.has(oldState.member.id)) return false
 
     // move user back to existing temporary channel
     if (newState.channelId === guildTemporaryVoice.parentId) {
-      if (!newState.member) return
+      if (!newState.member) return false
 
       const channel = guildTemporaryVoice.childrens.get(newState.member.id)
 
-      if (channel) return await newState.member.voice.setChannel(channel)
+      if (channel) {
+        await newState.member.voice.setChannel(channel)
+        return false
+      }
     }
 
-    return await this.execute(oldState, guildTemporaryVoice)
+    // don't delete parent channel
+    return oldState.channelId !== guildTemporaryVoice.parentId
   },
-  async execute(oldState: VoiceState, guildTemporaryVoice: ITemporaryVoice) {
-    const { channel, member } = oldState
 
-    if (!channel || !member) return
+  async execute(oldState: VoiceState) {
+    const { channel, member, guild } = oldState
 
-    return await channel.delete().then(async () => {
-      await guildTemporaryVoice.childrens.delete(member.id)
-      await guildTemporaryVoice.save()
-    })
+    if (!channel || !member || !guild) return
+
+    const condition = { guildId: guild.id }
+
+    const guildTemporaryVoice: ITemporaryVoice | null = await TemporaryVoice.findOne(condition)
+
+    await channel.delete()
+    await guildTemporaryVoice?.childrens.delete(member.id)
+    return await guildTemporaryVoice?.save()
   },
 })

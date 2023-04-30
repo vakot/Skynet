@@ -1,13 +1,11 @@
 import { EmbedBuilder } from 'discord.js'
+
 import { ITicket } from '../models/ticket-tool.i'
-import { client } from '../../..'
 
 export function getEmbed(ticket: ITicket): EmbedBuilder {
   return new EmbedBuilder()
     .setTitle(ticket.title)
-    .setDescription(
-      `<@${ticket.authorId}>, please wait. Support will respond as soon as possible`
-    )
+    .setDescription(`<@${ticket.authorId}>, please wait. Support will respond as soon as possible`)
     .setFields(
       {
         name: 'Created',

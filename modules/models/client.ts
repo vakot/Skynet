@@ -14,4 +14,7 @@ export class SkynetClient<Ready extends boolean = boolean> extends Client<Ready>
   cooldowns = new Collection<string, Collection<Snowflake, number>>()
   // name > body
   categories = new Collection<string, ICategory>()
+
+  loadingStartAt = new Date()
+  loadingEndedAt?: Date
 }

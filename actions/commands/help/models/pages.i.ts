@@ -218,8 +218,8 @@ export const Pages = {
         inline: true,
       },
       {
-        name: 'Accessibility',
-        value: `\`\`\`${isAllowed ? 'Disallowed' : 'Allowed'}\`\`\``,
+        name: 'Status',
+        value: `\`\`\`${isAllowed ? 'Disallowed' : 'Ready'}\`\`\``,
         inline: true,
       }
     )

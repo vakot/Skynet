@@ -10,6 +10,7 @@ export default new Action({
   data: { name: 'client-ready-event' },
 
   event: ActionEvents.ClientReady,
+  once: true,
 
   async execute(client: SkynetClient) {
     await client.user?.setActivity({

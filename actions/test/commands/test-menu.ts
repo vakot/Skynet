@@ -7,6 +7,7 @@ import {
 
 import { Action } from '@modules/models/action'
 import { ActionEvents } from '@modules/libs/events'
+import { ActionCategories } from '@modules/libs/categories'
 
 import logger from '@utils/helpers/logger'
 
@@ -14,6 +15,8 @@ export default new Action({
   data: new SlashCommandBuilder().setName('test-2').setDescription('Testing select menus'),
 
   event: ActionEvents.CommandInteraction,
+
+  category: ActionCategories.Test,
 
   async execute(interaction: ChatInputCommandInteraction) {
     const { commandName, user } = interaction

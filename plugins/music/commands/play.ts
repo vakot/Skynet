@@ -34,8 +34,6 @@ export default new Action({
   async execute(interaction: ChatInputCommandInteraction) {
     const { member, options, channel } = interaction
 
-    console.log('play')
-
     await interaction.deferReply({ ephemeral: true })
 
     if (!member) {

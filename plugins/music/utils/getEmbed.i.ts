@@ -25,7 +25,7 @@ export async function getEmbed(queue: GuildQueue): Promise<EmbedBuilder> {
         inline: true,
       },
       {
-        name: 'Next track',
+        name: '➡️ Next track',
         value: '```' + (queue.history.nextTrack?.title || ' ') + '```',
       }
     )

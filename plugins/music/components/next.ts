@@ -10,7 +10,7 @@ export default new Action({
 
   event: ActionEvents.ButtonInteraction,
 
-  cooldown: 10_000,
+  cooldown: 6_000,
 
   async execute(interaction: ButtonInteraction) {
     // TODO: skip-vote

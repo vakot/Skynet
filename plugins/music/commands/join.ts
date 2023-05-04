@@ -19,6 +19,8 @@ export default new Action({
 
   event: ActionEvents.CommandInteraction,
 
+  cooldown: 12_000,
+
   async execute(interaction: ChatInputCommandInteraction) {
     const { member } = interaction
 

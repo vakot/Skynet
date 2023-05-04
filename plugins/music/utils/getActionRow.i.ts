@@ -20,13 +20,11 @@ export async function getActionRow(queue: GuildQueue): Promise<ActionRowBuilder<
     .setCustomId('music-repeat-button')
     .setEmoji('🔄')
     .setStyle(
-      (() => {
-        if (queue.repeatMode === QueueRepeatMode.TRACK) return ButtonStyle.Primary
-        if (queue.repeatMode === QueueRepeatMode.QUEUE) return ButtonStyle.Success
-        if (queue.repeatMode === QueueRepeatMode.OFF) return ButtonStyle.Secondary
-        return ButtonStyle.Danger
-      })()
+      queue.repeatMode === QueueRepeatMode.OFF ? ButtonStyle.Secondary : ButtonStyle.Primary
     )
+
+  if (queue.repeatMode === QueueRepeatMode.TRACK) repeatButton.setLabel('Track')
+  if (queue.repeatMode === QueueRepeatMode.QUEUE) repeatButton.setLabel('Queue')
 
   const shuffleButton = new ButtonBuilder()
     .setCustomId('music-shuffle-button')

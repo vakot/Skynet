@@ -6,7 +6,7 @@ import {
   VoiceChannel,
 } from 'discord.js'
 
-import { useMasterPlayer } from 'discord-player'
+import { QueryType, useMasterPlayer } from 'discord-player'
 
 import { Action } from '@modules/models/action'
 import { ActionEvents } from '@modules/libs/events'
@@ -26,6 +26,8 @@ export default new Action({
 
   event: ActionEvents.CommandInteraction,
 
+  cooldown: 12_000,
+
   async execute(interaction: ChatInputCommandInteraction) {
     const { member, guild, options } = interaction
 
@@ -41,7 +43,16 @@ export default new Action({
 
     const player = useMasterPlayer()!
 
-    const { track } = await player.play(voiceChannel, query, {
+    const searchResult = await player.search(query, {
+      requestedBy: interaction.user,
+      searchEngine: QueryType.AUTO,
+    })
+
+    if (!searchResult || !searchResult.tracks.length) {
+      return interaction.fetchReply('No results were found!')
+    }
+
+    const { track } = await player.play(voiceChannel, searchResult, {
       nodeOptions: {
         metadata: interaction,
         leaveOnEmptyCooldown: 60_000,
@@ -49,9 +60,7 @@ export default new Action({
       },
     })
 
-    track.requestedBy = interaction.user
-
-    logger.log(`${track.title} enqueued by ${track.requestedBy.tag}`)
+    logger.log(`${track.title} enqueued by ${track.requestedBy?.tag}`)
 
     return await interaction.followUp(`**${track.title}** enqueued`)
   },

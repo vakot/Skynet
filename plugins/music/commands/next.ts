@@ -12,6 +12,8 @@ export default new Action({
 
   event: ActionEvents.CommandInteraction,
 
+  cooldown: 6_000,
+
   async execute(interaction: ChatInputCommandInteraction) {
     // TODO: skip-vote
     return await musicHelper.next(interaction)

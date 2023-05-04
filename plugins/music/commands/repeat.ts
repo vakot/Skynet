@@ -34,7 +34,7 @@ export default new Action({
 
   event: ActionEvents.CommandInteraction,
 
-  cooldown: 10_000,
+  cooldown: 6_000,
 
   async execute(interaction: ChatInputCommandInteraction) {
     const { member, guildId, options } = interaction

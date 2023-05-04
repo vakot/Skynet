@@ -35,15 +35,18 @@ export default new Action({
 
       const updater = setInterval(async () => {
         try {
-          await (await channel.messages.fetch(messageId)).edit(await content())
+          const message = await channel.messages.fetch(messageId)
+          await message.edit(await content())
         } catch {
-          messageId = (await channel.send(await content())).id
+          const message = await channel.send(await content())
+          messageId = message.id
         }
       }, 3_000)
 
       setTimeout(async () => {
         clearInterval(updater)
-        await (await channel.messages.fetch(messageId)).delete().catch(logger.error)
+        const message = await channel.messages.fetch(messageId)
+        await message.delete().catch(logger.error)
       }, track.durationMS)
     })
   },

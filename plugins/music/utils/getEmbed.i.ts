@@ -2,9 +2,6 @@ import { EmbedBuilder, Message } from 'discord.js'
 
 import { GuildQueue, GuildQueuePlayerNode } from 'discord-player'
 
-import { getPrevTrack } from '../utils/getPrevTrack.i'
-import { getNextTrack } from '../utils/getNextTrack.i'
-
 export function getEmbed(queue: GuildQueue): EmbedBuilder {
   const track = queue.currentTrack
 
@@ -29,11 +26,11 @@ export function getEmbed(queue: GuildQueue): EmbedBuilder {
       },
       {
         name: '⬅️・Previous track',
-        value: '```' + (getPrevTrack(queue) || ' ') + '```',
+        value: '```' + (queue.history.previousTrack || ' ') + '```',
       },
       {
         name: '➡️・Next track',
-        value: '```' + (getNextTrack(queue) || ' ') + '```',
+        value: '```' + (queue.history.nextTrack || ' ') + '```',
       }
     )
     .setThumbnail(track?.playlist?.thumbnail || null)

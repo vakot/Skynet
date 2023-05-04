@@ -4,8 +4,6 @@ import {
   SlashCommandStringOption,
   GuildMember,
   VoiceChannel,
-  Message,
-  Snowflake,
   GuildTextBasedChannel,
 } from 'discord.js'
 

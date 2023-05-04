@@ -6,6 +6,12 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+
+    "baseUrl": ".",
+    "paths": {
+      "@modules/*": ["./modules/*"],
+      "@utils/*": ["./utils/*"]
+    }
   }
 }

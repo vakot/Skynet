@@ -11,12 +11,18 @@ export async function loadPlugins(client: SkynetClient): Promise<void> {
   const pluginsPath = path.join(__dirname, '..', '..', 'plugins')
 
   for (const pluginFolder of await fs.readdirSync(pluginsPath)) {
+    const startTime = Date.now()
+
+    if (pluginFolder !== 'music') continue
+
     const pluginPath = path.join(pluginsPath, pluginFolder)
 
-    logger.debug(`Plugin <${pluginFolder}> loading`)
+    logger.colored.magenta(`Started plugin <${pluginFolder}> loading`)
 
     const actions = await getFiles(pluginPath, Action)
 
     actions.forEach((action) => client.clientActions.set(action.data.name, action))
+
+    logger.colored.magenta(`Plugin successfully loaded in ${Date.now() - startTime}ms`)
   }
 }

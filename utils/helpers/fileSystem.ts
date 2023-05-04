@@ -48,24 +48,27 @@ export async function getFiles<T>(
   const files: T[] = []
 
   for (const filePath of throughDirectory(directoryPath)) {
+    const rootPath = path.join(__dirname, '..', '..')
+    const relativePath = filePath.replace(rootPath, '')
+
     // ignore all non .js and non .ts files and files marked to ignore
     if (!filePath.endsWith('.ts') && !filePath.endsWith('.js')) continue
     if (filePath.includes('.ignore.') || filePath.includes('.i.')) continue
 
-    // regex before split() just to be sure that all paths have same format
-    const fileName = filePath.replace(/\\/g, '/').split('/').pop()
     const fileSize = (fs.statSync(filePath).size / 1024).toFixed(2)
 
     try {
       // read
       const data = await import(filePath)
       // check
-      if (!(data.default instanceof targetClass)) throw ''
+      if (!(data.default instanceof targetClass)) {
+        throw 'Class instance is missing in export default'
+      }
       // save
       files.push(data.default)
-      logger.log(`File [${fileSize}Kb] <${fileName}> loaded`)
-    } catch {
-      logger.warn(`File [${fileSize}Kb] <${fileName}> unresolvable`)
+      logger.status.ok(`[${fileSize}Kb] ${relativePath}`)
+    } catch (e) {
+      logger.status.failed(`[${fileSize}Kb] ${relativePath}`, e)
     }
   }
 

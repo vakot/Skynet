@@ -4,9 +4,13 @@ import { SkynetClient } from '@modules/models/client'
 
 import { isCommandsEqual } from '@utils/helpers/isCommandsEqual'
 
-import logger from '@utils/helpers/logger'
+import logger, { Color } from '@utils/helpers/logger'
 
 export async function pushCommands(client: SkynetClient, clear = false): Promise<void> {
+  const startTime = Date.now()
+
+  logger.colored.magenta('Updating commands on remote')
+
   const actions = client.clientActions
 
   const commands = actions.filter((action) => action.data instanceof SlashCommandBuilder).sort()
@@ -24,11 +28,15 @@ export async function pushCommands(client: SkynetClient, clear = false): Promise
   if (clear) {
     return await applicationCommands?.forEach(
       async (command) =>
-        await command.delete().then((command) => logger.warn(`Command /${command.name} deleted`))
+        await command
+          .delete()
+          .then((command) =>
+            logger.status._print(`Command /${command.name}`, 'DELETED', Color.FgRed)
+          )
     )
   }
 
-  commands.forEach(async (command) => {
+  await commands.forEach(async (command) => {
     const { data, deleteble, forceUpdate } = command
 
     // collect existing command
@@ -38,12 +46,14 @@ export async function pushCommands(client: SkynetClient, clear = false): Promise
     if (!existingCommand && !deleteble) {
       return await client.application?.commands
         .create(data as SlashCommandBuilder)
-        .then(() => logger.info(`Command /${data.name} created`))
+        .then(() => logger.status._print(`Command /${data.name}`, 'CREATED', Color.FgGreen))
     }
 
     // delete existing
     if (existingCommand && deleteble) {
-      return await existingCommand.delete().then(() => logger.warn(`Command /${data.name} deleted`))
+      return await existingCommand
+        .delete()
+        .then(() => logger.status._print(`Command /${data.name}`, 'DELETED', Color.FgRed))
     }
 
     // update existing
@@ -53,7 +63,9 @@ export async function pushCommands(client: SkynetClient, clear = false): Promise
     ) {
       return await client.application?.commands
         .edit(existingCommand!.id, data as SlashCommandBuilder)
-        .then(() => logger.debug(`Command /${data.name} updated`))
+        .then(() => logger.status._print(`Command /${data.name}`, 'UPDATED', Color.FgYellow))
     }
   })
+
+  return logger.colored.magenta(`Commands updated in ${Date.now() - startTime}ms`)
 }

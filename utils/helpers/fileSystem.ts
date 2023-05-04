@@ -4,11 +4,11 @@ import path from 'path'
 import logger from '@utils/helpers/logger'
 
 /**
- * function recursively read all files in provided directory
- * and it's subdirectories and returns paths of readed files
+ * Recursively read all files in provided directory and it's
+ * subdirectories and returns paths of readed files
  *
- * @param {string} directoryPath - path to directory
- * @returns {Generator<string>} - yielded paths
+ * @param {string} directoryPath path to directory
+ * @returns {Generator<string>} yielded paths
  */
 export function* throughDirectory(directoryPath: string): Generator<string> {
   try {
@@ -33,13 +33,12 @@ export function* throughDirectory(directoryPath: string): Generator<string> {
 }
 
 /**
- * function read files in directory and it's subdirecoties
- * than compare result to provided type paramether
- * and returns array of class instances
+ * Search instances of `targetClass` in default exports
+ * on directory and it's subdirectories
  *
- * @param {string} directoryPath - path to directory
- * @param {new (...args: any) => T} targetClass - class to compare with file
- * @returns {Promise<T[]>} - array of compareClass instances
+ * @param {string} directoryPath path to directory
+ * @param {new (...args: any) => T} targetClass class to compare with
+ * @returns {Promise<T[]>} array of `targetClass` instances
  */
 export async function getFiles<T>(
   directoryPath: string,

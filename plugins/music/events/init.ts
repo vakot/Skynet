@@ -1,5 +1,3 @@
-import { Interaction } from 'discord.js'
-
 import { Player } from 'discord-player'
 import { YouTubeExtractor } from '@discord-player/extractor'
 
@@ -10,7 +8,7 @@ import { SkynetClient } from '@modules/models/client'
 import { getEmbed } from '../utils/getEmbed.i'
 import { getActionRow } from '../utils/getActionRow.i'
 
-import logger from '@utils/helpers/logger'
+import { IMetaData } from '../models/metadata.i'
 
 export default new Action({
   data: { name: 'init-music-player' },
@@ -19,35 +17,38 @@ export default new Action({
   once: true,
 
   async execute(client: SkynetClient) {
-    const player = new Player(client)
+    const player = Player.singleton(client)
 
     await player.extractors.register(YouTubeExtractor, {})
 
-    await player.events.on('playerStart', async (queue, track) => {
-      const channel = (queue.metadata as Interaction).channel!
+    await player.events.on('playerStart', async (queue) => {
+      const metadata = queue.metadata as IMetaData
 
-      const content = async () => ({
-        embeds: [await getEmbed(queue)],
-        components: [await getActionRow(queue)],
+      metadata.message = await metadata.channel.send({
+        embeds: [getEmbed(queue)],
+        components: [getActionRow(queue)],
       })
 
-      let messageId = (await channel!.send(await content())).id
-
-      const updater = setInterval(async () => {
+      metadata.interval = setInterval(async () => {
         try {
-          const message = await channel.messages.fetch(messageId)
-          await message.edit(await content())
+          await metadata.message!.edit({
+            embeds: [getEmbed(queue)],
+            components: [getActionRow(queue)],
+          })
         } catch {
-          const message = await channel.send(await content())
-          messageId = message.id
+          metadata.message = await metadata.channel.send({
+            embeds: [getEmbed(queue)],
+            components: [getActionRow(queue)],
+          })
         }
       }, 3_000)
+    })
 
-      setTimeout(async () => {
-        clearInterval(updater)
-        const message = await channel.messages.fetch(messageId)
-        await message.delete().catch(logger.error)
-      }, track.durationMS)
+    await player.events.on('playerFinish', async (queue) => {
+      const metadata = queue.metadata as IMetaData
+
+      if (metadata.interval) clearInterval(metadata.interval)
+      if (metadata.message && metadata.message.deletable) await metadata.message.delete()
     })
   },
 })

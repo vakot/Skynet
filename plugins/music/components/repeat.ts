@@ -13,8 +13,6 @@ export default new Action({
 
   event: ActionEvents.ButtonInteraction,
 
-  cooldown:6_000,
-
   async execute(interaction: ButtonInteraction) {
     const { member, guildId, user, message } = interaction
 

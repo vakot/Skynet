@@ -4,6 +4,9 @@ import {
   SlashCommandStringOption,
   GuildMember,
   VoiceChannel,
+  Message,
+  Snowflake,
+  GuildTextBasedChannel,
 } from 'discord.js'
 
 import { QueryType, useMasterPlayer } from 'discord-player'
@@ -12,6 +15,8 @@ import { Action } from '@modules/models/action'
 import { ActionEvents } from '@modules/libs/events'
 
 import logger from '@utils/helpers/logger'
+
+import { IMetaData } from '../models/metadata.i'
 
 export default new Action({
   data: new SlashCommandBuilder()
@@ -29,39 +34,55 @@ export default new Action({
   cooldown: 12_000,
 
   async execute(interaction: ChatInputCommandInteraction) {
-    const { member, guild, options } = interaction
+    const { member, options, channel } = interaction
+
+    console.log('play')
 
     await interaction.deferReply({ ephemeral: true })
 
-    if (!guild) {
-      return await interaction.followUp('Command can be executed only in server')
+    if (!member) {
+      return await interaction.editReply('Action can be executed only in server')
     }
-
-    const query = options.getString('query', true)
 
     const voiceChannel = (member as GuildMember).voice.channel as VoiceChannel
 
+    if (!voiceChannel) {
+      return await interaction.editReply('You should be in voice channel to use this action')
+    }
+
     const player = useMasterPlayer()!
 
-    const searchResult = await player.search(query, {
+    const searchResult = await player.search(options.getString('query', true), {
       requestedBy: interaction.user,
       searchEngine: QueryType.AUTO,
     })
 
     if (!searchResult || !searchResult.tracks.length) {
-      return interaction.fetchReply('No results were found!')
+      return await interaction.editReply(`No search results where found`)
     }
 
-    const { track } = await player.play(voiceChannel, searchResult, {
-      nodeOptions: {
-        metadata: interaction,
-        leaveOnEmptyCooldown: 60_000,
-        leaveOnEndCooldown: 60_000,
-      },
-    })
+    const metadata: IMetaData = {
+      channel: channel as GuildTextBasedChannel,
+      message: null,
+      interval: null,
+      skipVotes: [],
+    }
 
-    logger.log(`${track.title} enqueued by ${track.requestedBy?.tag}`)
+    try {
+      const { track } = await player.play(voiceChannel, searchResult, {
+        nodeOptions: {
+          metadata: metadata,
+          leaveOnEmptyCooldown: 60_000,
+          leaveOnEndCooldown: 60_000,
+        },
+      })
 
-    return await interaction.followUp(`**${track.title}** enqueued`)
+      logger.log(`${track.title} enqueued by ${track.requestedBy?.tag}`)
+
+      return await interaction.editReply(`**${track.title}** enqueued`)
+    } catch (error) {
+      logger.error(error)
+      return await interaction.editReply('Failed to play this track')
+    }
   },
 })

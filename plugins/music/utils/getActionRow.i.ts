@@ -2,11 +2,17 @@ import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js'
 
 import { GuildQueue, QueueRepeatMode } from 'discord-player'
 
-export async function getActionRow(queue: GuildQueue): Promise<ActionRowBuilder<ButtonBuilder>> {
+import { IMetaData } from '../models/metadata.i'
+
+export function getActionRow(queue: GuildQueue): ActionRowBuilder<ButtonBuilder> {
   const nextButton = new ButtonBuilder()
-    .setCustomId('music-next-button')
+    .setCustomId('music-skip-button')
     .setEmoji('▶️')
-    .setLabel(`0/${Math.ceil((queue.channel?.members.filter((m) => !m.user.bot).size ?? 0) / 2)}`)
+    .setLabel(
+      `${(queue.metadata as IMetaData).skipVotes.length}/${Math.ceil(
+        (queue.channel?.members.filter((m) => !m.user.bot).size ?? 0) / 2
+      )}`
+    )
     .setStyle(ButtonStyle.Primary)
     .setDisabled(!queue.history.nextTrack)
 

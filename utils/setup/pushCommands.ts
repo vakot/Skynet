@@ -37,23 +37,23 @@ export async function pushCommands(client: SkynetClient, clear = false): Promise
   }
 
   await commands.forEach(async (command) => {
-    const { data, deleteble, forceUpdate } = command
+    const { data, deletable, forceUpdate } = command
 
     // collect existing command
     const existingCommand = await applicationCommands?.find((cmd) => cmd.name === data.name)
 
     // create new command
-    if (!existingCommand && !deleteble) {
+    if (!existingCommand && !deletable) {
       return await client.application?.commands
         .create(data as SlashCommandBuilder)
-        .then(() => logger.status._print(`Command /${data.name}`, 'CREATED', Color.FgGreen))
+        .then(() => logger.status._print(`Command /${data.name}`, 'CREATE', Color.FgGreen))
     }
 
     // delete existing
-    if (existingCommand && deleteble) {
+    if (existingCommand && deletable) {
       return await existingCommand
         .delete()
-        .then(() => logger.status._print(`Command /${data.name}`, 'DELETED', Color.FgRed))
+        .then(() => logger.status._print(`Command /${data.name}`, 'DELETE', Color.FgRed))
     }
 
     // update existing
@@ -63,7 +63,7 @@ export async function pushCommands(client: SkynetClient, clear = false): Promise
     ) {
       return await client.application?.commands
         .edit(existingCommand!.id, data as SlashCommandBuilder)
-        .then(() => logger.status._print(`Command /${data.name}`, 'UPDATED', Color.FgYellow))
+        .then(() => logger.status._print(`Command /${data.name}`, 'UPDATE', Color.FgYellow))
     }
   })
 

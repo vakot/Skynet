@@ -3,17 +3,16 @@ import { ButtonInteraction } from 'discord.js'
 import { Action } from '@modules/models/action'
 import { ActionEvents } from '@modules/libs/events'
 
-import musicHelper from '../utils/musicHelper.i'
+import { next } from '../utils/next.i'
 
 export default new Action({
-  data: { name: 'music-next-button' },
+  data: { name: 'music-skip-button' },
 
   event: ActionEvents.ButtonInteraction,
 
   cooldown: 6_000,
 
   async execute(interaction: ButtonInteraction) {
-    // TODO: skip-vote
-    return await musicHelper.next(interaction).then(() => interaction.message.delete())
+    return await next(interaction)
   },
 })

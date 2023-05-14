@@ -1,4 +1,4 @@
-import { Player } from 'discord-player'
+import { GuildQueuePlayerNode, Player } from 'discord-player'
 import { YouTubeExtractor } from '@discord-player/extractor'
 
 import { Action } from '@modules/models/action'
@@ -30,6 +30,8 @@ export default new Action({
       })
 
       metadata.interval = setInterval(async () => {
+        if (new GuildQueuePlayerNode(queue).isPaused()) return
+
         try {
           await metadata.message!.edit({
             embeds: [getEmbed(queue)],

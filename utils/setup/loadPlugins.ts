@@ -5,6 +5,7 @@ import { SkynetClient } from '@modules/models/client'
 import { Action } from '@modules/models/action'
 
 import { getFiles } from '@utils/helpers/fileSystem'
+
 import logger from '@utils/helpers/logger'
 
 export async function loadPlugins(client: SkynetClient): Promise<void> {
@@ -12,6 +13,8 @@ export async function loadPlugins(client: SkynetClient): Promise<void> {
 
   for (const pluginFolder of await fs.readdirSync(pluginsPath)) {
     const startTime = Date.now()
+
+    if (pluginFolder !== 'music') continue
 
     const pluginPath = path.join(pluginsPath, pluginFolder)
 

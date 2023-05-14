@@ -61,7 +61,7 @@ class Logger {
    */
   debug(message: any) {
     const time = Color.FgWhite + '[' + getTimestamp() + '] '
-    const data = Color.FgMagenta + message
+    const data = Color.FgCyan + message
     console.debug(time + data + Color.FgWhite)
   }
 

@@ -14,6 +14,7 @@ import { ActionEvents } from '@modules/libs/events'
 
 import logger from '@utils/helpers/logger'
 
+import { basePrecondition } from '../utils/basePrecondition.i'
 import { IMetaData } from '../models/metadata.i'
 
 export default new Action({
@@ -31,20 +32,16 @@ export default new Action({
 
   cooldown: 12_000,
 
+  precondition: async (interaction: ChatInputCommandInteraction) =>
+    await basePrecondition(interaction),
+
   async execute(interaction: ChatInputCommandInteraction) {
-    const { member, options, channel } = interaction
+    const { options, channel } = interaction
+    const member = interaction.member as GuildMember
 
     await interaction.deferReply({ ephemeral: true })
 
-    if (!member) {
-      return await interaction.editReply('Action can be executed only in server')
-    }
-
-    const voiceChannel = (member as GuildMember).voice.channel as VoiceChannel
-
-    if (!voiceChannel) {
-      return await interaction.editReply('You should be in voice channel to use this action')
-    }
+    const voiceChannel = member.voice.channel as VoiceChannel
 
     const player = useMasterPlayer()!
 
@@ -54,7 +51,7 @@ export default new Action({
     })
 
     if (!searchResult || !searchResult.tracks.length) {
-      return await interaction.editReply(`No search results where found`)
+      return await interaction.editReply(`No search results were found`)
     }
 
     const metadata: IMetaData = {

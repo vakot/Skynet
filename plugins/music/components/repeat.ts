@@ -7,32 +7,31 @@ import { Action } from '@modules/models/action'
 
 import { getEmbed } from '../utils/getEmbed.i'
 import { getActionRow } from '../utils/getActionRow.i'
+import { basePrecondition } from '../utils/basePrecondition.i'
 
 export default new Action({
   data: { name: 'music-repeat-button' },
 
   event: ActionEvents.ButtonInteraction,
 
+  async precondition(interaction: ButtonInteraction) {
+    if (!(await basePrecondition(interaction))) return false
+
+    if (!useMasterPlayer()!.queues.cache.has(interaction.guildId!)) {
+      await interaction.reply({
+        content: 'Queue does not exist on this server',
+        ephemeral: true,
+      })
+      return false
+    }
+
+    return true
+  },
+
   async execute(interaction: ButtonInteraction) {
-    const { member, guildId, user, message } = interaction
+    const { guildId, user, message } = interaction
 
-    if (!member || !guildId) {
-      return await interaction.reply({
-        content: 'Action can be executed only in server',
-        ephemeral: true,
-      })
-    }
-
-    const player = useMasterPlayer()!
-
-    const queue = player.queues.cache.get(guildId)
-
-    if (!queue) {
-      return await interaction.reply({
-        content: 'Queue is not exist on this server',
-        ephemeral: true,
-      })
-    }
+    const queue = useMasterPlayer()!.queues.cache.get(guildId!)!
 
     if (queue.repeatMode === QueueRepeatMode.TRACK) {
       queue.setRepeatMode(QueueRepeatMode.OFF)

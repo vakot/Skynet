@@ -79,7 +79,6 @@ export function hasAllChannelPermissions(
 }
 
 /**
- *
  * @param {User} user instance of `User`
  * @param {GuildChannel} channel instance of `GuildChannel`
  * @param {PermissionResolvable[]} permissions array of `PermissionResolvable`
@@ -96,7 +95,6 @@ export function hasAnyChannelPermissions(
 }
 
 /**
- *
  * @param {GuildMember} member instance of `GuildMember`
  * @param {PermissionResolvable[]} permissions array of `PermissionResolvable`
  * @returns {boolean} `true` | `false`
@@ -111,7 +109,6 @@ export function hasAllGuildPermissions(
 }
 
 /**
- *
  * @param {GuildMember} member instance of `GuildMember`
  * @param {PermissionResolvable[]} permissions array of `PermissionResolvable`
  * @returns {boolean} `true` | `false`
@@ -126,7 +123,6 @@ export function hasAnyGuildPermissions(
 }
 
 /**
- *
  * @param {GuildMember} member instance of `GuildMember`
  * @param {Snowflake[]} roles array of `Snowflake` (roles id's)
  * @returns {boolean} `true` | `false`
@@ -138,7 +134,6 @@ export function hasAllRoles(member: GuildMember, roles: Snowflake[]): boolean {
 }
 
 /**
- *
  * @param {GuildMember} member instance of `GuildMember`
  * @param {Snowflake[]} roles array of `Snowflake` (roles id's)
  * @returns {boolean} `true` | `false`

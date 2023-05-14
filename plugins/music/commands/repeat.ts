@@ -9,6 +9,8 @@ import { QueueRepeatMode, useMasterPlayer } from 'discord-player'
 import { Action } from '@modules/models/action'
 import { ActionEvents } from '@modules/libs/events'
 
+import { basePrecondition } from '../utils/basePrecondition.i'
+
 export default new Action({
   data: new SlashCommandBuilder()
     .setName('repeat')
@@ -36,43 +38,39 @@ export default new Action({
 
   cooldown: 6_000,
 
+  async precondition(interaction: ChatInputCommandInteraction) {
+    if (!(await basePrecondition(interaction))) return false
+
+    if (!useMasterPlayer()!.queues.cache.has(interaction.guildId!)) {
+      await interaction.reply({
+        content: 'Queue does not exist on this server',
+        ephemeral: true,
+      })
+      return false
+    }
+
+    return true
+  },
+
   async execute(interaction: ChatInputCommandInteraction) {
-    const { member, guildId, options } = interaction
+    const { guildId, options } = interaction
 
-    await interaction.deferReply()
-
-    if (!member || !guildId) {
-      return await interaction.followUp({
-        content: 'Command can be executed only in server',
-        ephemeral: true,
-      })
-    }
-
-    const player = useMasterPlayer()!
-
-    const queue = player.queues.cache.get(guildId)
-
-    if (!queue) {
-      return await interaction.followUp({
-        content: 'Queue is not exist on this server',
-        ephemeral: true,
-      })
-    }
+    const queue = useMasterPlayer()!.queues.cache.get(guildId!)!
 
     if (options.getSubcommand() === 'track') {
       queue.setRepeatMode(QueueRepeatMode.TRACK)
-      return await interaction.followUp(`Repeat mode switched to **Track**`)
+      return await interaction.reply(`Repeat mode switched to **Track**`)
     } else if (options.getSubcommand() === 'queue') {
       queue.setRepeatMode(QueueRepeatMode.QUEUE)
-      return await interaction.followUp(`Repeat mode switched to **Queue**`)
+      return await interaction.reply(`Repeat mode switched to **Queue**`)
     } else if (options.getSubcommand() === 'off') {
       queue.setRepeatMode(QueueRepeatMode.OFF)
-      return await interaction.followUp(`Repeat mode switched **Off**`)
+      return await interaction.reply(`Repeat mode switched **Off**`)
     } else if (options.getSubcommand() === 'autoplay') {
       queue.setRepeatMode(QueueRepeatMode.AUTOPLAY)
-      return await interaction.followUp(`Repeat mode switched to **AutoPlay**`)
+      return await interaction.reply(`Repeat mode switched to **AutoPlay**`)
     } else {
-      return await interaction.followUp('Unknown subcommand')
+      return await interaction.reply('Unknown subcommand')
     }
   },
 })

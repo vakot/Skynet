@@ -1,5 +1,5 @@
-import 'module-alias/register'
 import 'dotenv/config'
+import 'module-alias/register'
 
 import { GatewayIntentBits } from 'discord.js'
 
@@ -20,10 +20,8 @@ export const client = new SkynetClient({
   ],
 })
 
-client.loadingStartAt = new Date()
-
 async function Main() {
-  console.clear()
+  client.loadingStartAt = new Date()
 
   await client.login(process.env.TOKEN || '')
   await client.setMaxListeners(0)

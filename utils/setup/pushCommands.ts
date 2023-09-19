@@ -26,21 +26,18 @@ export async function pushCommands(client: SkynetClient, clear = false): Promise
   // delete all application commands
   // used in some development process cases
   if (clear) {
-    return await applicationCommands?.forEach(
-      async (command) =>
-        await command
-          .delete()
-          .then((command) =>
-            logger.status._print(`Command /${command.name}`, 'DELETED', Color.FgRed)
-          )
+    return applicationCommands?.forEach((command) =>
+      command
+        .delete()
+        .then((command) => logger.status._print(`Command /${command.name}`, 'DELETED', Color.FgRed))
     )
   }
 
-  await commands.forEach(async (command) => {
+  commands.forEach(async (command) => {
     const { data, deletable, forceUpdate } = command
 
     // collect existing command
-    const existingCommand = await applicationCommands?.find((cmd) => cmd.name === data.name)
+    const existingCommand = applicationCommands?.find((cmd) => cmd.name === data.name)
 
     // create new command
     if (!existingCommand && !deletable) {

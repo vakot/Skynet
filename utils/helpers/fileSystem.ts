@@ -37,6 +37,7 @@ export function* throughDirectory(directoryPath: string): Generator<string> {
  * on directory and it's subdirectories
  *
  * @param {string} directoryPath path to directory
+ * @param {string} suffix file.suffix.ext will be ignored
  * @param {new (...args: any) => T} targetClass class to compare with
  * @returns {Promise<T[]>} array of `targetClass` instances
  */
@@ -51,8 +52,13 @@ export async function getFiles<T>(
     const relativePath = filePath.replace(rootPath, '')
 
     // ignore all non .js and non .ts files and files marked to ignore
-    if (!filePath.endsWith('.ts') && !filePath.endsWith('.js')) continue
-    if (filePath.includes('.ignore.') || filePath.includes('.i.')) continue
+    if (
+      (!filePath.endsWith('.ts') && !filePath.endsWith('.js')) ||
+      (!filePath.includes('.action.') && !filePath.includes('.a.')) ||
+      filePath.includes('.ignore.') ||
+      filePath.includes('.i.')
+    )
+      continue
 
     const fileSize = (fs.statSync(filePath).size / 1024).toFixed(2)
 

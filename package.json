@@ -25,13 +25,14 @@
     "libsodium-wrappers": "^0.7.11",
     "module-alias": "^2.2.2",
     "moment": "^2.29.4",
-    "mongoose": "^7.0.4",
+    "mongoose": "^8.2.0",
     "opusscript": "^0.0.8",
     "ytdl-core": "^4.11.4"
   },
   "devDependencies": {
     "nodemon": "^2.0.22",
-    "ts-node": "^10.9.1"
+    "ts-node": "^10.9.1",
+    "typescript": "^5.3.3"
   },
   "_moduleAliases": {
     "@modules": "modules",

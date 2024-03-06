@@ -1,4 +1,4 @@
-import { ICategory } from '../models/category'
+import { ICategory } from '@modules/models/category'
 
 export const ActionCategories = {
   General: {

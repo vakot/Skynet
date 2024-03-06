@@ -8,10 +8,14 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
 
-    "baseUrl": ".",
+    "baseUrl": "./src",
     "paths": {
       "@modules/*": ["./modules/*"],
+      "@models/*": ["./modules/models/*"],
+      "@libs/*": ["./modules/libs/*"],
+      "@assets/*": ["./assets/*"],
       "@utils/*": ["./utils/*"]
     }
-  }
+  },
+  "exclude": ["node_modules"]
 }

@@ -1,12 +1,12 @@
-import { GuildQueuePlayerNode, Player } from 'discord-player'
 import { YouTubeExtractor } from '@discord-player/extractor'
+import { GuildQueuePlayerNode, Player } from 'discord-player'
 
-import { Action } from '@modules/models/action'
 import { ActionEvents } from '@modules/libs/events'
+import { Action } from '@modules/models/action'
 import { SkynetClient } from '@modules/models/client'
 
-import { getEmbed } from '../utils/getEmbed'
 import { getActionRow } from '../utils/getActionRow'
+import { getEmbed } from '../utils/getEmbed'
 
 import { IMetaData } from '../models/metadata'
 
@@ -49,7 +49,7 @@ export default new Action({
     await player.events.on('playerFinish', async (queue) => {
       const metadata = queue.metadata as IMetaData
 
-      if (metadata.interval) clearInterval(metadata.interval)
+      if (metadata.interval) clearInterval(metadata.interval.toString())
       if (metadata.message && metadata.message.deletable) await metadata.message.delete()
     })
   },

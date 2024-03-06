@@ -1,9 +1,9 @@
 import { VoiceState } from 'discord.js'
 
-import { GuildQueuePlayerNode, useMasterPlayer } from 'discord-player'
+import { GuildQueuePlayerNode, useMainPlayer, useMasterPlayer } from 'discord-player'
 
-import { Action } from '@modules/models/action'
 import { ActionEvents } from '@modules/libs/events'
+import { Action } from '@modules/models/action'
 import { SkynetClient } from '@modules/models/client'
 
 import logger from '@utils/helpers/logger'
@@ -30,7 +30,7 @@ export default new Action({
   },
 
   async execute(oldState: VoiceState, newState: VoiceState) {
-    const player = useMasterPlayer()!
+    const player = useMainPlayer()!
     const queue = player.queues.get(newState.guild.id)!
 
     new GuildQueuePlayerNode(queue).resume()

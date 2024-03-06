@@ -1,5 +1,5 @@
-import { useMasterPlayer } from 'discord-player'
-import { Interaction, GuildMember } from 'discord.js'
+import { useMainPlayer } from 'discord-player'
+import { GuildMember, Interaction } from 'discord.js'
 
 /**
  * Determine is user use action from guild
@@ -43,7 +43,7 @@ export async function basePrecondition(interaction: Interaction): Promise<boolea
     return false
   }
 
-  const queue = useMasterPlayer()?.queues.get(guildId)
+  const queue = useMainPlayer()?.queues.get(guildId)
   const voiceChannel = member.voice.channel
   if (queue && voiceChannel.id !== queue?.channel?.id) {
     const reply = `Queue was already created at channel <#${queue?.channel?.id}>`

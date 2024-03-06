@@ -1,9 +1,9 @@
 import { VoiceState } from 'discord.js'
 
-import { GuildQueuePlayerNode, useMasterPlayer } from 'discord-player'
+import { GuildQueuePlayerNode, useMainPlayer } from 'discord-player'
 
-import { Action } from '@modules/models/action'
 import { ActionEvents } from '@modules/libs/events'
+import { Action } from '@modules/models/action'
 import { SkynetClient } from '@modules/models/client'
 
 import logger from '@utils/helpers/logger'
@@ -16,7 +16,7 @@ export default new Action({
   async precondition(oldState: VoiceState, newState: VoiceState, client: SkynetClient) {
     if (oldState.channel?.members.filter((m) => m.id !== client.user?.id).size) return false
 
-    const player = useMasterPlayer()
+    const player = useMainPlayer()
 
     if (!player) return false
 
@@ -30,7 +30,7 @@ export default new Action({
   },
 
   async execute(oldState: VoiceState, newState: VoiceState) {
-    const player = useMasterPlayer()!
+    const player = useMainPlayer()!
     const queue = player.queues.get(oldState.guild.id)!
 
     new GuildQueuePlayerNode(queue).pause()

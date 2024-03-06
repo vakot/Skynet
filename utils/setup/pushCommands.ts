@@ -27,9 +27,7 @@ export async function pushCommands(client: SkynetClient, clear = false): Promise
   // used in some development process cases
   if (clear) {
     return applicationCommands?.forEach((command) =>
-      command
-        .delete()
-        .then((command) => logger.status._print(`Command /${command.name}`, 'DELETED', Color.FgRed))
+      command.delete().then((command) => logger.status._print(`Command /${command.name}`, 'DELETED', Color.FgRed))
     )
   }
 
@@ -54,10 +52,7 @@ export async function pushCommands(client: SkynetClient, clear = false): Promise
     }
 
     // update existing
-    if (
-      (existingCommand && !isCommandsEqual(data as SlashCommandBuilder, existingCommand)) ||
-      forceUpdate
-    ) {
+    if ((existingCommand && !isCommandsEqual(data as SlashCommandBuilder, existingCommand)) || forceUpdate) {
       return await client.application?.commands
         .edit(existingCommand!.id, data as SlashCommandBuilder)
         .then(() => logger.status._print(`Command /${data.name}`, 'UPDATE', Color.FgYellow))

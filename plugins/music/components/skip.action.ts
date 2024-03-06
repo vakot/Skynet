@@ -1,14 +1,14 @@
 import { ButtonInteraction } from 'discord.js'
 
-import { GuildQueuePlayerNode, useMasterPlayer } from 'discord-player'
+import { GuildQueuePlayerNode, useMainPlayer } from 'discord-player'
 
-import { Action } from '@modules/models/action'
 import { ActionEvents } from '@modules/libs/events'
+import { Action } from '@modules/models/action'
 
 import logger from '@utils/helpers/logger'
 
-import { basePrecondition } from '../utils/basePrecondition'
 import { IMetaData } from '../models/metadata'
+import { basePrecondition } from '../utils/basePrecondition'
 
 export default new Action({
   data: { name: 'music-skip-button' },
@@ -20,7 +20,7 @@ export default new Action({
   async precondition(interaction: ButtonInteraction) {
     if (!(await basePrecondition(interaction))) return false
 
-    const queue = useMasterPlayer()!.queues.cache.get(interaction.guildId!)
+    const queue = useMainPlayer()!.queues.cache.get(interaction.guildId!)
 
     if (!queue) {
       await interaction.reply({
@@ -41,7 +41,7 @@ export default new Action({
   async execute(interaction: ButtonInteraction) {
     const { guildId, user } = interaction
 
-    const queue = useMasterPlayer()!.queues.cache.get(guildId!)!
+    const queue = useMainPlayer()!.queues.cache.get(guildId!)!
 
     const metadata = queue.metadata as IMetaData
     const users = queue.channel?.members.filter((m) => !m.user.bot)

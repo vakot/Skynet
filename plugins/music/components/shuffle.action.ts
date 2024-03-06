@@ -1,9 +1,9 @@
 import { ButtonInteraction } from 'discord.js'
 
-import { useMasterPlayer } from 'discord-player'
+import { useMainPlayer } from 'discord-player'
 
-import { Action } from '@modules/models/action'
 import { ActionEvents } from '@modules/libs/events'
+import { Action } from '@modules/models/action'
 
 import logger from '@utils/helpers/logger'
 
@@ -19,7 +19,7 @@ export default new Action({
   async precondition(interaction: ButtonInteraction) {
     if (!(await basePrecondition(interaction))) return false
 
-    if (!useMasterPlayer()!.queues.cache.has(interaction.guildId!)) {
+    if (!useMainPlayer()!.queues.cache.has(interaction.guildId!)) {
       await interaction.reply({
         content: 'Queue does not exist on this server',
         ephemeral: true,
@@ -33,7 +33,7 @@ export default new Action({
   async execute(interaction: ButtonInteraction) {
     const { guildId, user } = interaction
 
-    const queue = useMasterPlayer()!.queues.cache.get(guildId!)!
+    const queue = useMainPlayer()!.queues.cache.get(guildId!)!
 
     queue.tracks.shuffle()
 

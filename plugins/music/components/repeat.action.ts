@@ -1,13 +1,13 @@
 import { ButtonInteraction } from 'discord.js'
 
-import { QueueRepeatMode, useMasterPlayer } from 'discord-player'
+import { QueueRepeatMode, useMainPlayer } from 'discord-player'
 
 import { ActionEvents } from '@modules/libs/events'
 import { Action } from '@modules/models/action'
 
-import { getEmbed } from '../utils/getEmbed'
-import { getActionRow } from '../utils/getActionRow'
 import { basePrecondition } from '../utils/basePrecondition'
+import { getActionRow } from '../utils/getActionRow'
+import { getEmbed } from '../utils/getEmbed'
 
 export default new Action({
   data: { name: 'music-repeat-button' },
@@ -17,7 +17,7 @@ export default new Action({
   async precondition(interaction: ButtonInteraction) {
     if (!(await basePrecondition(interaction))) return false
 
-    if (!useMasterPlayer()!.queues.cache.has(interaction.guildId!)) {
+    if (!useMainPlayer()!.queues.cache.has(interaction.guildId!)) {
       await interaction.reply({
         content: 'Queue does not exist on this server',
         ephemeral: true,
@@ -31,7 +31,7 @@ export default new Action({
   async execute(interaction: ButtonInteraction) {
     const { guildId, user, message } = interaction
 
-    const queue = useMasterPlayer()!.queues.cache.get(guildId!)!
+    const queue = useMainPlayer()!.queues.cache.get(guildId!)!
 
     if (queue.repeatMode === QueueRepeatMode.TRACK) {
       queue.setRepeatMode(QueueRepeatMode.OFF)

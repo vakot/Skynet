@@ -4,9 +4,13 @@ import { SkynetClient } from '@modules/models/client'
 
 import { isCommandsEqual } from '@utils/helpers/isCommandsEqual'
 
-import logger from '@utils/helpers/logger'
+import logger, { Color } from '@utils/helpers/logger'
 
 export async function pushCommands(client: SkynetClient, clear = false): Promise<void> {
+  const startTime = Date.now()
+
+  logger.colored.magenta('Updating commands on remote')
+
   const actions = client.clientActions
 
   const commands = actions.filter((action) => action.data instanceof SlashCommandBuilder).sort()
@@ -22,38 +26,38 @@ export async function pushCommands(client: SkynetClient, clear = false): Promise
   // delete all application commands
   // used in some development process cases
   if (clear) {
-    return await applicationCommands?.forEach(
-      async (command) =>
-        await command.delete().then((command) => logger.warn(`Command /${command.name} deleted`))
+    return applicationCommands?.forEach((command) =>
+      command.delete().then((command) => logger.status._print(`Command /${command.name}`, 'DELETED', Color.FgRed))
     )
   }
 
   commands.forEach(async (command) => {
-    const { data, deleteble, forceUpdate } = command
+    const { data, deletable, forceUpdate } = command
 
     // collect existing command
-    const existingCommand = await applicationCommands?.find((cmd) => cmd.name === data.name)
+    const existingCommand = applicationCommands?.find((cmd) => cmd.name === data.name)
 
     // create new command
-    if (!existingCommand && !deleteble) {
+    if (!existingCommand && !deletable) {
       return await client.application?.commands
         .create(data as SlashCommandBuilder)
-        .then(() => logger.info(`Command /${data.name} created`))
+        .then(() => logger.status._print(`Command /${data.name}`, 'CREATE', Color.FgGreen))
     }
 
     // delete existing
-    if (existingCommand && deleteble) {
-      return await existingCommand.delete().then(() => logger.warn(`Command /${data.name} deleted`))
+    if (existingCommand && deletable) {
+      return await existingCommand
+        .delete()
+        .then(() => logger.status._print(`Command /${data.name}`, 'DELETE', Color.FgRed))
     }
 
     // update existing
-    if (
-      (existingCommand && !isCommandsEqual(data as SlashCommandBuilder, existingCommand)) ||
-      forceUpdate
-    ) {
+    if ((existingCommand && !isCommandsEqual(data as SlashCommandBuilder, existingCommand)) || forceUpdate) {
       return await client.application?.commands
         .edit(existingCommand!.id, data as SlashCommandBuilder)
-        .then(() => logger.debug(`Command /${data.name} updated`))
+        .then(() => logger.status._print(`Command /${data.name}`, 'UPDATE', Color.FgYellow))
     }
   })
+
+  return logger.colored.magenta(`Commands updated in ${Date.now() - startTime}ms`)
 }

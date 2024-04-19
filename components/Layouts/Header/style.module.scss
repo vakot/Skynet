@@ -1,0 +1,32 @@
+.Header {
+  position: fixed;
+  left: 0;
+  top: 0;
+
+  width: 100%;
+  height: 24px;
+
+  z-index: 9999;
+
+  .Container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+  }
+
+  .Logo {
+    width: 80px;
+    height: 100%;
+    text-align: center;
+    font-weight: 900;
+  }
+
+  .Profile {
+    width: 80px;
+    height: 100%;
+    text-align: center;
+    background-color: black;
+  }
+}

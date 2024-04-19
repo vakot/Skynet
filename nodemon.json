@@ -1,6 +1,5 @@
 {
-  "watch": ["src"],
-  "ext": "ts,json",
+  "ext": "js,ts,json,jsx,tsx",
   "ignore": ["src/**/*.spec.ts"],
-  "exec": "ts-node -r tsconfig-paths/register -r dotenv/config src/index.ts"
+  "exec": "ts-node -r tsconfig-paths/register -r dotenv/config client.ts dotenv_config_path=.env.local"
 }

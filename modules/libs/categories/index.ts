@@ -1,0 +1,6 @@
+export { default as About } from './about'
+export { default as Fun } from './fun'
+export { default as General } from './general'
+export { default as Moderation } from './moderation'
+export { default as Test } from './test'
+export { default as Utilities } from './utilities'

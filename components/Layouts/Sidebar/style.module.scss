@@ -1,0 +1,57 @@
+@import '@styles/variables.scss';
+
+.Sidebar {
+  position: fixed;
+  left: 0;
+  top: 24px;
+
+  width: 80px;
+  height: calc(100vh - 24px);
+
+  z-index: 9999;
+
+  .Image {
+    border-radius: 50%;
+
+    transition: border-radius 0.3s;
+
+    &:hover {
+      border-radius: 30%;
+    }
+  }
+
+  .Login {
+    background-color: $primary_blurple;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+  }
+
+  .Profile {
+    display: flex;
+    padding: 8px 16px;
+  }
+
+  .Separator {
+    content: '';
+    width: 32px;
+    height: 2px;
+    border-radius: 1px;
+    margin-left: 24px;
+    background-color: $background-lighter;
+  }
+
+  .ServersList {
+    padding: 8px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    li {
+      display: flex;
+    }
+  }
+}

@@ -1,0 +1,17 @@
+@import '@styles/variables.scss';
+
+.Main {
+  position: absolute;
+  left: 80px;
+  top: 24px;
+
+  width: calc(100vw - 80px);
+  min-height: calc(100vh - 24px);
+
+  background-color: $background_light;
+
+  border-radius: 12px 0 0 0;
+  overflow: hidden;
+
+  z-index: 0;
+}

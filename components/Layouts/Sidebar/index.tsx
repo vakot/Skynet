@@ -1,5 +1,5 @@
 import { LoginOutlined } from '@ant-design/icons'
-import { useGetClientMutualGuildsQuery, useGetClientUserQuery } from '@api/client/client.api'
+import { useGetClientGuildsQuery, useGetClientQuery } from '@modules/api/client/client.api'
 import { Tooltip } from 'antd'
 import classNames from 'classnames'
 import { signIn, useSession } from 'next-auth/react'
@@ -8,8 +8,8 @@ import styles from './style.module.scss'
 
 const Sidebar: React.FC<any> = ({}) => {
   const { data: session } = useSession()
-  const { data: client } = useGetClientUserQuery()
-  const { data: guilds } = useGetClientMutualGuildsQuery(session?.user?.name ?? '', {
+  const { data: client } = useGetClientQuery()
+  const { data: guilds } = useGetClientGuildsQuery(session?.user?.name ?? '', {
     skip: !session?.user?.name,
   })
 

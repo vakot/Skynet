@@ -22,13 +22,15 @@
     "baseUrl": "./",
     "paths": {
       "@modules/*": ["modules/*"],
-      "@models/*": ["modules/models/*"],
+      "@models/*": ["bot/models/*"],
       "@libs/*": ["modules/libs/*"],
       "@store/*": ["modules/store/*"],
       "@assets/*": ["assets/*"],
       "@utils/*": ["utils/*"],
+      "@utils": ["utils/index"],
       "@styles/*": ["styles/*"],
-      "@api/*": ["api/*"]
+      "@api/*": ["api/*"],
+      "@bot/*": ["bot/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

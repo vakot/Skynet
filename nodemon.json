@@ -1,6 +1,6 @@
 {
   "ext": "js,ts,json,jsx,tsx",
-  "ignore": ["src/**/*.spec.ts"],
+  "ignore": ["bot/**/*.spec.ts"],
   "watch": ["bot"],
   "exec": "ts-node"
 }

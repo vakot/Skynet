@@ -8,7 +8,7 @@ import * as SkynetEventListeners from './libs/listeners'
 import { IAction } from './models/action'
 
 import { isCommandsEqual } from '@bot/utils/command'
-import { Logger, Style } from './utils/logger'
+import { Logger } from './utils/logger'
 
 export class SkynetClient<Ready extends boolean = boolean> extends Client<Ready> {
   readonly logger = new Logger({ level: 5 })
@@ -34,105 +34,92 @@ export class SkynetClient<Ready extends boolean = boolean> extends Client<Ready>
 
   constructor(options: any) {
     super(options)
-    this._loadingStartAt = new Date()
-    this.setupListeners()
-    this.setupGlobalActions()
-    this.setupGlobalCommands()
-    this.setupDataBase()
-    this.setupBotInstance()
   }
 
-  private async setupListeners(): Promise<void> {
-    try {
-      this.logger.info(` ${this.logger.successTag} Listeners loading...`)
-      Object.values(SkynetEventListeners).forEach((event) => {
-        this.logger.log(` ${this.logger.traceTag} ${event.type}`)
-        this[event.once ? 'once' : 'on'](event.type, (...args) =>
-          event.init(this, ...args).catch(this.logger.error)
-        )
-      })
-    } catch (error) {
-      this.disconnect(error)
-    }
-  }
-
-  private async setupDataBase(): Promise<void> {
-    try {
-      this.logger.info(
-        ' ' + this.logger.color('✓ ', [Style.Bright, Style.FgGreen]) + 'DataBase loading...'
+  private async loadListeners(): Promise<void> {
+    Object.values(SkynetEventListeners).forEach((event) => {
+      this.logger.log(` ${this.logger.traceTag} ${event.type}`)
+      this[event.once ? 'once' : 'on'](event.type, (...args) =>
+        event.init(this, ...args).catch(this.logger.error)
       )
-      await mongoose.connect(process.env.MONGODB_URI || '')
-    } catch (error) {
-      this.disconnect(error)
-    }
+    })
   }
 
-  private async setupBotInstance(): Promise<void> {
+  private async loadDatabase(): Promise<void> {
+    await mongoose.connect(process.env.MONGODB_URI || '')
+  }
+
+  private async loadClient(): Promise<void> {
+    await this.login(process.env.CLIENT_TOKEN || '')
+    this._loadingEndedAt = new Date()
+    this.setMaxListeners(0)
+  }
+
+  private async loadGlobalActions(): Promise<void> {
+    this._globalActions = Object.values(SkynetActions)
+    this._globalActions.forEach((action) => {
+      this.logger.log(` ${this.logger.traceTag} ${action.name}`)
+      this.on(action.event, (...args) => action.execute(this, ...args).catch(this.logger.error))
+    })
+  }
+
+  private async loadGlobalCommands(): Promise<void> {
+    this._globalCommands = Object.values(SkynetCommands) as Array<ApplicationCommandData>
+    const applicationCommands = await this.application?.commands.fetch()
+
+    /* Create and update */
+    this._globalCommands.forEach(async (command) => {
+      const applicationCommand = applicationCommands?.find(({ name }) => command.name === name)
+
+      if (!applicationCommand) {
+        await this.application?.commands
+          .create(command)
+          .then((cmd) => this.logger.log(` ${this.logger.traceTag} /${cmd?.name} created`))
+      } else if (isCommandsEqual(command as ApplicationCommand, applicationCommand)) {
+        await this.application?.commands
+          .edit(applicationCommand.id, command)
+          .then((cmd) => this.logger.log(` ${this.logger.traceTag} /${cmd?.name} updated`))
+      }
+    })
+
+    /* Delete */
+    applicationCommands?.forEach(async (command) => {
+      if (!this._globalCommands?.find(({ name }) => command.name === name)) {
+        await command
+          .delete()
+          .then((cmd) => this.logger.log(` ${this.logger.traceTag} /${cmd?.name} deleted`))
+      }
+    })
+  }
+
+  async load(): Promise<void> {
+    this._loadingStartAt = new Date()
+    await this.connect('Actions', () => this.loadGlobalActions())
+    await this.connect('Listeners', () => this.loadListeners())
+    await this.connect('Commands', () => this.loadGlobalCommands())
+    await this.connect('Database', () => this.loadDatabase())
+    await this.connect('Client', () => this.loadClient())
+  }
+
+  async connect(name: string, callback: () => Promise<void> | void) {
+    const startAt = new Date().getTime()
     try {
-      this.logger.info(` ${this.logger.successTag} Client loading...`)
-      await this.login(process.env.CLIENT_TOKEN || '')
-      this._loadingEndedAt = new Date()
-      const formatTime =
-        this.loadingTime > 1000
-          ? (this.loadingTime / 1000).toFixed(1) + 's'
-          : this.loadingTime.toFixed(0) + 'ms'
-      this.logger.info(` ${this.logger.successTag} Ready in ${formatTime}`)
-      this.setMaxListeners(0)
+      this.logger.info(` ${this.logger.successTag} ${name} loading...`)
+      await callback()
+      const duration = new Date().getTime() - startAt
+      const formatDuration =
+        duration > 1000 ? (duration / 1000).toFixed(1) + 's' : duration.toFixed(0) + 'ms'
+      this.logger.info(` ${this.logger.successTag} ${name} ready in ${formatDuration}`)
     } catch (error) {
+      const duration = new Date().getTime() - startAt
+      const formatDuration =
+        duration > 1000 ? (duration / 1000).toFixed(1) + 's' : duration.toFixed(0) + 'ms'
+      this.logger.info(` ${this.logger.errorTag} ${name} failed in ${formatDuration}`)
       this.disconnect(error)
     }
   }
 
-  private async setupGlobalActions(): Promise<void> {
-    try {
-      this.logger.info(` ${this.logger.successTag} Actions loading...`)
-      this._globalActions = Object.values(SkynetActions)
-      this._globalActions.forEach((action) => {
-        this.logger.log(` ${this.logger.traceTag} ${action.name}`)
-        this.on(action.event, (...args) => action.execute(this, ...args).catch(this.logger.error))
-      })
-    } catch (error) {
-      this.disconnect(error)
-    }
-  }
-
-  private async setupGlobalCommands(): Promise<void> {
-    try {
-      this.logger.info(` ${this.logger.successTag} Commands loading...`)
-      this._globalCommands = Object.values(SkynetCommands) as Array<ApplicationCommandData>
-      const applicationCommands = await this.application?.commands.fetch()
-
-      /* Create and update */
-      this._globalCommands.forEach(async (command) => {
-        const applicationCommand = applicationCommands?.find(({ name }) => command.name === name)
-
-        if (!applicationCommand) {
-          await this.application?.commands
-            .create(command)
-            .then((cmd) => this.logger.log(` ${this.logger.traceTag} /${cmd?.name} created`))
-        } else if (isCommandsEqual(command as ApplicationCommand, applicationCommand)) {
-          await this.application?.commands
-            .edit(applicationCommand.id, command)
-            .then((cmd) => this.logger.log(` ${this.logger.traceTag} /${cmd?.name} updated`))
-        }
-      })
-
-      /* Delete */
-      applicationCommands?.forEach(async (command) => {
-        if (!this._globalCommands?.find(({ name }) => command.name === name)) {
-          await command
-            .delete()
-            .then((cmd) => this.logger.log(` ${this.logger.traceTag} /${cmd?.name} deleted`))
-        }
-      })
-    } catch (error) {
-      this.disconnect(error)
-    }
-  }
-
-  private async disconnect(error?: any): Promise<void> {
-    this.logger.info(` ${this.logger.errorTag} Failed to startup X_X`)
-
+  async disconnect(error?: any): Promise<void> {
     if (error) {
       this.logger.error(error)
     }

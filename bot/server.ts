@@ -16,6 +16,7 @@ const client = new SkynetClient({
 
 const baseURL = '/api'
 const server = express()
+client.load()
 
 server.get(baseURL + '/client', (req, res) => {
   if (req.method === 'GET') {

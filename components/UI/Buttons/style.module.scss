@@ -1,0 +1,52 @@
+@import '@styles/variables.scss';
+
+.Button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background-color: $background_lighter;
+  transition: background-color 0.3s, color 0.3s, border-radius 0.3s;
+  overflow: hidden;
+
+  padding: 8px;
+  font-size: 16px;
+  min-width: 160px;
+  border-radius: 8px;
+
+  &.Secondary {
+    color: lightgray;
+    background-color: $background_lighter;
+
+    &:hover {
+      color: white;
+      background-color: $primary_blurple;
+    }
+  }
+  &.Primary {
+    color: white;
+    background-color: $primary_blurple;
+
+    &:hover {
+      color: white;
+      background-color: $primary_blurple;
+    }
+  }
+  &.Error {
+    background-color: red;
+    color: white;
+
+    &:hover {
+      color: white;
+      background-color: red;
+    }
+  }
+
+  &:hover {
+    border-radius: 4px;
+  }
+
+  &:focus {
+    outline: 2px auto -webkit-focus-ring-color;
+  }
+}

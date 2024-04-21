@@ -1,23 +1,33 @@
-import { LoginOutlined } from '@ant-design/icons'
+import { LoadingOutlined } from '@ant-design/icons'
+import { Separator } from '@components/UI/Separator'
 import { useGetClientGuildsQuery, useGetClientQuery } from '@modules/api/client/client.api'
-import { Tooltip } from 'antd'
-import classNames from 'classnames'
-import { signIn, useSession } from 'next-auth/react'
+import utils from '@utils/index'
+import { Spin, Tooltip } from 'antd'
+import { useSession } from 'next-auth/react'
 import Image from 'next/image'
+import { useRouter } from 'next/router'
 import styles from './style.module.scss'
 
 const Sidebar: React.FC<any> = ({}) => {
+  const router = useRouter()
   const { data: session } = useSession()
-  const { data: client } = useGetClientQuery()
-  const { data: guilds } = useGetClientGuildsQuery(session?.user?.name ?? '', {
-    skip: !session?.user?.name,
-  })
+  const { data: client, isLoading: isClientLoading } = useGetClientQuery()
+  const { data: guilds, isLoading: isGuildsLoading } = useGetClientGuildsQuery(
+    session?.user?.name ?? '',
+    {
+      skip: !session?.user?.name,
+    }
+  )
 
   return (
     <div className={styles.Sidebar}>
-      <div className={styles.Profile}>
-        {session ? (
-          <Tooltip placement="right" title="Profile">
+      {isClientLoading ? (
+        <div className={styles.Container}>
+          <Spin indicator={<LoadingOutlined />} />
+        </div>
+      ) : (
+        <div className={styles.Container} onClick={() => router.push(utils.AppRoutes.PROFILE)}>
+          <Tooltip align={{ offset: [24, 0] }} placement="right" title="Profile">
             <Image
               className={styles.Image}
               src={session?.user?.image ?? client?.defaultAvatarURL ?? ''}
@@ -26,31 +36,31 @@ const Sidebar: React.FC<any> = ({}) => {
               height={48}
             />
           </Tooltip>
+        </div>
+      )}
+
+      <Separator />
+
+      <ul className={styles.Guilds}>
+        {isGuildsLoading || isClientLoading ? (
+          <div className={styles.Container}>
+            <Spin indicator={<LoadingOutlined />} />
+          </div>
         ) : (
-          <Tooltip placement="right" title="Auth">
-            <div onClick={() => signIn()} className={classNames(styles.Image, styles.Login)}>
-              <LoginOutlined />
-            </div>
-          </Tooltip>
+          guilds?.map((guild) => (
+            <li key={guild.id} className={styles.Container}>
+              <Tooltip align={{ offset: [24, 0] }} placement="right" title={guild.name}>
+                <Image
+                  className={styles.Image}
+                  src={guild.iconURL ?? client?.defaultAvatarURL ?? ''}
+                  alt={guild.name ?? 'guild'}
+                  width={48}
+                  height={48}
+                />
+              </Tooltip>
+            </li>
+          ))
         )}
-      </div>
-
-      <div className={styles.Separator} />
-
-      <ul className={styles.ServersList}>
-        {guilds?.map((guild) => (
-          <li key={guild.id}>
-            <Tooltip placement="right" title={guild.name}>
-              <Image
-                className={styles.Image}
-                src={guild.iconURL ?? client?.defaultAvatarURL ?? ''}
-                alt={guild.name ?? 'guild'}
-                width={48}
-                height={48}
-              />
-            </Tooltip>
-          </li>
-        ))}
       </ul>
     </div>
   )

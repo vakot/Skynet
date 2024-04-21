@@ -3,14 +3,25 @@
 .Sidebar {
   position: fixed;
   left: 0;
-  top: 24px;
+  top: 0;
 
-  width: 80px;
-  height: calc(100vh - 24px);
+  width: 72px;
+  height: 100vh;
+  background-color: $background_dark;
 
   z-index: 9999;
 
+  padding: 12px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+
   .Image {
+    width: 48px;
+    height: 48px;
+
     border-radius: 50%;
 
     transition: border-radius 0.3s;
@@ -20,38 +31,18 @@
     }
   }
 
-  .Login {
-    background-color: $primary_blurple;
-    width: 48px;
-    height: 48px;
+  .Container {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 24px;
+    width: 48px;
+    height: 48px;
   }
 
-  .Profile {
-    display: flex;
-    padding: 8px 16px;
-  }
-
-  .Separator {
-    content: '';
-    width: 32px;
-    height: 2px;
-    border-radius: 1px;
-    margin-left: 24px;
-    background-color: $background-lighter;
-  }
-
-  .ServersList {
-    padding: 8px 16px;
+  .Guilds {
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: 8px;
-
-    li {
-      display: flex;
-    }
   }
 }

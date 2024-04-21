@@ -22,7 +22,7 @@
     "baseUrl": "./",
     "paths": {
       "@modules/*": ["modules/*"],
-      "@models/*": ["bot/models/*"],
+      "@components/*": ["components/*"],
       "@libs/*": ["modules/libs/*"],
       "@store/*": ["modules/store/*"],
       "@assets/*": ["assets/*"],

@@ -1,8 +1,8 @@
 export enum AppRoutes {
-  API = 'api',
+  API = '/api',
   INDEX = '/',
-  ERROR = '404',
-  PROFILE = 'profile',
-  DASHBOARD = 'dashboard',
-  AUTH = 'auth',
+  ERROR = '/404',
+  PROFILE = '/profile',
+  DASHBOARD = '/dashboard',
+  AUTH = '/auth',
 }

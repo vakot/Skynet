@@ -1,4 +1,5 @@
 import { Button } from '@components/UI/Buttons'
+import { Card } from '@components/UI/Card'
 import utils from '@utils/index'
 import { GetServerSidePropsContext } from 'next'
 import { getServerSession } from 'next-auth'
@@ -14,12 +15,10 @@ const ProfilePage: React.FC<void> = () => {
 
   return (
     <section className={styles.Container}>
-      <div className={styles.Card}>
-        <div className={styles.Background} />
-
-        <div className={styles.Avatar}>
+      <Card className={styles.Card}>
+        <Card className={styles.Avatar}>
           <Image width={240} height={240} src={session!.user?.image ?? ''} alt="avatar" />
-        </div>
+        </Card>
 
         <div className={styles.About}>
           <div className={styles.Name}>{session!.user?.name}</div>
@@ -47,7 +46,7 @@ const ProfilePage: React.FC<void> = () => {
           </Button>
           <Button onClick={() => signOut()}>Logout</Button>
         </div>
-      </div>
+      </Card>
     </section>
   )
 }

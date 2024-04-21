@@ -11,7 +11,7 @@
 
 .Card {
   width: 320px;
-  padding: 0 40px 40px 40px;
+  padding: 220px 40px 40px 40px;
   position: relative;
   color: $background_dark;
 
@@ -20,23 +20,13 @@
   align-items: center;
   gap: 32px;
 
-  .Background {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 40px;
-    width: 100%;
-    height: calc(100% - 40px);
-    background-color: $background_dark;
-    z-index: -1;
-    border-radius: 16px;
-  }
-
   .Avatar {
+    position: absolute;
+    top: -40px;
     display: flex;
     border-radius: 16px;
+    width: calc(100% - 80px);
     overflow: hidden;
-    background-color: $primary_blurple;
 
     transition: border-radius 0.3s;
 

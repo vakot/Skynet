@@ -48,7 +48,11 @@ const Sidebar: React.FC<any> = ({}) => {
           </div>
         ) : (
           guilds?.map((guild) => (
-            <li key={guild.id} className={styles.Container}>
+            <li
+              key={guild.id}
+              className={styles.Container}
+              onClick={() => router.push([utils.AppRoutes.DASHBOARD, guild.id].join('/'))}
+            >
               <Tooltip align={{ offset: [24, 0] }} placement="right" title={guild.name}>
                 <Image
                   className={styles.Image}

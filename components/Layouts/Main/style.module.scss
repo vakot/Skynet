@@ -1,8 +1,8 @@
 @import '@styles/variables.scss';
 
 .Main {
-  width: 100%;
-  padding-left: 72px;
+  width: calc(100% - 72px);
+  margin-left: 72px;
   min-height: 100vh;
 
   overflow: hidden;

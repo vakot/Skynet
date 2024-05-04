@@ -3,9 +3,10 @@ import mongoose, { Schema } from 'mongoose'
 
 import { SkynetClient } from '@bot/client'
 import { ICategory } from '@bot/models/category'
+import { IDocument } from '@bot/models/document'
 import { SkynetEvents } from '@bot/models/event'
 
-export interface IAction {
+export interface IAction extends IDocument<Schema.Types.ObjectId | Snowflake> {
   /**
    * Title to be shown in constructor
    */
@@ -46,6 +47,7 @@ export interface IAction {
    */
   category?: ICategory
 
+  // TODO: separated mongoose document
   /**
    * Used to store action runs history
    */

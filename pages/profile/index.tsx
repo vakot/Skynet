@@ -1,4 +1,4 @@
-import { Button } from '@components/UI/Buttons'
+import { Button } from '@components/UI/Button'
 import { Card } from '@components/UI/Card'
 import utils from '@utils/index'
 import { GetServerSidePropsContext } from 'next'

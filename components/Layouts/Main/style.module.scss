@@ -1,11 +1,17 @@
 @import '@styles/variables.scss';
 
 .Main {
-  width: calc(100% - 72px);
-  margin-left: 72px;
+  width: calc(100% - 72px - 240px);
+  margin-left: calc(72px + 240px);
+
   min-height: 100vh;
 
   overflow: hidden;
 
   z-index: 0;
+
+  &.MenuCollapsed {
+    width: calc(100% - 72px);
+    margin-left: 72px;
+  }
 }

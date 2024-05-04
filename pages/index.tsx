@@ -1,4 +1,4 @@
-import { Button } from '@components/UI/Buttons'
+import { Button } from '@components/UI/Button'
 import utils from '@utils/index'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'

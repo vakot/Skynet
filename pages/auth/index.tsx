@@ -1,5 +1,5 @@
 import { ArrowLeftOutlined, DiscordFilled } from '@ant-design/icons'
-import { Button } from '@components/UI/Buttons'
+import { Button } from '@components/UI/Button'
 import { Separator } from '@components/UI/Separator'
 import utils from '@utils/index'
 import classNames from 'classnames'

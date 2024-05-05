@@ -7,7 +7,7 @@ import styles from './style.module.scss'
 const Main: React.FC<any> = ({ children, className }) => {
   const router = useRouter()
 
-  const guildId = router.query.id?.[0] as string
+  const guildId = router.query.guild as string
 
   return (
     <>

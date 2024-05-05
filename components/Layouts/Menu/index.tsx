@@ -1,56 +1,29 @@
-import { SkynetEvents } from '@bot/models/event'
+import { IGuild } from '@bot/models/guild'
+import { useMenu } from '@modules/hooks/useMenu'
+import { AppRoutes } from '@utils/index'
 import { Menu as AntdMenu } from 'antd'
-import { Guild } from 'discord.js'
 import { useRouter } from 'next/router'
 import styles from './style.module.scss'
 
 export interface MenuProps {
-  guild?: Guild['id']
+  guild?: IGuild['_id']
 }
 
 const Menu: React.FC<MenuProps> = ({ guild: guildId }) => {
   const router = useRouter()
+  const menu = useMenu(guildId)
 
-  const items: { key: SkynetEvents; [key: string]: any }[] = [
-    {
-      key: SkynetEvents.CommandInteraction,
-      label: 'Command Interaction',
-      children: [
-        {
-          key: 'command-id-1',
-          label: '/command-name-1',
-        },
-        {
-          key: 'command-id-2',
-          label: '/command-name-2',
-        },
-      ],
-    },
-    {
-      key: SkynetEvents.MessageCreate,
-      label: 'Message Create',
-      children: [
-        {
-          key: 'action-id-1',
-          label: 'message-action-name-or-id-1',
-        },
-        {
-          key: 'action-id-2',
-          label: 'message-action-name-or-id-2',
-        },
-      ],
-    },
-  ]
+  const handleSelect = ({ keyPath }: { keyPath: string[] }) => {
+    router.replace(AppRoutes.DASHBOARD + '/' + guildId + '/' + keyPath?.reverse().join('/'))
+  }
 
   return (
     <div className={styles.Menu}>
       <AntdMenu
         mode="inline"
-        onSelect={({ keyPath }) => {
-          console.log()
-          router.push(guildId + '/' + keyPath.reverse().join('/'))
-        }}
-        items={items}
+        selectedKeys={[router.query.action as string]}
+        onSelect={handleSelect}
+        items={menu}
       />
     </div>
   )

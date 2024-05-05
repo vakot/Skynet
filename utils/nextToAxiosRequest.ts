@@ -15,10 +15,5 @@ export const nextToAxiosRequest = async (req: NextApiRequest) => {
     data: body,
   }
 
-  try {
-    const response = await axios(axiosConfig)
-    return response.data
-  } catch (error) {
-    throw new Error()
-  }
+  return (await axios(axiosConfig)).data
 }

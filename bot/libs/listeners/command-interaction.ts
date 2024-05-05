@@ -1,7 +1,6 @@
 import { ChatInputCommandInteraction, Events } from 'discord.js'
 
 import { SkynetClient } from '@bot/client'
-import { Action, IAction } from '@bot/models/action'
 import { IEvent } from '@bot/models/event'
 import { Guild, IGuild } from '@bot/models/guild'
 
@@ -25,13 +24,13 @@ export default {
       }
 
       try {
-        action.history?.push({
-          userId: interaction.user.id,
-          timestamp: new Date(),
-        })
+        // action.history?.push({
+        //   userId: interaction.user.id,
+        //   timestamp: new Date(),
+        // })
         return action.execute(client, interaction)
       } catch (error) {
-        return console.error(error)
+        return client.logger.error(error)
       }
     }
 
@@ -44,28 +43,30 @@ export default {
       })
     }
 
-    const action: IAction = (
-      await Action.findById(guild?.commands.get(interaction.commandName))
-    )?.toObject()
+    console.log(guild)
 
-    if (!action) {
-      return interaction.reply({
-        content: 'Unknown action! X_X',
-        ephemeral: true,
-      })
-    }
+    // const action: IAction = (
+    //   await Action.findById(guild?.[SkynetEvents.CommandInteraction].get(interaction.commandName))
+    // )?.toObject()
 
-    try {
-      action.history?.push({
-        userId: interaction.user.id,
-        timestamp: new Date(),
-      })
-      if ('_id' in action) {
-        Action.updateOne({ _id: action._id }, action)
-      }
-      return action.execute(client, interaction)
-    } catch (error) {
-      return client.logger.error(error)
-    }
+    // if (!action) {
+    //   return interaction.reply({
+    //     content: 'Unknown action! X_X',
+    //     ephemeral: true,
+    //   })
+    // }
+
+    // try {
+    //   action.history?.push({
+    //     userId: interaction.user.id,
+    //     timestamp: new Date(),
+    //   })
+    //   if ('_id' in action) {
+    //     Action.updateOne({ _id: action._id }, action)
+    //   }
+    //   return action.execute(client, interaction)
+    // } catch (error) {
+    //   return client.logger.error(error)
+    // }
   },
 } as IEvent

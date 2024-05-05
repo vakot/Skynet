@@ -6,7 +6,11 @@ import { ICategory } from '@bot/models/category'
 import { IDocument } from '@bot/models/document'
 import { SkynetEvents } from '@bot/models/event'
 
-export interface IAction extends IDocument<Schema.Types.ObjectId | Snowflake> {
+export interface IAction extends IDocument<Snowflake> {
+  /**
+   * Author
+   */
+  author?: string
   /**
    * Title to be shown in constructor
    */
@@ -47,11 +51,11 @@ export interface IAction extends IDocument<Schema.Types.ObjectId | Snowflake> {
    */
   category?: ICategory
 
-  // TODO: separated mongoose document
-  /**
-   * Used to store action runs history
-   */
-  history?: { userId: Snowflake; timestamp: Date }[]
+  // // TODO: separated mongoose document
+  // /**
+  //  * Used to store action runs history
+  //  */
+  // history?: { userId: Snowflake; timestamp: Date }[]
 
   /**
    * Main action body function that should do all the work
@@ -63,15 +67,17 @@ export interface IAction extends IDocument<Schema.Types.ObjectId | Snowflake> {
 
 export const ActionSchema: Schema = new Schema<IAction>(
   {
+    _id: { type: String, required: true },
+    author: { type: String, required: false },
     name: { type: String, required: false },
     description: { type: String, required: false },
     event: { type: String, required: true },
     cooldown: { type: Number, required: false },
     testOnly: { type: Boolean, required: false },
     devsOnly: { type: Boolean, required: false },
-    permissions: { type: [String], required: false },
+    permissions: { type: [String], default: [] },
     category: { type: Schema.Types.ObjectId, ref: 'Category', required: false },
-    history: { type: [{ userId: String, timestamp: Date }], required: false },
+    // history: { type: [{ userId: String, timestamp: Date }], required: false },
     execute: { type: String, required: true },
   },
   {
@@ -87,4 +93,6 @@ export const ActionSchema: Schema = new Schema<IAction>(
   }
 )
 
-export const Action = mongoose.models.Action || mongoose.model<IAction>('Action', ActionSchema)
+export const Action =
+  (mongoose.models.Action as mongoose.Model<IAction>) ||
+  mongoose.model<IAction>('Action', ActionSchema)

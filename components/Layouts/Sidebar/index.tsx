@@ -12,12 +12,7 @@ const Sidebar: React.FC<any> = ({}) => {
   const router = useRouter()
   const { data: session } = useSession()
   const { data: client, isLoading: isClientLoading } = useGetClientQuery()
-  const { data: guilds, isLoading: isGuildsLoading } = useGetClientGuildsQuery(
-    session?.user?.name ?? '',
-    {
-      skip: !session?.user?.name,
-    }
-  )
+  const { data: guilds, isLoading: isGuildsLoading } = useGetClientGuildsQuery()
 
   return (
     <div className={styles.Sidebar}>

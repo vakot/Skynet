@@ -1,9 +1,9 @@
 import { Guild, User } from 'discord.js'
 
-export interface IApiUser extends Omit<User, 'avatarURL'> {
+export interface IClientUser extends Omit<User, 'avatarURL'> {
   avatarURL: string | null
 }
 
-export interface IApiGuild extends Omit<Guild, 'iconURL'> {
+export interface IClientGuild extends Omit<Guild, 'iconURL'> {
   iconURL: string | null
 }

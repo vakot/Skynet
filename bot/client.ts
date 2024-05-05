@@ -34,6 +34,17 @@ export class SkynetClient<Ready extends boolean = boolean> extends Client<Ready>
 
   constructor(options: any) {
     super(options)
+
+    const load = async () => {
+      this._loadingStartAt = new Date()
+      await this.connect('Actions', () => this.loadGlobalActions())
+      await this.connect('Listeners', () => this.loadListeners())
+      await this.connect('Commands', () => this.loadGlobalCommands())
+      await this.connect('Database', () => this.loadDatabase())
+      await this.connect('Client', () => this.loadClient())
+    }
+
+    load()
   }
 
   private async loadListeners(): Promise<void> {
@@ -90,15 +101,6 @@ export class SkynetClient<Ready extends boolean = boolean> extends Client<Ready>
           .then((cmd) => this.logger.log(` ${this.logger.traceTag} /${cmd?.name} deleted`))
       }
     })
-  }
-
-  async load(): Promise<void> {
-    this._loadingStartAt = new Date()
-    await this.connect('Actions', () => this.loadGlobalActions())
-    await this.connect('Listeners', () => this.loadListeners())
-    await this.connect('Commands', () => this.loadGlobalCommands())
-    await this.connect('Database', () => this.loadDatabase())
-    await this.connect('Client', () => this.loadClient())
   }
 
   async connect(name: string, callback: () => Promise<void> | void) {

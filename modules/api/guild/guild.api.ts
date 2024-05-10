@@ -7,27 +7,35 @@ export const guildApi = createApi({
   refetchOnReconnect: true,
   baseQuery: fetchBaseQuery({ baseUrl: `/api/` }),
   endpoints: (builder) => ({
-    getGuilds: builder.query<IGuild[], string[] | string | undefined | void>({
-      query: (ids) => ({
+    getGuilds: builder.query<IGuild[], { ids?: string[] | string } | void>({
+      query: (query) => ({
         url: 'guild',
         method: 'GET',
-        query: { ids },
+        ...(!!query && { query }),
       }),
     }),
-    getGuildById: builder.query<IGuild, string | undefined | void>({
+    getGuild: builder.query<IGuild, string | undefined>({
       query: (id) => ({
         url: `guild/${id}`,
         method: 'GET',
       }),
     }),
-    postGuild: builder.mutation<IGuild, Partial<IGuild>>({
+    addGuild: builder.mutation<IGuild, Partial<Omit<IGuild, '_id'>>>({
+      query: (body) => ({
+        url: 'guild',
+        method: 'POST',
+        body,
+      }),
+    }),
+    editGuild: builder.mutation<IGuild, Partial<Omit<IGuild, '_id'>>>({
       query: ({ id, ...body }) => ({
         url: `guild/${id}`,
-        method: 'POST',
+        method: 'PATCH',
         body,
       }),
     }),
   }),
 })
 
-export const { useGetGuildsQuery, useGetGuildByIdQuery, usePostGuildMutation } = guildApi
+export const { useGetGuildsQuery, useGetGuildQuery, useAddGuildMutation, useEditGuildMutation } =
+  guildApi

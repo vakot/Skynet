@@ -38,20 +38,31 @@ export class SkynetClient<Ready extends boolean = boolean> extends Client<Ready>
     const load = async () => {
       this._loadingStartAt = new Date()
       await this.connect('Actions', () => this.loadGlobalActions())
-      await this.connect('Listeners', () => this.loadListeners())
-      await this.connect('Commands', () => this.loadGlobalCommands())
+      await this.connect('Listeners', () => this.loadGlobalListeners())
+      await this.connect('Events', () => this.loadEvents())
       await this.connect('Database', () => this.loadDatabase())
       await this.connect('Client', () => this.loadClient())
+      await this.connect('Commands', () => this.loadGlobalCommands())
+      // await this._drop()
     }
 
     load()
   }
 
-  private async loadListeners(): Promise<void> {
+  private async loadGlobalListeners(): Promise<void> {
+    // Object.values(SkynetEventListeners).forEach((event) => {
+    //   this.logger.log(` ${this.logger.traceTag} ${event.type}`)
+    //   this[event.once ? 'once' : 'on'](event.type, (...args) =>
+    //     event.init(this, ...args).catch((error: any) => this.logger.error(error))
+    //   )
+    // })
+  }
+
+  private async loadEvents(): Promise<void> {
     Object.values(SkynetEventListeners).forEach((event) => {
       this.logger.log(` ${this.logger.traceTag} ${event.type}`)
       this[event.once ? 'once' : 'on'](event.type, (...args) =>
-        event.init(this, ...args).catch(this.logger.error)
+        event.init(this, ...args).catch((error: any) => this.logger.error(error))
       )
     })
   }
@@ -70,7 +81,9 @@ export class SkynetClient<Ready extends boolean = boolean> extends Client<Ready>
     this._globalActions = Object.values(SkynetActions)
     this._globalActions.forEach((action) => {
       this.logger.log(` ${this.logger.traceTag} ${action.name}`)
-      this.on(action.event, (...args) => action.execute(this, ...args).catch(this.logger.error))
+      this.on(action.event, (...args) =>
+        action.execute(this, ...args).catch((error: any) => this.logger.error(error))
+      )
     })
   }
 
@@ -130,15 +143,15 @@ export class SkynetClient<Ready extends boolean = boolean> extends Client<Ready>
     this.destroy()
   }
 
-  // private async _drop(): Promise<void> {
-  //   const commands = await this.application?.commands.fetch()
+  private async _drop(): Promise<void> {
+    const commands = await this.application?.commands.fetch()
 
-  //   commands?.forEach(
-  //     async (command) =>
-  //       await command
-  //         .delete()
-  //         .then((command) => this.logger.info(`[INFO] /${command?.name} deleted`))
-  //   )
-  //   this.disconnect()
-  // }
+    commands?.forEach(
+      async (command) =>
+        await command
+          .delete()
+          .then((cmd) => this.logger.log(` ${this.logger.traceTag} /${cmd?.name} deleted`))
+    )
+    this.disconnect()
+  }
 }

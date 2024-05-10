@@ -1,20 +1,26 @@
-import { ApplicationCommand, ApplicationCommandData } from 'discord.js'
+import { ApplicationCommand, ApplicationCommandData, Guild } from 'discord.js'
 
 import { SkynetClient } from '@bot/client'
 
 export async function findCommand(
   client: SkynetClient,
-  name: string | undefined
+  id: string | undefined,
+  guildId?: Guild['id']
 ): Promise<ApplicationCommand | undefined> {
-  return (await client.application?.commands.fetch())?.find((command) => command.name === name)
+  const commands = guildId
+    ? await client.guilds.cache.get(guildId)?.commands.fetch()
+    : await client.application?.commands.fetch()
+
+  return commands?.find((command) => command.id === id)
 }
 
 export async function createCommand(
   client: SkynetClient,
-  command: ApplicationCommandData
+  command: ApplicationCommandData,
+  guildId?: Guild['id']
 ): Promise<ApplicationCommand | undefined> {
   if (!command) return
-  return client.application?.commands.create(command)
+  return client.application?.commands.create(command, guildId)
 }
 
 export async function updateCommand(
@@ -22,7 +28,7 @@ export async function updateCommand(
   id: string | undefined,
   command: ApplicationCommandData
 ): Promise<ApplicationCommand | undefined> {
-  if (!id) return
+  if (!id || !command) return
   return client.application?.commands.edit(id, command)
 }
 

@@ -1,5 +1,5 @@
 import { AppRoutes as _AppRoutes } from '@utils/routes'
-import { nextToAxiosRequest as _nextToAxiosRequest } from './nextToAxiosRequest'
+import { nextToAxiosRequest as _nextToAxiosRequest } from './helpers/nextToAxiosRequest'
 
 const utils = {
   nextToAxiosRequest: _nextToAxiosRequest,

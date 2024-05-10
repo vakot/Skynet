@@ -1,4 +1,11 @@
-import { IClientGuild, IClientUser } from '@modules/api/client/client.api.types'
+import {
+  GetClientGuildRequest,
+  GetClientGuildResponse,
+  GetClientGuildsRequest,
+  GetClientGuildsResponse,
+  GetClientRequest,
+  GetClientResponse,
+} from '@modules/api/client/client.api.types'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
 export const clientApi = createApi({
@@ -7,23 +14,34 @@ export const clientApi = createApi({
   refetchOnReconnect: true,
   baseQuery: fetchBaseQuery({ baseUrl: `/api/` }),
   endpoints: (builder) => ({
-    getClient: builder.query<IClientUser, void>({
+    getClient: builder.query<GetClientResponse, GetClientRequest>({
       query: () => 'client',
     }),
-    getClientGuilds: builder.query<IClientGuild[], string[] | string | undefined | void>({
-      query: (ids) => ({
+    getClientGuilds: builder.query<GetClientGuildsResponse, GetClientGuildsRequest>({
+      query: (query) => ({
         url: 'client/guild',
         method: 'GET',
-        query: { ids },
+        ...(!!query && { query }),
       }),
     }),
-    getClientGuildById: builder.query<IClientGuild, string[] | string | undefined | void>({
+    getClientGuild: builder.query<GetClientGuildResponse, GetClientGuildRequest>({
       query: (id) => ({
         url: `client/guild/${id}`,
+        method: 'GET',
+      }),
+    }),
+    getPermissionFlagsBits: builder.query<any, void>({
+      query: () => ({
+        url: `client/permissions`,
         method: 'GET',
       }),
     }),
   }),
 })
 
-export const { useGetClientQuery, useGetClientGuildsQuery, useGetClientGuildByIdQuery } = clientApi
+export const {
+  useGetClientQuery,
+  useGetClientGuildsQuery,
+  useGetClientGuildQuery,
+  useGetPermissionFlagsBitsQuery,
+} = clientApi

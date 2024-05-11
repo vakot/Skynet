@@ -37,12 +37,12 @@ export class SkynetClient<Ready extends boolean = boolean> extends Client<Ready>
 
     const load = async () => {
       this._loadingStartAt = new Date()
-      await this.connect('Actions', () => this.loadGlobalActions())
-      await this.connect('Listeners', () => this.loadGlobalListeners())
-      await this.connect('Events', () => this.loadEvents())
-      await this.connect('Database', () => this.loadDatabase())
-      await this.connect('Client', () => this.loadClient())
-      await this.connect('Commands', () => this.loadGlobalCommands())
+      // await this.connect('Actions', async () => await this.loadGlobalActions())
+      // await this.connect('Listeners', async () => await this.loadGlobalListeners())
+      await this.connect('Events', async () => await this.loadEvents())
+      await this.connect('Database', async () => await this.loadDatabase())
+      await this.connect('Client', async () => await this.loadClient())
+      // await this.connect('Commands', async () => await this.loadGlobalCommands())
       // await this._drop()
     }
 
@@ -144,13 +144,30 @@ export class SkynetClient<Ready extends boolean = boolean> extends Client<Ready>
   }
 
   private async _drop(): Promise<void> {
+    const guilds = this.guilds.cache
+
+    guilds.forEach(async (guild) => {
+      const commands = await guild.commands.fetch()
+
+      commands?.forEach(
+        async (command) =>
+          await command
+            .delete()
+            .then((cmd) =>
+              this.logger.log(
+                ` ${this.logger.traceTag} /${cmd.name} deleted for guild ${guild.name}`
+              )
+            )
+      )
+    })
+
     const commands = await this.application?.commands.fetch()
 
     commands?.forEach(
       async (command) =>
         await command
           .delete()
-          .then((cmd) => this.logger.log(` ${this.logger.traceTag} /${cmd?.name} deleted`))
+          .then((cmd) => this.logger.log(` ${this.logger.traceTag} /${cmd.name} deleted`))
     )
     this.disconnect()
   }

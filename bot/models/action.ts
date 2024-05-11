@@ -1,4 +1,4 @@
-import { Permissions, Snowflake } from 'discord.js'
+import { User } from 'discord.js'
 import mongoose, { Schema } from 'mongoose'
 
 import { SkynetClient } from '@bot/client'
@@ -6,11 +6,8 @@ import { ICategory } from '@bot/models/category'
 import { IDocument } from '@bot/models/document'
 import { SkynetEvents } from '@bot/models/event'
 
-export interface IAction extends IDocument<Snowflake> {
-  /**
-   * Author
-   */
-  author?: string
+export interface IAction extends IDocument {
+  author?: User
   /**
    * Title to be shown in constructor
    */
@@ -41,21 +38,22 @@ export interface IAction extends IDocument<Snowflake> {
   devsOnly?: boolean
 
   /**
+   * Permission bitfield (32-bit number)
+   *
    * Permissions the user must have to perform action. Can be ovewrited in
    * `SlashCommands` but for components such as `Button` or `Select` this field will be used
    */
-  permissions?: Array<Permissions>
+  permissions?: number
 
   /**
    * Used to sort actions by categories. Categories only used in `/help` command
    */
   category?: ICategory
 
-  // // TODO: separated mongoose document
-  // /**
-  //  * Used to store action runs history
-  //  */
-  // history?: { userId: Snowflake; timestamp: Date }[]
+  /**
+   * Availible only for this.author user
+   */
+  private?: boolean
 
   /**
    * Main action body function that should do all the work
@@ -67,7 +65,6 @@ export interface IAction extends IDocument<Snowflake> {
 
 export const ActionSchema: Schema = new Schema<IAction>(
   {
-    _id: { type: String, required: true },
     author: { type: String, required: false },
     name: { type: String, required: false },
     description: { type: String, required: false },
@@ -75,9 +72,9 @@ export const ActionSchema: Schema = new Schema<IAction>(
     cooldown: { type: Number, required: false },
     testOnly: { type: Boolean, required: false },
     devsOnly: { type: Boolean, required: false },
-    permissions: { type: [String], default: [] },
-    category: { type: Schema.Types.ObjectId, ref: 'Category', required: false },
-    // history: { type: [{ userId: String, timestamp: Date }], required: false },
+    permissions: { type: Number, required: false },
+    private: { type: Boolean, default: false },
+    category: { type: String, ref: 'category', required: false },
     execute: { type: String, required: true },
   },
   {
@@ -95,4 +92,4 @@ export const ActionSchema: Schema = new Schema<IAction>(
 
 export const Action =
   (mongoose.models.Action as mongoose.Model<IAction>) ||
-  mongoose.model<IAction>('Action', ActionSchema)
+  mongoose.model<IAction>('action', ActionSchema)

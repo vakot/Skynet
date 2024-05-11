@@ -1,9 +1,8 @@
-import { ChatInputCommandInteraction, Collection, Snowflake } from 'discord.js'
+import { ChatInputCommandInteraction } from 'discord.js'
 
 import { SkynetClient } from '@bot/client'
 import { IAction } from '@bot/models/action'
 import { SkynetEvents } from '@bot/models/event'
-import { Guild, IGuild } from '@bot/models/guild'
 import { isCommand } from '@bot/utils/command'
 
 export default {
@@ -55,20 +54,20 @@ export default {
         })
       }
 
-      await client.application?.commands.create(command, guildId)
-      const guild: IGuild | null = await Guild.findById(guildId)
+      // await client.application?.commands.create(command, guildId)
+      // const guild: IGuild | null = await Guild.findById(guildId)
 
-      if (!guild) {
-        new Guild({
-          _id: guildId,
-          command: new Collection<Snowflake, string>([[command.name, actionId]]),
-        }).save()
-      } else {
-        Guild.updateOne(
-          { _id: guild._id },
-          { ...guild, command: guild.commands.set(command.name, actionId) }
-        )
-      }
+      // if (!guild) {
+      //   new Guild({
+      //     _id: guildId,
+      //     command: new Collection<Snowflake, string>([[command.name, actionId]]),
+      //   }).save()
+      // } else {
+      //   Guild.updateOne(
+      //     { _id: guild._id },
+      //     { ...guild, command: guild.commands.set(command.name, actionId) }
+      //   )
+      // }
 
       return interaction
         .reply({

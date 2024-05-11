@@ -1,8 +1,8 @@
 import { ChatInputCommandInteraction, Events } from 'discord.js'
 
 import { SkynetClient } from '@bot/client'
-import { IEvent } from '@bot/models/event'
-import { Guild, IGuild } from '@bot/models/guild'
+import { IEvent, SkynetEvents } from '@bot/models/event'
+import { Listener } from '@bot/models/listener'
 
 export default {
   type: Events.InteractionCreate,
@@ -11,62 +11,48 @@ export default {
       return
     }
 
-    const globalCommand = client.globalCommands.find(({ name }) => interaction.commandName === name)
+    const { commandId } = interaction
 
-    if (globalCommand) {
-      const action = client.globalActions.find(({ name }) => globalCommand.name === name)
+    const listener = await Listener.findOne({
+      component: commandId,
+    }).populate('action')
 
-      if (!action) {
-        return interaction.reply({
-          content: 'Unknown action! X_X',
-          ephemeral: true,
-        })
-      }
-
-      try {
-        // action.history?.push({
-        //   userId: interaction.user.id,
-        //   timestamp: new Date(),
-        // })
-        return action.execute(client, interaction)
-      } catch (error) {
-        return client.logger.error(error)
-      }
-    }
-
-    const guild: IGuild | null = await Guild.findById(interaction.guildId)
-
-    if (!guild) {
+    if (!listener) {
       return interaction.reply({
-        content: 'Unknown guild! X_X',
+        content: 'No listeners for this command provided',
         ephemeral: true,
       })
     }
 
-    console.log(guild)
+    if (listener.event !== SkynetEvents.CommandInteraction) {
+      return interaction.reply({
+        content: 'The listener for this command has wrong event type',
+        ephemeral: true,
+      })
+    }
 
-    // const action: IAction = (
-    //   await Action.findById(guild?.[SkynetEvents.CommandInteraction].get(interaction.commandName))
-    // )?.toObject()
+    if (listener.guild !== interaction.commandGuildId) {
+      return interaction.reply({
+        content: 'The listener for this command is not for this server',
+        ephemeral: true,
+      })
+    }
 
-    // if (!action) {
-    //   return interaction.reply({
-    //     content: 'Unknown action! X_X',
-    //     ephemeral: true,
-    //   })
-    // }
+    if (!listener.action) {
+      return interaction.reply({
+        content: "The listener for this command can't be executed",
+        ephemeral: true,
+      })
+    }
 
-    // try {
-    //   action.history?.push({
-    //     userId: interaction.user.id,
-    //     timestamp: new Date(),
-    //   })
-    //   if ('_id' in action) {
-    //     Action.updateOne({ _id: action._id }, action)
-    //   }
-    //   return action.execute(client, interaction)
-    // } catch (error) {
-    //   return client.logger.error(error)
-    // }
+    try {
+      return listener.action.toObject().execute(client, interaction)
+    } catch (error) {
+      interaction.reply({
+        content: 'The listener for this command failed to be executed',
+        ephemeral: true,
+      })
+      return client.logger.error(error)
+    }
   },
 } as IEvent

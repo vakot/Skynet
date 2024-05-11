@@ -1,0 +1,48 @@
+@import '@styles/variables.scss';
+
+.Sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+
+  width: 72px;
+  height: 100vh;
+  background-color: $background_dark;
+
+  z-index: 9999;
+
+  padding: 12px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+
+  .Image {
+    width: 48px;
+    height: 48px;
+
+    border-radius: 50%;
+
+    transition: border-radius 0.3s;
+
+    &:hover {
+      border-radius: 30%;
+    }
+  }
+
+  .Container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+  }
+
+  .Guilds {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+}

@@ -1,5 +1,6 @@
 {
-  "execMap": {
-    "ts": "ts-node"
-  }
+  "ext": "js,ts,json,jsx,tsx",
+  "ignore": ["bot/**/*.spec.ts"],
+  "watch": ["bot"],
+  "exec": "ts-node"
 }

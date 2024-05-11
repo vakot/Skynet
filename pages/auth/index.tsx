@@ -1,7 +1,6 @@
 import { ArrowLeftOutlined, DiscordFilled } from '@ant-design/icons'
-import { Button } from '@components/UI/Button'
-import { Separator } from '@components/UI/Separator'
 import utils from '@utils/index'
+import { Button } from 'antd'
 import classNames from 'classnames'
 import type { GetServerSidePropsContext } from 'next'
 import { getServerSession } from 'next-auth/next'
@@ -23,7 +22,6 @@ const SignInPage: React.FC<void> = () => {
         <DiscordFilled />
         <p>Login with Discord</p>
       </Button>
-      <Separator style={{ width: 240 }} />
       <Button
         className={classNames(styles.Button, styles.Back)}
         onClick={() => router.back() /* TODO: test and maybe replace with direct path */}

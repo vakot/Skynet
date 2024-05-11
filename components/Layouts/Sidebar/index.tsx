@@ -1,5 +1,4 @@
 import { LoadingOutlined } from '@ant-design/icons'
-import { Separator } from '@components/UI/Separator'
 import { useGetClientQuery } from '@modules/api/client/client.api'
 import { useGetGuildsQuery } from '@modules/api/guild/guild.api'
 import utils from '@utils/index'
@@ -35,7 +34,7 @@ const Sidebar: React.FC<any> = ({}) => {
         </div>
       )}
 
-      <Separator />
+      <div />
 
       <ul className={styles.Guilds}>
         {isGuildsLoading || isClientLoading ? (

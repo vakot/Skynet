@@ -1,5 +1,5 @@
-import { Button } from '@components/UI/Button'
 import utils from '@utils/index'
+import { Button } from 'antd'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 

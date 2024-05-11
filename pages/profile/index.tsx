@@ -1,51 +1,56 @@
-import { Button } from '@components/UI/Button'
-import { Card } from '@components/UI/Card'
+import { UserOutlined } from '@ant-design/icons'
 import utils from '@utils/index'
+import { Avatar, Button, Card, Flex, Space } from 'antd'
 import { GetServerSidePropsContext } from 'next'
 import { getServerSession } from 'next-auth'
 import { signOut, useSession } from 'next-auth/react'
-import Image from 'next/image'
 import { useRouter } from 'next/router'
 import { authOptions } from 'pages/api/auth/[...nextauth]'
 import styles from './style.module.scss'
 
 const ProfilePage: React.FC<void> = () => {
   const router = useRouter()
+
   const { data: session } = useSession()
 
   return (
     <section className={styles.Container}>
-      <Card className={styles.Card}>
-        <Card className={styles.Avatar}>
-          <Image width={240} height={240} src={session!.user?.image ?? ''} alt="avatar" />
-        </Card>
+      <Card>
+        <Space size="large">
+          <Avatar
+            size={240}
+            icon={<UserOutlined />}
+            src={session?.user?.image}
+            className={styles.Avatar}
+          />
 
-        <div className={styles.About}>
-          <div className={styles.Name}>{session!.user?.name}</div>
-          <div className={styles.Description}>{session!.user?.email}</div>
-        </div>
+          <Space direction="vertical" size="middle" align="center">
+            <div className={styles.Name}>{session?.user?.name}</div>
+            <div className={styles.Description}>{session?.user?.email}</div>
 
-        <div className={styles.Statistic}>
-          <div>
-            <span>2</span>
-            <span>GUILDS</span>
-          </div>
-          <div>
-            <span>12</span>
-            <span>ACTIONS</span>
-          </div>
-          <div>
-            <span>1.1k</span>
-            <span>USAGES</span>
-          </div>
-        </div>
+            <Flex gap={16}>
+              <Space direction="vertical" align="center" size={0}>
+                <span>2</span>
+                <span>GUILDS</span>
+              </Space>
+              <Space direction="vertical" align="center" size={0}>
+                <span>12</span>
+                <span>ACTIONS</span>
+              </Space>
+              <Space direction="vertical" align="center" size={0}>
+                <span>1.1k</span>
+                <span>USAGES</span>
+              </Space>
+            </Flex>
 
-        <div className={styles.Buttons}>
-          <Button type="primary" onClick={() => router.push(utils.AppRoutes.DASHBOARD)}>
-            Dashboard
-          </Button>
-          <Button onClick={() => signOut()}>Logout</Button>
-        </div>
+            <Flex gap={32}>
+              <Button type="primary" onClick={() => router.push(utils.AppRoutes.DASHBOARD)}>
+                Dashboard
+              </Button>
+              <Button onClick={() => signOut()}>Logout</Button>
+            </Flex>
+          </Space>
+        </Space>
       </Card>
     </section>
   )

@@ -9,80 +9,55 @@
   height: 100vh;
 }
 
-.Card {
-  width: 320px;
-  padding: 220px 40px 40px 40px;
-  position: relative;
-  color: $background_dark;
+.Avatar {
+  border-radius: 16px;
+  transition: border-radius 0.3s;
 
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 32px;
-
-  .Avatar {
-    position: absolute;
-    top: -40px;
-    display: flex;
-    border-radius: 16px;
-    width: calc(100% - 80px);
-    overflow: hidden;
-
-    transition: border-radius 0.3s;
-
-    &:hover {
-      border-radius: 50%;
-    }
+  &:hover {
+    border-radius: 50%;
   }
+}
 
-  .About {
+.Name {
+  color: $primary_blurple;
+  font-weight: bolder;
+  font-size: 32px;
+}
+.Description {
+  font-size: 16px;
+  font-weight: lighter;
+  color: gray;
+}
+
+.Statistic {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  gap: 16px;
+
+  > div {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 4px;
 
-    .Name {
-      color: $primary_blurple;
-      font-weight: bolder;
-      font-size: 32px;
+    > span:nth-child(1) {
+      color: white;
+      font-size: 20px;
+      font-weight: bold;
     }
-    .Description {
-      font-size: 16px;
-      font-weight: lighter;
+    > span:nth-child(2) {
       color: gray;
+      font-size: 12px;
     }
   }
+}
 
-  .Statistic {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-    gap: 16px;
+.Buttons {
+  display: flex;
+  gap: 8px;
 
-    > div {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-
-      > span:nth-child(1) {
-        color: white;
-        font-size: 20px;
-        font-weight: bold;
-      }
-      > span:nth-child(2) {
-        color: gray;
-        font-size: 12px;
-      }
-    }
-  }
-
-  .Buttons {
-    display: flex;
-    gap: 8px;
-
-    > button {
-      min-width: 120px;
-    }
+  > button {
+    min-width: 120px;
   }
 }

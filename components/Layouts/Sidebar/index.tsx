@@ -1,6 +1,7 @@
 import { LoadingOutlined } from '@ant-design/icons'
 import { Separator } from '@components/UI/Separator'
-import { useGetClientGuildsQuery, useGetClientQuery } from '@modules/api/client/client.api'
+import { useGetClientQuery } from '@modules/api/client/client.api'
+import { useGetGuildsQuery } from '@modules/api/guild/guild.api'
 import utils from '@utils/index'
 import { Spin, Tooltip } from 'antd'
 import { useSession } from 'next-auth/react'
@@ -12,7 +13,7 @@ const Sidebar: React.FC<any> = ({}) => {
   const router = useRouter()
   const { data: session } = useSession()
   const { data: client, isLoading: isClientLoading } = useGetClientQuery()
-  const { data: guilds, isLoading: isGuildsLoading } = useGetClientGuildsQuery()
+  const { data: guilds, isLoading: isGuildsLoading } = useGetGuildsQuery()
 
   return (
     <div className={styles.Sidebar}>

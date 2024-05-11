@@ -1,22 +1,32 @@
+import Sidebar from '@components/Layouts/Sidebar'
+import { Layout } from 'antd'
 import classNames from 'classnames'
-import { useRouter } from 'next/router'
-import Menu from '../Menu'
-import Sidebar from '../Sidebar'
 import styles from './style.module.scss'
 
-const Main: React.FC<any> = ({ children, className }) => {
-  const router = useRouter()
-
-  const guildId = router.query.guild as string
-
+const Main: React.FC<{ children?: React.ReactNode; className?: string }> = ({
+  children,
+  className,
+}) => {
   return (
-    <>
+    <Layout className={classNames(styles.Main, className)}>
       <Sidebar />
-      {guildId && <Menu guild={guildId} />}
-      <main className={classNames(styles.Main, { [styles.MenuCollapsed]: !guildId }, className)}>
-        {children}
-      </main>
-    </>
+
+      <Layout style={{ padding: 16 }}>
+        <Layout.Content>
+          {/* <div
+            style={{
+              padding: 32,
+              minHeight: 'calc(100vh - 32px)',
+              background: 'white',
+              borderRadius: 16,
+            }}
+          >
+            {children}
+          </div> */}
+          {children}
+        </Layout.Content>
+      </Layout>
+    </Layout>
   )
 }
 

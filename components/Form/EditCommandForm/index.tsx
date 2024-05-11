@@ -1,4 +1,3 @@
-import { IGuild } from '@bot/models/guild'
 import { EditFormProps } from '@components/Form'
 import {
   useAddCommandMutation,
@@ -7,12 +6,12 @@ import {
 } from '@modules/api/command/command.api'
 import { useGetGuildQuery, useGetGuildsQuery } from '@modules/api/guild/guild.api'
 import { Button, Flex, Form, FormInstance, Input, Select } from 'antd'
-import { ApplicationCommand } from 'discord.js'
+import { ApplicationCommand, BaseGuild } from 'discord.js'
 import { useEffect } from 'react'
 
 export interface EditCommandFormProps extends EditFormProps {
   command?: ApplicationCommand['id']
-  guild?: IGuild['_id']
+  guild?: BaseGuild['id']
   onFinish?: (value?: ApplicationCommand) => void
 }
 

@@ -1,41 +1,34 @@
-import { IGuild } from '@bot/models/guild'
+import {
+  GetGuildRequest,
+  GetGuildResponse,
+  GetGuildsRequest,
+  GetGuildsResponse,
+} from '@modules/api/guild/guild.api.types'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
 export const guildApi = createApi({
   reducerPath: 'guildApi',
   refetchOnFocus: true,
   refetchOnReconnect: true,
+  tagTypes: ['Guild'],
   baseQuery: fetchBaseQuery({ baseUrl: `/api/` }),
   endpoints: (builder) => ({
-    getGuilds: builder.query<IGuild[], { ids?: string[] | string } | void>({
+    getGuilds: builder.query<GetGuildsResponse, GetGuildsRequest>({
       query: (query) => ({
         url: 'guild',
         method: 'GET',
-        ...(!!query && { query }),
+        ...(!!query && { params: query }),
       }),
+      providesTags: ['Guild'],
     }),
-    getGuild: builder.query<IGuild, string | undefined>({
+    getGuild: builder.query<GetGuildResponse, GetGuildRequest>({
       query: (id) => ({
         url: `guild/${id}`,
         method: 'GET',
       }),
-    }),
-    addGuild: builder.mutation<IGuild, Partial<Omit<IGuild, '_id'>>>({
-      query: (body) => ({
-        url: 'guild',
-        method: 'POST',
-        body,
-      }),
-    }),
-    editGuild: builder.mutation<IGuild, Partial<Omit<IGuild, '_id'>>>({
-      query: ({ id, ...body }) => ({
-        url: `guild/${id}`,
-        method: 'PATCH',
-        body,
-      }),
+      providesTags: ['Guild'],
     }),
   }),
 })
 
-export const { useGetGuildsQuery, useGetGuildQuery, useAddGuildMutation, useEditGuildMutation } =
-  guildApi
+export const { useGetGuildsQuery, useGetGuildQuery } = guildApi

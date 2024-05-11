@@ -21,7 +21,7 @@ export const actionApi = createApi({
       query: (query) => ({
         url: 'action',
         method: 'GET',
-        ...(!!query && { query }),
+        ...(!!query && { params: query }),
       }),
       providesTags: ['Action'],
     }),

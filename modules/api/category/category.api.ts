@@ -7,7 +7,7 @@ import {
   PatchCategoryResponse,
   PostCategoryRequest,
   PostCategoryResponse,
-} from '@modules/api/action-category/action-category.api.types'
+} from '@modules/api/category/category.api.types'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
 export const categoryApi = createApi({
@@ -19,22 +19,22 @@ export const categoryApi = createApi({
   endpoints: (builder) => ({
     getCategories: builder.query<GetCategoriesResponse, GetCategoriesRequest>({
       query: (query) => ({
-        url: `action-category`,
+        url: `category`,
         method: 'GET',
-        ...(!!query && { query }),
+        ...(!!query && { params: query }),
       }),
       providesTags: ['Category'],
     }),
     getCategory: builder.query<GetCategoryResponse, GetCategoryRequest>({
       query: (id) => ({
-        url: `action-category/${id}`,
+        url: `category/${id}`,
         method: 'GET',
       }),
       providesTags: ['Category'],
     }),
     addCategory: builder.mutation<PostCategoryResponse, PostCategoryRequest>({
       query: (body) => ({
-        url: `action-category`,
+        url: `category`,
         method: 'POST',
         body,
       }),
@@ -42,7 +42,7 @@ export const categoryApi = createApi({
     }),
     editCategory: builder.mutation<PatchCategoryResponse, PatchCategoryRequest>({
       query: ({ id, ...body }) => ({
-        url: `action-category/${id}`,
+        url: `category/${id}`,
         method: 'PATCH',
         body,
       }),

@@ -20,7 +20,7 @@ export const listenerApi = createApi({
       query: (query) => ({
         url: 'listener',
         method: 'GET',
-        // ...(!!query && { query }),
+        ...(!!query && { params: query }),
       }),
     }),
     getListener: builder.query<GetListenerResponse, GetListenerRequest>({

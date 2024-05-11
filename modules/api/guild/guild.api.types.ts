@@ -1,4 +1,17 @@
-import { IGuild } from '@bot/models/guild'
+import { BaseGuild } from 'discord.js'
 
-export interface PostGuildResponse extends IGuild {}
-export interface PostGuildRequest extends Partial<IGuild> {}
+export type GetGuildsResponse =
+  | Array<
+      Omit<BaseGuild, 'iconURL'> & {
+        iconURL: string | null
+      }
+    >
+  | undefined
+export type GetGuildsRequest = {
+  ids?: string[]
+} | void
+
+export type GetGuildResponse = Omit<BaseGuild, 'iconURL'> & {
+  iconURL: string | null
+}
+export type GetGuildRequest = string | undefined | void

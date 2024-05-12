@@ -8,7 +8,6 @@ export interface IEvent {
 }
 
 export enum SkynetEvents {
-  Empty = '',
   ClientReady = 'client-ready',
   ClientWarn = 'client-warn',
   ClientError = 'client-error',

@@ -2,8 +2,8 @@
   "name": "skynet",
   "version": "3.0.0",
   "author": "Vakot",
-  "license": "ISC",
-  "description": "I'll create a description in future",
+  "license": "MIT",
+  "description": "All-purpose Discord bot with highly customisible interface. Basically the bot is just a framework for creating simple and isolated event listeners and responses. Every user can create actions for different events, such as slash-commands, message-commands, voice events, buttons, menus and so on. Commands, buttons and menus also can be registered directly from WEB-application.",
   "keywords": [
     "bot",
     "discord"

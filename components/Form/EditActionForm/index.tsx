@@ -90,7 +90,7 @@ export const EditActionForm: React.FC<EditActionFormProps> = ({
       <Name form={form} action={action} />
       <Description form={form} action={action} />
       <Category form={form} action={action} />
-      <Event form={form} action={action} />
+      <Event form={form} action={action} disabled={!!actionId && !!action} />
       <Permissions form={form} action={action} />
       <Cooldown form={form} action={action} />
       {/* TODO: DevsOnly and testOnly radio buttons row (only for members of dev server with required role) */}
@@ -113,25 +113,24 @@ export const EditActionForm: React.FC<EditActionFormProps> = ({
 interface EditActionFormItem {
   form: FormInstance
   action?: IAction
+  disabled?: boolean
 }
 
-const Name: React.FC<EditActionFormItem> = ({ form, action }) => {
+const Name: React.FC<EditActionFormItem> = ({ form, action, disabled }) => {
   return (
     <Form.Item label="Name" name="name">
-      <Input placeholder="Name..." />
+      <Input placeholder="Name..." disabled={disabled} />
     </Form.Item>
   )
 }
-const Description: React.FC<EditActionFormItem> = ({ form, action }) => {
+const Description: React.FC<EditActionFormItem> = ({ form, action, disabled }) => {
   return (
     <Form.Item label="Description" name="description">
-      <Input.TextArea rows={3} placeholder="Description..." />
+      <Input.TextArea rows={3} placeholder="Description..." disabled={disabled} />
     </Form.Item>
   )
 }
-const Category: React.FC<EditActionFormItem> = ({ form, action }) => {
-  const [categoryForm] = Form.useForm()
-
+const Category: React.FC<EditActionFormItem> = ({ form, action, disabled }) => {
   const [isNestedFormOpen, setIsNestedFormOpen] = useState<boolean>(false)
 
   const { data: categories } = useGetCategoriesQuery()
@@ -148,7 +147,7 @@ const Category: React.FC<EditActionFormItem> = ({ form, action }) => {
             value={categoryId}
             onChange={(value: string) => form.setFieldValue('category', value)}
             onClear={() => form.setFieldValue('category', undefined)}
-            disabled={isNestedFormOpen}
+            disabled={disabled || isNestedFormOpen}
             placeholder="Category..."
             options={categories?.map((category) => ({
               label: category.emoji ? `${category.emoji} ${category.name}` : category.name,
@@ -158,7 +157,7 @@ const Category: React.FC<EditActionFormItem> = ({ form, action }) => {
           <Button
             type="primary"
             onClick={() => setIsNestedFormOpen(true)}
-            disabled={isNestedFormOpen}
+            disabled={disabled || isNestedFormOpen}
           >
             {categoryId ? 'Edit' : 'Create'}
           </Button>
@@ -169,7 +168,6 @@ const Category: React.FC<EditActionFormItem> = ({ form, action }) => {
         <Form.Item>
           <EditCategoryForm
             component={Card}
-            form={categoryForm}
             category={categoryId}
             onFinish={(value) => {
               form.setFieldValue('category', value?._id)
@@ -185,7 +183,7 @@ const Category: React.FC<EditActionFormItem> = ({ form, action }) => {
     </>
   )
 }
-const Event: React.FC<EditActionFormItem> = ({ form, action }) => {
+const Event: React.FC<EditActionFormItem> = ({ form, action, disabled }) => {
   return (
     <Form.Item
       label="Event"
@@ -197,21 +195,19 @@ const Event: React.FC<EditActionFormItem> = ({ form, action }) => {
         allowClear
         showSearch
         placeholder="Event..."
-        disabled={!!action}
-        options={Object.values(SkynetEvents)
-          .filter((skynetEvent) => skynetEvent)
-          .map((skynetEvent) => ({
-            label: skynetEvent
-              .split('-')
-              .map((word) => toTitleCase(word))
-              .join(' '),
-            value: skynetEvent,
-          }))}
+        disabled={disabled}
+        options={Object.values(SkynetEvents).map((skynetEvent) => ({
+          label: skynetEvent
+            .split('-')
+            .map((word) => toTitleCase(word))
+            .join(' '),
+          value: skynetEvent,
+        }))}
       />
     </Form.Item>
   )
 }
-const Permissions: React.FC<EditActionFormItem> = ({ form, action }) => {
+const Permissions: React.FC<EditActionFormItem> = ({ form, action, disabled }) => {
   const { data: permissionFlagsBits } = useGetPermissionsFlagsBitsQuery()
 
   return (
@@ -220,6 +216,7 @@ const Permissions: React.FC<EditActionFormItem> = ({ form, action }) => {
         mode="tags"
         allowClear
         showSearch
+        disabled={disabled}
         placeholder="Permissions..."
         options={Object.entries(
           Object.keys(permissionFlagsBits || {}).reduce((acc: any, key) => {
@@ -236,7 +233,7 @@ const Permissions: React.FC<EditActionFormItem> = ({ form, action }) => {
     </Form.Item>
   )
 }
-const Cooldown: React.FC<EditActionFormItem> = ({ form, action }) => {
+const Cooldown: React.FC<EditActionFormItem> = ({ form, action, disabled }) => {
   return (
     <Form.Item
       label="Cooldown"
@@ -258,19 +255,20 @@ const Cooldown: React.FC<EditActionFormItem> = ({ form, action }) => {
         },
       ]}
     >
-      <Input type="number" min={5} max={100} suffix="s" />
+      <Input type="number" min={5} max={100} suffix="s" disabled={disabled} />
     </Form.Item>
   )
 }
-const Execute: React.FC<EditActionFormItem> = ({ form, action }) => {
+const Execute: React.FC<EditActionFormItem> = ({ form, action, disabled }) => {
   const event = Form.useWatch('event', form)
 
   useEffect(() => {
-    form.setFieldValue(
-      'execute',
-      action?.execute.toString() ??
-        (event && event in executable ? (executable as any)[event] : undefined)
-    )
+    if (!action) {
+      form.setFieldValue(
+        'execute',
+        event && event in executable ? (executable as any)[event] : undefined
+      )
+    }
   }, [form, action, event])
 
   return (
@@ -296,7 +294,7 @@ const Execute: React.FC<EditActionFormItem> = ({ form, action }) => {
         },
       ]}
     >
-      <Input.TextArea rows={8} placeholder="Function..." />
+      <Input.TextArea rows={8} placeholder="Function..." disabled={disabled} />
     </Form.Item>
   )
 }

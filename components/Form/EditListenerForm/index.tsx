@@ -229,15 +229,13 @@ const Event: React.FC<EditListenerFormItem> = ({ form, listener, disabled }) => 
         showSearch
         placeholder="Event..."
         disabled={disabled || (!!actionId && !!action)}
-        options={Object.values(SkynetEvents)
-          .filter((skynetEvent) => skynetEvent)
-          .map((skynetEvent) => ({
-            label: skynetEvent
-              .split('-')
-              .map((word) => toTitleCase(word))
-              .join(' '),
-            value: skynetEvent,
-          }))}
+        options={Object.values(SkynetEvents).map((skynetEvent) => ({
+          label: skynetEvent
+            .split('-')
+            .map((word) => toTitleCase(word))
+            .join(' '),
+          value: skynetEvent,
+        }))}
       />
     </Form.Item>
   )

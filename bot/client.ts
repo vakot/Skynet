@@ -1,3 +1,4 @@
+import compression from 'compression'
 import {
   ApplicationCommand,
   ApplicationCommandData,
@@ -102,6 +103,7 @@ export class SkynetClient<Ready extends boolean = boolean> extends Client<Ready>
 
     server.use(express.urlencoded({ extended: true }))
     server.use(express.json())
+    server.use(compression())
 
     const routers = getFiles<express.Router>(path.join(__dirname, 'routes'))
 

@@ -11,11 +11,11 @@
   "scripts": {
     "dev": "npm-run-all --parallel dev:*",
     "dev:next": "next dev",
-    "dev:server": "nodemon bot/server",
+    "dev:server": "nodemon bot/index",
     "build": "next build",
     "start": "npm-run-all --parallel start:*",
     "start:next": "next start",
-    "start:server": "ts-node bot/server"
+    "start:server": "set NODE_ENV=production && ts-node bot/index"
   },
   "dependencies": {
     "@ant-design/icons": "^5.3.6",

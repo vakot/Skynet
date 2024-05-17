@@ -10,12 +10,15 @@ router.get('/action', async (req, res) => {
       return res.status(405).send('incompatible method')
     }
 
-    const { ids: actionIds } = req.query
+    const { ids: actionIds, event } = req.query
 
     const filter: FilterQuery<typeof Action> = {}
 
     if (actionIds) {
       filter._id = typeof actionIds === 'string' ? actionIds : { $in: actionIds }
+    }
+    if (event) {
+      filter.event = event
     }
 
     const actions = await Action.find(filter)

@@ -6,7 +6,10 @@ export type GetCommandsRequest = {
 } | void
 export type GetCommandsResponse = ApplicationCommand[] | undefined
 
-export type GetCommandRequest = string | undefined | void
+export type GetCommandRequest = {
+  id?: string
+  guild?: string
+}
 
 export type GetCommandResponse = ApplicationCommand
 

@@ -1,5 +1,5 @@
 import { UserOutlined } from '@ant-design/icons'
-import utils from '@utils/index'
+import { AppRoutes } from '@utils/routes'
 import { Avatar, Button, Card, Flex, Space } from 'antd'
 import { GetServerSidePropsContext } from 'next'
 import { getServerSession } from 'next-auth'
@@ -44,7 +44,7 @@ const ProfilePage: React.FC<void> = () => {
             </Flex>
 
             <Flex gap={32}>
-              <Button type="primary" onClick={() => router.push(utils.AppRoutes.DASHBOARD)}>
+              <Button type="primary" onClick={() => router.push(AppRoutes.DASHBOARD)}>
                 Dashboard
               </Button>
               <Button onClick={() => signOut()}>Logout</Button>
@@ -60,7 +60,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   const session = await getServerSession(context.req, context.res, authOptions)
 
   if (!session) {
-    return { redirect: { destination: utils.AppRoutes.AUTH } }
+    return { redirect: { destination: AppRoutes.AUTH } }
   }
 
   return {

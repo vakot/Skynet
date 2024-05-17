@@ -1,3 +1,4 @@
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import {
   GetActionRequest,
   GetActionResponse,
@@ -7,8 +8,7 @@ import {
   PatchActionResponse,
   PostActionRequest,
   PostActionResponse,
-} from '@modules/api/action/action.api.types'
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+} from './action.api.types'
 
 export const actionApi = createApi({
   reducerPath: 'actionApi',

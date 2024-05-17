@@ -284,7 +284,7 @@ export class SkynetClient<Ready extends boolean = boolean> extends Client<Ready>
     }
 
     if (!isCommandsEqual(command, remoteCommand as ApplicationCommandData)) {
-      return this.application?.commands.edit(id, command)
+      return remoteCommand.edit(command)
     }
   }
 

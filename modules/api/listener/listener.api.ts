@@ -1,3 +1,4 @@
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import {
   GetListenerRequest,
   GetListenerResponse,
@@ -7,13 +8,13 @@ import {
   PatchListenerResponse,
   PostListenerRequest,
   PostListenerResponse,
-} from '@modules/api/listener/listener.api.types'
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+} from './listener.api.types'
 
 export const listenerApi = createApi({
   reducerPath: 'listenerApi',
   refetchOnFocus: true,
   refetchOnReconnect: true,
+  tagTypes: ['Listener'],
   baseQuery: fetchBaseQuery({ baseUrl: `/api/` }),
   endpoints: (builder) => ({
     getListeners: builder.query<GetListenersResponse, GetListenersRequest>({
@@ -22,12 +23,14 @@ export const listenerApi = createApi({
         method: 'GET',
         ...(!!query && { params: query }),
       }),
+      providesTags: ['Listener'],
     }),
     getListener: builder.query<GetListenerResponse, GetListenerRequest>({
       query: (id) => ({
         url: `listener/${id}`,
         method: 'GET',
       }),
+      providesTags: ['Listener'],
     }),
     addListener: builder.mutation<PostListenerResponse, PostListenerRequest>({
       query: (body) => ({
@@ -35,6 +38,7 @@ export const listenerApi = createApi({
         method: 'POST',
         body,
       }),
+      invalidatesTags: ['Listener'],
     }),
     editListener: builder.mutation<PatchListenerResponse, PatchListenerRequest>({
       query: ({ id, ...body }) => ({
@@ -42,6 +46,7 @@ export const listenerApi = createApi({
         method: 'PATCH',
         body,
       }),
+      invalidatesTags: ['Listener'],
     }),
   }),
 })

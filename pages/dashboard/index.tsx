@@ -1,5 +1,5 @@
 import Main from '@components/Layouts/Main'
-import utils from '@utils/index'
+import { AppRoutes } from '@utils/routes'
 import { Card } from 'antd'
 import { GetServerSidePropsContext } from 'next'
 import { getServerSession } from 'next-auth'
@@ -17,7 +17,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   const session = await getServerSession(context.req, context.res, authOptions)
 
   if (!session) {
-    return { redirect: { destination: utils.AppRoutes.AUTH } }
+    return { redirect: { destination: AppRoutes.AUTH } }
   }
 
   return {

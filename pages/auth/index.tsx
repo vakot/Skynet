@@ -1,5 +1,5 @@
 import { ArrowLeftOutlined, DiscordFilled } from '@ant-design/icons'
-import utils from '@utils/index'
+import { AppRoutes } from '@utils/routes'
 import { Button } from 'antd'
 import classNames from 'classnames'
 import type { GetServerSidePropsContext } from 'next'
@@ -37,7 +37,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   const session = await getServerSession(context.req, context.res, authOptions)
 
   if (session) {
-    return { redirect: { destination: utils.AppRoutes.PROFILE } }
+    return { redirect: { destination: AppRoutes.PROFILE } }
   }
 
   return {

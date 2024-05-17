@@ -1,10 +1,10 @@
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import {
   GetGuildRequest,
   GetGuildResponse,
   GetGuildsRequest,
   GetGuildsResponse,
-} from '@modules/api/guild/guild.api.types'
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+} from './guild.api.types'
 
 export const guildApi = createApi({
   reducerPath: 'guildApi',

@@ -27,7 +27,6 @@
       "@store/*": ["modules/store/*"],
       "@assets/*": ["assets/*"],
       "@utils/*": ["utils/*"],
-      "@utils": ["utils/index"],
       "@styles/*": ["styles/*"],
       "@api/*": ["api/*"],
       "@bot/*": ["bot/*"]

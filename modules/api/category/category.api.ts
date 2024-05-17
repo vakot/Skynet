@@ -1,3 +1,4 @@
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import {
   GetCategoriesRequest,
   GetCategoriesResponse,
@@ -7,8 +8,7 @@ import {
   PatchCategoryResponse,
   PostCategoryRequest,
   PostCategoryResponse,
-} from '@modules/api/category/category.api.types'
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+} from './category.api.types'
 
 export const categoryApi = createApi({
   reducerPath: 'categoryApi',

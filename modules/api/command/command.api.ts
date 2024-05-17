@@ -1,3 +1,4 @@
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import type {
   GetCommandRequest,
   GetCommandResponse,
@@ -7,8 +8,7 @@ import type {
   PatchCommandResponse,
   PostCommandRequest,
   PostCommandResponse,
-} from '@modules/api/command/command.api.types'
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+} from './command.api.types'
 
 export const commandApi = createApi({
   reducerPath: 'commandApi',
@@ -26,8 +26,8 @@ export const commandApi = createApi({
       providesTags: ['Command'],
     }),
     getCommand: builder.query<GetCommandResponse, GetCommandRequest>({
-      query: (id) => ({
-        url: `command/${id}`,
+      query: ({ id, guild }) => ({
+        url: guild ? `command/${id}?guild=${guild}` : `command/${id}`,
         method: 'GET',
       }),
       providesTags: ['Command'],

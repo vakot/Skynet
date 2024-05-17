@@ -1,5 +1,5 @@
-import { GetClientRequest, GetClientResponse } from '@modules/api/client/client.api.types'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+import { GetClientRequest, GetClientResponse } from './client.api.types'
 
 export const clientApi = createApi({
   reducerPath: 'clientApi',

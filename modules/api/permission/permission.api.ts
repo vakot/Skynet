@@ -1,10 +1,10 @@
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import {
   GetPermissionRequest,
   GetPermissionResponse,
   GetPermissionsRequest,
   GetPermissionsResponse,
-} from '@modules/api/permission/permission.api.types'
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+} from './permission.api.types'
 
 export const permissionApi = createApi({
   reducerPath: 'permissionApi',

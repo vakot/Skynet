@@ -24,6 +24,13 @@
 
     border-radius: 50%;
 
+    background: black;
+    color: limegreen;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+
     transition: border-radius 0.3s;
 
     &:hover {
@@ -32,11 +39,38 @@
   }
 
   .Container {
+    position: relative;
+
     display: flex;
     align-items: center;
     justify-content: center;
     width: 48px;
     height: 48px;
+
+    &::after {
+      content: '';
+      position: absolute;
+      left: -1px;
+      top: 50%;
+      transform: translate(-12px, -50%);
+      width: 0px;
+      height: 0px;
+      border-radius: 0 4px 4px 0;
+      background-color: white;
+      transition: width 0.3s, height 0.3s, left 0.3s;
+    }
+
+    &.Active::after {
+      left: 0;
+      width: 4px;
+      height: 12px;
+    }
+
+    &:hover::after {
+      left: 0;
+      width: 4px;
+      height: 24px;
+    }
   }
 
   .Guilds {
@@ -44,5 +78,14 @@
     flex-direction: column;
     align-items: center;
     gap: 8px;
+  }
+
+  .Separator {
+    content: '';
+    width: 50%;
+    height: 4px;
+    border-radius: 2px;
+    background-color: gray;
+    opacity: 0.25;
   }
 }

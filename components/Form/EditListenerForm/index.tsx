@@ -218,12 +218,7 @@ const Event: React.FC<EditListenerFormItem> = ({ form, listener, disabled }) => 
   }, [form, actionId, action])
 
   return (
-    <Form.Item
-      label="Event"
-      name="event"
-      required
-      rules={[{ required: true, message: 'Required' }]}
-    >
+    <Form.Item label="Event" name="event" rules={[{ required: true, message: 'Required' }]}>
       <Select
         allowClear
         showSearch
@@ -263,8 +258,6 @@ const ComponentsForms: { [key: string]: React.FC<{ form: FormInstance }> } = {
 
     const { data: commands } = useGetCommandsQuery({ guild: guildId })
 
-    console.log({ commandId, commands })
-
     return (
       <>
         <Form.Item label="Command" required>
@@ -298,8 +291,6 @@ const ComponentsForms: { [key: string]: React.FC<{ form: FormInstance }> } = {
             command={commandId}
             guild={guildId}
             onFinish={(value) => {
-              console.log('response', value)
-
               form.setFieldValue('component', value?.id)
               setIsNestedFormOpen(false)
             }}

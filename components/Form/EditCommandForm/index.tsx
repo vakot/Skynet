@@ -27,7 +27,10 @@ export const EditCommandForm: React.FC<EditCommandFormProps> = ({
 }) => {
   const [form] = Form.useForm(_form)
 
-  const { data: command } = useGetCommandQuery(commandId, { skip: !commandId })
+  const { data: command } = useGetCommandQuery(
+    { id: commandId, guild: guildId },
+    { skip: !commandId }
+  )
   const { data: guild } = useGetGuildQuery(guildId, { skip: !guildId })
 
   const isGlobal = !!command && !!command.id && !command.guildId
@@ -99,14 +102,18 @@ interface EditCommandFormItem {
 
 const Name: React.FC<EditCommandFormItem> = ({ form, command, disabled }) => {
   return (
-    <Form.Item label="Name" name="name">
+    <Form.Item label="Name" name="name" rules={[{ required: true, message: 'Required' }]}>
       <Input placeholder="Name..." disabled={disabled} />
     </Form.Item>
   )
 }
 const Description: React.FC<EditCommandFormItem> = ({ form, command, disabled }) => {
   return (
-    <Form.Item label="Description" name="description">
+    <Form.Item
+      label="Description"
+      name="description"
+      rules={[{ required: true, message: 'Required' }]}
+    >
       <Input.TextArea rows={3} placeholder="Description..." disabled={disabled} />
     </Form.Item>
   )
@@ -115,7 +122,7 @@ const Guild: React.FC<EditCommandFormItem> = ({ form, command, disabled }) => {
   const { data: guilds } = useGetGuildsQuery()
 
   return (
-    <Form.Item label="Guild" name="guild">
+    <Form.Item label="Guild" name="guild" rules={[{ required: true, message: 'Required' }]}>
       <Select
         showSearch
         allowClear

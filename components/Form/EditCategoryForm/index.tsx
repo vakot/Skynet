@@ -126,7 +126,6 @@ const EmojiAndName: React.FC<EditCategoryFormItem> = ({ form, category, disabled
         label="Name"
         name="name"
         style={{ width: '100%' }}
-        required
         rules={[{ required: true, message: 'Required' }]}
       >
         <Input disabled={disabled} placeholder="Name..." />

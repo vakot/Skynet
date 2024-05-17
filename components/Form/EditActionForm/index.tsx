@@ -1,7 +1,7 @@
 import { IAction } from '@bot/models/action'
-import { SkynetEvents } from '@bot/models/event'
 import { EditFormProps } from '@components/Form'
 import { EditCategoryForm } from '@components/Form/EditCategoryForm'
+import { SelectEvent } from '@components/UI/Select/SelectEvent'
 import {
   useAddActionMutation,
   useEditActionMutation,
@@ -12,7 +12,6 @@ import { useGetPermissionsFlagsBitsQuery } from '@modules/api/permission/permiss
 import { executable } from '@modules/lib/executable'
 import { splitByUpperCase } from '@utils/helpers/splitByUpperCase'
 import { toBinaryNumbers } from '@utils/helpers/toBinaryNumbers'
-import { toTitleCase } from '@utils/helpers/toTitleCase'
 import { Button, Card, Flex, Form, FormInstance, Input, Select } from 'antd'
 import React, { useEffect, useState } from 'react'
 
@@ -185,25 +184,8 @@ const Category: React.FC<EditActionFormItem> = ({ form, action, disabled }) => {
 }
 const Event: React.FC<EditActionFormItem> = ({ form, action, disabled }) => {
   return (
-    <Form.Item
-      label="Event"
-      name="event"
-      required
-      rules={[{ required: true, message: 'Required' }]}
-    >
-      <Select
-        allowClear
-        showSearch
-        placeholder="Event..."
-        disabled={disabled}
-        options={Object.values(SkynetEvents).map((skynetEvent) => ({
-          label: skynetEvent
-            .split('-')
-            .map((word) => toTitleCase(word))
-            .join(' '),
-          value: skynetEvent,
-        }))}
-      />
+    <Form.Item label="Event" name="event" rules={[{ required: true, message: 'Required' }]}>
+      <SelectEvent />
     </Form.Item>
   )
 }
@@ -238,7 +220,6 @@ const Cooldown: React.FC<EditActionFormItem> = ({ form, action, disabled }) => {
     <Form.Item
       label="Cooldown"
       name="cooldown"
-      required
       rules={[
         {
           validator: (_, value) => {
@@ -275,7 +256,6 @@ const Execute: React.FC<EditActionFormItem> = ({ form, action, disabled }) => {
     <Form.Item
       label="Function"
       name="execute"
-      required
       rules={[
         {
           validator: (_, value) => {

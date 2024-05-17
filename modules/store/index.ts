@@ -4,8 +4,10 @@ import { actionApi } from '@modules/api/action/action.api'
 import { categoryApi } from '@modules/api/category/category.api'
 import { clientApi } from '@modules/api/client/client.api'
 import { commandApi } from '@modules/api/command/command.api'
+import { embedApi } from '@modules/api/embed/embed.api'
 import { guildApi } from '@modules/api/guild/guild.api'
 import { listenerApi } from '@modules/api/listener/listener.api'
+import { messageApi } from '@modules/api/message/message.api'
 import { permissionApi } from '@modules/api/permission/permission.api'
 
 export const store = configureStore({
@@ -14,8 +16,10 @@ export const store = configureStore({
     [categoryApi.reducerPath]: categoryApi.reducer,
     [clientApi.reducerPath]: clientApi.reducer,
     [commandApi.reducerPath]: commandApi.reducer,
+    [embedApi.reducerPath]: embedApi.reducer,
     [guildApi.reducerPath]: guildApi.reducer,
     [listenerApi.reducerPath]: listenerApi.reducer,
+    [messageApi.reducerPath]: messageApi.reducer,
     [permissionApi.reducerPath]: permissionApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
@@ -24,8 +28,10 @@ export const store = configureStore({
       .concat(categoryApi.middleware)
       .concat(clientApi.middleware)
       .concat(commandApi.middleware)
+      .concat(embedApi.middleware)
       .concat(guildApi.middleware)
       .concat(listenerApi.middleware)
+      .concat(messageApi.middleware)
       .concat(permissionApi.middleware),
 })
 

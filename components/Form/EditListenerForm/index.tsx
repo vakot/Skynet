@@ -15,7 +15,7 @@ import {
 import { toTitleCase } from '@utils/helpers/toTitleCase'
 import { Button, Card, Flex, Form, FormInstance, Input, Select } from 'antd'
 import { BaseGuild } from 'discord.js'
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 export interface EditListenerFormProps extends EditFormProps {
   listener?: IListener['_id']

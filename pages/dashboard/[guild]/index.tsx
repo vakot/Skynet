@@ -9,7 +9,6 @@ import { GetServerSidePropsContext } from 'next'
 import { getServerSession } from 'next-auth'
 import { useRouter } from 'next/router'
 import { authOptions } from 'pages/api/auth/[...nextauth]'
-import React from 'react'
 
 const DashboardGuildPage: React.FC<{ guild: Guild['id'] }> = ({ guild: guildId }) => {
   const { data: guild, isLoading: isGuildLoading } = useGetGuildQuery(guildId)

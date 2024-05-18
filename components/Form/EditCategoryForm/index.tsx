@@ -7,7 +7,7 @@ import {
 } from '@modules/api/category/category.api'
 import { Button, Flex, Form, FormInstance, Input, Select } from 'antd'
 import EmojiPicker from 'emoji-picker-react'
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 
 export interface EditCategoryFormProps extends EditFormProps {
   category?: ICategory['_id']
@@ -69,7 +69,6 @@ export const EditCategoryForm: React.FC<EditCategoryFormProps> = ({
         description: category?.description,
       }}
       onFinish={handleFinish}
-      onAbort={() => console.log('abort')}
       form={form}
       layout="vertical"
       {...props}

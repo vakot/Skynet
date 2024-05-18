@@ -20,8 +20,8 @@ export const EmbedsList: React.FC<EmbedsListProps> = ({
         {embeds?.map((embed) => (
           <List.Item key={embed._id}>
             <List.Item.Meta
-              avatar={<BugOutlined />}
-              title={embed.name || embed._id}
+              avatar={<BugOutlined style={{ color: embed.color }} />}
+              title={embed.title || embed._id}
               description={embed.description}
             />
 

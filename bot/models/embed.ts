@@ -1,18 +1,44 @@
 import { IDocument } from '@bot/models/document'
-import { User } from 'discord.js'
 import mongoose, { Schema } from 'mongoose'
 
 export interface IEmbed extends IDocument {
-  author?: User
-  name?: string
+  title?: string
+  color?: string
+  url?: string
   description?: string
-  // TODO: data
+  author?: {
+    name?: string
+    url?: string
+    icon_url?: string
+  }
+  fields?: [
+    {
+      name: string
+      value: string
+    }
+  ]
+  footer?: {
+    text?: string
+    icon_url?: string
+  }
+  image?: {
+    url?: string
+  }
+  thumbnail?: {
+    url?: string
+  }
 }
 
-export const EmbedSchema: Schema = new Schema<IEmbed>({
-  author: { type: String, required: false },
-  name: { type: String, required: false },
+const EmbedSchema: Schema = new Schema({
+  title: { type: String, required: false },
+  color: { type: String, required: false },
+  url: { type: String, required: false },
   description: { type: String, required: false },
+  author: { type: Schema.Types.Mixed, required: false },
+  fields: { type: Schema.Types.Array, default: [] },
+  footer: { type: Schema.Types.Mixed, required: false },
+  image: { type: Schema.Types.Mixed, required: false },
+  thumbnail: { type: Schema.Types.Mixed, required: false },
 })
 
 export const Embed =

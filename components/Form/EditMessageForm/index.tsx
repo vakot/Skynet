@@ -7,7 +7,7 @@ import {
   useGetMessageQuery,
 } from '@modules/api/message/message.api'
 import { Button, Flex, Form, FormInstance, Input, Select, Space, Tooltip } from 'antd'
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 
 export interface EditMessageFormProps extends EditFormProps {
   message?: IMessage['id']

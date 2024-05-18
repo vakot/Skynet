@@ -13,7 +13,7 @@ import { executable } from '@modules/lib/executable'
 import { splitByUpperCase } from '@utils/helpers/splitByUpperCase'
 import { toBinaryNumbers } from '@utils/helpers/toBinaryNumbers'
 import { Button, Card, Flex, Form, FormInstance, Input, Select } from 'antd'
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 export interface EditActionFormProps extends EditFormProps {
   action?: IAction['_id']

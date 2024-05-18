@@ -25,12 +25,14 @@ export const EditCategoryForm: React.FC<EditCategoryFormProps> = ({
 }) => {
   const [form] = Form.useForm(_form)
 
-  const { data: category } = useGetCategoryQuery(categoryId, { skip: !categoryId })
+  const { data: category, isLoading: isCategoryLoading } = useGetCategoryQuery(categoryId, {
+    skip: !categoryId,
+  })
+  const [addCategory, { isLoading: isAddLoading }] = useAddCategoryMutation()
+  const [editCategory, { isLoading: isEditLoading }] = useEditCategoryMutation()
 
+  const isLoading = isCategoryLoading || isEditLoading || isAddLoading
   const isGlobal = !!category && category._id.startsWith('global-')
-
-  const [addCategory] = useAddCategoryMutation()
-  const [editCategory] = useEditCategoryMutation()
 
   const handleFinish = async (fields: any) => {
     if (isGlobal) {
@@ -73,21 +75,21 @@ export const EditCategoryForm: React.FC<EditCategoryFormProps> = ({
       layout="vertical"
       {...props}
     >
-      <EmojiAndName form={form} category={category} disabled={isGlobal} />
-      <Description form={form} category={category} disabled={isGlobal} />
+      <EmojiAndName form={form} category={category} disabled={isLoading || isGlobal} />
+      <Description form={form} category={category} disabled={isLoading || isGlobal} />
 
       {showControls && (
         <Flex justify="end" gap={8}>
           {isGlobal ? (
-            <Button type="primary" onClick={handleAbort}>
+            <Button type="primary" onClick={handleAbort} disabled={isLoading}>
               Close
             </Button>
           ) : (
             <>
-              <Button type="default" onClick={handleAbort}>
+              <Button type="default" onClick={handleAbort} disabled={isLoading}>
                 Discard
               </Button>
-              <Button type="primary" onClick={form.submit}>
+              <Button type="primary" onClick={form.submit} disabled={isLoading}>
                 Save
               </Button>
             </>

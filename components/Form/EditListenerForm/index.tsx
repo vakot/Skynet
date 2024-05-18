@@ -1,3 +1,4 @@
+import { EditOutlined, PlusOutlined } from '@ant-design/icons'
 import { IAction } from '@bot/models/action'
 import { SkynetEvents } from '@bot/models/event'
 import { IListener } from '@bot/models/listener'
@@ -13,7 +14,7 @@ import {
   useGetListenerQuery,
 } from '@modules/api/listener/listener.api'
 import { toTitleCase } from '@utils/helpers/toTitleCase'
-import { Button, Card, Flex, Form, FormInstance, Input, Select } from 'antd'
+import { Button, Card, Flex, Form, FormInstance, Input, Select, Space } from 'antd'
 import { BaseGuild } from 'discord.js'
 import { useEffect, useState } from 'react'
 
@@ -37,12 +38,19 @@ export const EditListenerForm: React.FC<EditListenerFormProps> = ({
 }) => {
   const [form] = Form.useForm(_form)
 
-  const { data: listener } = useGetListenerQuery(listenerId, { skip: !listenerId })
-  const { data: action } = useGetActionQuery(actionId, { skip: !actionId })
-  const { data: guild } = useGetGuildQuery(guildId, { skip: !guildId })
+  const { data: listener, isLoading: isListenerLoading } = useGetListenerQuery(listenerId, {
+    skip: !listenerId,
+  })
+  const { data: action, isLoading: isActionLoading } = useGetActionQuery(actionId, {
+    skip: !actionId,
+  })
+  const { data: guild, isLoading: isGuildLoading } = useGetGuildQuery(guildId, { skip: !guildId })
 
-  const [addListener] = useAddListenerMutation()
-  const [editListener] = useEditListenerMutation()
+  const [addListener, { isLoading: isAddLoading }] = useAddListenerMutation()
+  const [editListener, { isLoading: isEditLoading }] = useEditListenerMutation()
+
+  const isLoading =
+    isListenerLoading || isActionLoading || isGuildLoading || isEditLoading || isAddLoading
 
   const handleFinish = async (fields: any) => {
     try {
@@ -84,19 +92,19 @@ export const EditListenerForm: React.FC<EditListenerFormProps> = ({
       layout="vertical"
       {...props}
     >
-      <Name form={form} listener={listener} />
-      <Description form={form} listener={listener} />
-      <Guild form={form} listener={listener} disabled={!!guildId && !!guild} />
-      <Action form={form} listener={listener} disabled={!!actionId && !!action} />
-      <Event form={form} listener={listener} disabled={!!actionId && !!action} />
-      <Component form={form} listener={listener} />
+      <Name form={form} listener={listener} disabled={isLoading} />
+      <Description form={form} listener={listener} disabled={isLoading} />
+      <Guild form={form} listener={listener} disabled={isLoading || (!!guildId && !!guild)} />
+      <Action form={form} listener={listener} disabled={isLoading || (!!actionId && !!action)} />
+      <Event form={form} listener={listener} disabled={isLoading || (!!actionId && !!action)} />
+      <Component form={form} listener={listener} disabled={isLoading} />
 
       {showControls && (
         <Flex justify="end" gap={8}>
-          <Button type="default" onClick={handleAbort}>
+          <Button type="default" onClick={handleAbort} disabled={isLoading}>
             Discard
           </Button>
-          <Button type="primary" onClick={form.submit}>
+          <Button type="primary" onClick={form.submit} disabled={isLoading}>
             Save
           </Button>
         </Flex>
@@ -151,8 +159,6 @@ const Guild: React.FC<EditListenerFormItem> = ({ form, listener, disabled }) => 
   )
 }
 const Action: React.FC<EditListenerFormItem> = ({ form, listener, disabled }) => {
-  const [editActionForm] = Form.useForm()
-
   const [isNestedFormOpen, setIsNestedFormOpen] = useState<boolean>(false)
 
   const event = Form.useWatch('event', form)
@@ -161,8 +167,8 @@ const Action: React.FC<EditListenerFormItem> = ({ form, listener, disabled }) =>
   const { data: actions } = useGetActionsQuery({ event })
 
   return (
-    <>
-      <Form.Item label="Action" required>
+    <Form.Item label="Action" required>
+      <Space direction="vertical" style={{ width: '100%' }}>
         <Flex gap={8}>
           <Form.Item noStyle name="action" rules={[{ required: true, message: 'Required' }]}>
             <Select
@@ -181,29 +187,27 @@ const Action: React.FC<EditListenerFormItem> = ({ form, listener, disabled }) =>
             onClick={() => setIsNestedFormOpen(true)}
             disabled={disabled || isNestedFormOpen}
           >
-            {actionId ? 'Edit' : 'Create'}
+            {actionId ? <EditOutlined /> : <PlusOutlined />}
           </Button>
         </Flex>
-      </Form.Item>
 
-      {isNestedFormOpen && (
-        <Form.Item>
-          <EditActionForm
-            component={Card}
-            form={editActionForm}
-            action={actionId}
-            onFinish={(value) => {
-              setIsNestedFormOpen(false)
-              form.setFieldValue('action', value?._id)
-            }}
-            onAbort={() => {
-              setIsNestedFormOpen(false)
-            }}
-            showControls
-          />
-        </Form.Item>
-      )}
-    </>
+        {isNestedFormOpen && (
+          <Card size="small">
+            <EditActionForm
+              action={actionId}
+              onFinish={(value) => {
+                setIsNestedFormOpen(false)
+                form.setFieldValue('action', value?._id)
+              }}
+              onAbort={() => {
+                setIsNestedFormOpen(false)
+              }}
+              showControls
+            />
+          </Card>
+        )}
+      </Space>
+    </Form.Item>
   )
 }
 const Event: React.FC<EditListenerFormItem> = ({ form, listener, disabled }) => {
@@ -241,16 +245,12 @@ const Component: React.FC<EditListenerFormItem> = ({ form, listener, disabled })
   const InnerForm = event && event in ComponentsForms ? (ComponentsForms as any)[event] : null
 
   if (InnerForm) {
-    return (
-      <Form.Item name="component" rules={[{ required: true, message: 'Required' }]}>
-        <InnerForm form={form} />
-      </Form.Item>
-    )
+    return <InnerForm form={form} disabled={disabled} />
   }
 }
 
-const ComponentsForms: { [key: string]: React.FC<{ form: FormInstance }> } = {
-  [SkynetEvents.CommandInteraction]: ({ form }) => {
+const ComponentsForms: { [key: string]: React.FC<{ form: FormInstance; disabled?: boolean }> } = {
+  [SkynetEvents.CommandInteraction]: ({ form, disabled }) => {
     const [isNestedFormOpen, setIsNestedFormOpen] = useState<boolean>(false)
 
     const guildId = Form.useWatch('guild', form)
@@ -259,48 +259,53 @@ const ComponentsForms: { [key: string]: React.FC<{ form: FormInstance }> } = {
     const { data: commands } = useGetCommandsQuery({ guild: guildId })
 
     return (
-      <>
-        <Form.Item label="Command" required>
+      <Form.Item label="Command" required>
+        <Space direction="vertical" style={{ width: '100%' }}>
           <Flex gap={8}>
-            <Select
-              allowClear
-              showSearch
-              value={form.getFieldValue('component')}
-              onChange={(value: string) => form.setFieldValue('component', value)}
-              onClear={() => form.setFieldValue('component', undefined)}
-              disabled={isNestedFormOpen}
-              placeholder="Command..."
-              options={commands?.map((command) => ({
-                label: command.name,
-                value: command.id,
-              }))}
-            />
+            <Form.Item
+              style={{ flex: 1 }}
+              name="component"
+              rules={[{ required: true, message: '' }]}
+              noStyle
+            >
+              <Select
+                allowClear
+                showSearch
+                disabled={disabled || isNestedFormOpen}
+                placeholder="Select command..."
+                options={commands?.map((command) => ({
+                  label: command.name,
+                  value: command.id,
+                }))}
+              />
+            </Form.Item>
             <Button
               type="primary"
               onClick={() => setIsNestedFormOpen(true)}
-              disabled={isNestedFormOpen}
+              disabled={disabled || isNestedFormOpen}
             >
-              {commandId ? 'Edit' : 'Create'}
+              {commandId ? <EditOutlined /> : <PlusOutlined />}
             </Button>
           </Flex>
-        </Form.Item>
 
-        {isNestedFormOpen && (
-          <EditCommandForm
-            component={Card}
-            command={commandId}
-            guild={guildId}
-            onFinish={(value) => {
-              form.setFieldValue('component', value?.id)
-              setIsNestedFormOpen(false)
-            }}
-            onAbort={() => {
-              setIsNestedFormOpen(false)
-            }}
-            showControls
-          />
-        )}
-      </>
+          {isNestedFormOpen && (
+            <Card size="small">
+              <EditCommandForm
+                command={commandId}
+                guild={guildId}
+                onFinish={(value) => {
+                  form.setFieldValue('component', value?.id)
+                  setIsNestedFormOpen(false)
+                }}
+                onAbort={() => {
+                  setIsNestedFormOpen(false)
+                }}
+                showControls
+              />
+            </Card>
+          )}
+        </Space>
+      </Form.Item>
     )
   },
 }

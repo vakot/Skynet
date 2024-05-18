@@ -27,16 +27,16 @@ export const EditCommandForm: React.FC<EditCommandFormProps> = ({
 }) => {
   const [form] = Form.useForm(_form)
 
-  const { data: command } = useGetCommandQuery(
+  const { data: command, isLoading: isCommandLoading } = useGetCommandQuery(
     { id: commandId, guild: guildId },
     { skip: !commandId }
   )
-  const { data: guild } = useGetGuildQuery(guildId, { skip: !guildId })
+  const { data: guild, isLoading: isGuildLoading } = useGetGuildQuery(guildId, { skip: !guildId })
+  const [addCommand, { isLoading: isAddLoading }] = useAddCommandMutation()
+  const [editCommand, { isLoading: isEditLoading }] = useEditCommandMutation()
 
+  const isLoading = isCommandLoading || isGuildLoading || isEditLoading || isAddLoading
   const isGlobal = !!command && !!command.id && !command.guildId
-
-  const [addCommand] = useAddCommandMutation()
-  const [editCommand] = useEditCommandMutation()
 
   const handleFinish = async (fields: any) => {
     try {
@@ -76,18 +76,30 @@ export const EditCommandForm: React.FC<EditCommandFormProps> = ({
       layout="vertical"
       {...props}
     >
-      <Name form={form} command={command} disabled={isGlobal} />
-      <Description form={form} command={command} disabled={isGlobal} />
-      <Guild form={form} command={command} disabled={isGlobal || (!!guildId && !!guild)} />
+      <Name form={form} command={command} disabled={isLoading || isGlobal} />
+      <Description form={form} command={command} disabled={isLoading || isGlobal} />
+      <Guild
+        form={form}
+        command={command}
+        disabled={isLoading || isGlobal || (!!guildId && !!guild)}
+      />
 
       {showControls && (
         <Flex justify="end" gap={8}>
-          <Button type="default" onClick={handleAbort}>
-            Discard
-          </Button>
-          <Button type="primary" onClick={form.submit}>
-            Save
-          </Button>
+          {isGlobal ? (
+            <Button type="primary" onClick={handleAbort} disabled={isLoading}>
+              Close
+            </Button>
+          ) : (
+            <>
+              <Button type="default" onClick={handleAbort} disabled={isLoading}>
+                Discard
+              </Button>
+              <Button type="primary" onClick={form.submit} disabled={isLoading}>
+                Save
+              </Button>
+            </>
+          )}
         </Flex>
       )}
     </Form>

@@ -1,3 +1,4 @@
+import { EditOutlined, PlusOutlined } from '@ant-design/icons'
 import { IAction } from '@bot/models/action'
 import { EditFormProps } from '@components/Form'
 import { EditCategoryForm } from '@components/Form/EditCategoryForm'
@@ -12,7 +13,7 @@ import { useGetPermissionsFlagsBitsQuery } from '@modules/api/permission/permiss
 import { executable } from '@modules/lib/executable'
 import { splitByUpperCase } from '@utils/helpers/splitByUpperCase'
 import { toBinaryNumbers } from '@utils/helpers/toBinaryNumbers'
-import { Button, Card, Flex, Form, FormInstance, Input, Select } from 'antd'
+import { Button, Card, Flex, Form, FormInstance, Input, Select, Space } from 'antd'
 import { useEffect, useState } from 'react'
 
 export interface EditActionFormProps extends EditFormProps {
@@ -31,10 +32,13 @@ export const EditActionForm: React.FC<EditActionFormProps> = ({
 }) => {
   const [form] = Form.useForm(_form)
 
-  const { data: action } = useGetActionQuery(actionId, { skip: !actionId })
+  const { data: action, isLoading: isActionLoading } = useGetActionQuery(actionId, {
+    skip: !actionId,
+  })
+  const [addAction, { isLoading: isAddLoading }] = useAddActionMutation()
+  const [editAction, { isLoading: isEditLoading }] = useEditActionMutation()
 
-  const [addAction] = useAddActionMutation()
-  const [editAction] = useEditActionMutation()
+  const isLoading = isActionLoading || isEditLoading || isAddLoading
 
   const handleFinish = async (fields: any) => {
     try {
@@ -86,21 +90,21 @@ export const EditActionForm: React.FC<EditActionFormProps> = ({
       layout="vertical"
       {...props}
     >
-      <Name form={form} action={action} />
-      <Description form={form} action={action} />
-      <Category form={form} action={action} />
-      <Event form={form} action={action} disabled={!!actionId && !!action} />
-      <Permissions form={form} action={action} />
-      <Cooldown form={form} action={action} />
+      <Name form={form} action={action} disabled={isLoading} />
+      <Description form={form} action={action} disabled={isLoading} />
+      <Category form={form} action={action} disabled={isLoading} />
+      <Event form={form} action={action} disabled={isLoading || (!!actionId && !!action)} />
+      <Permissions form={form} action={action} disabled={isLoading} />
+      <Cooldown form={form} action={action} disabled={isLoading} />
       {/* TODO: DevsOnly and testOnly radio buttons row (only for members of dev server with required role) */}
-      <Execute form={form} action={action} />
+      <Execute form={form} action={action} disabled={isLoading} />
 
       {showControls && (
         <Flex justify="end" gap={8}>
-          <Button type="default" onClick={handleAbort}>
+          <Button type="default" onClick={handleAbort} disabled={isLoading}>
             Discard
           </Button>
-          <Button type="primary" onClick={form.submit}>
+          <Button type="primary" onClick={form.submit} disabled={isLoading}>
             Save
           </Button>
         </Flex>
@@ -137,55 +141,53 @@ const Category: React.FC<EditActionFormItem> = ({ form, action, disabled }) => {
   const categoryId = Form.useWatch('category', form)
 
   return (
-    <>
-      <Form.Item label="Category" name="category">
+    <Form.Item label="Category">
+      <Space direction="vertical" style={{ width: '100%' }}>
         <Flex gap={8}>
-          <Select
-            allowClear
-            showSearch
-            value={categoryId}
-            onChange={(value: string) => form.setFieldValue('category', value)}
-            onClear={() => form.setFieldValue('category', undefined)}
-            disabled={disabled || isNestedFormOpen}
-            placeholder="Category..."
-            options={categories?.map((category) => ({
-              label: category.emoji ? `${category.emoji} ${category.name}` : category.name,
-              value: category._id,
-            }))}
-          />
+          <Form.Item noStyle name="category">
+            <Select
+              allowClear
+              showSearch
+              placeholder="Category..."
+              disabled={disabled || isNestedFormOpen}
+              options={categories?.map((category) => ({
+                label: category.emoji ? `${category.emoji} ${category.name}` : category.name,
+                value: category._id,
+              }))}
+            />
+          </Form.Item>
           <Button
             type="primary"
             onClick={() => setIsNestedFormOpen(true)}
             disabled={disabled || isNestedFormOpen}
           >
-            {categoryId ? 'Edit' : 'Create'}
+            {categoryId ? <EditOutlined /> : <PlusOutlined />}
           </Button>
         </Flex>
-      </Form.Item>
 
-      {isNestedFormOpen && (
-        <Form.Item>
-          <EditCategoryForm
-            component={Card}
-            category={categoryId}
-            onFinish={(value) => {
-              form.setFieldValue('category', value?._id)
-              setIsNestedFormOpen(false)
-            }}
-            onAbort={() => {
-              setIsNestedFormOpen(false)
-            }}
-            showControls
-          />
-        </Form.Item>
-      )}
-    </>
+        {isNestedFormOpen && (
+          <Card size="small">
+            <EditCategoryForm
+              category={categoryId}
+              onFinish={(value) => {
+                form.setFieldValue('category', value?._id)
+                setIsNestedFormOpen(false)
+              }}
+              onAbort={() => {
+                setIsNestedFormOpen(false)
+              }}
+              showControls
+            />
+          </Card>
+        )}
+      </Space>
+    </Form.Item>
   )
 }
 const Event: React.FC<EditActionFormItem> = ({ form, action, disabled }) => {
   return (
     <Form.Item label="Event" name="event" rules={[{ required: true, message: 'Required' }]}>
-      <SelectEvent />
+      <SelectEvent disabled={disabled} />
     </Form.Item>
   )
 }

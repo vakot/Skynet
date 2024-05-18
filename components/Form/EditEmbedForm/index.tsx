@@ -1,4 +1,4 @@
-import { BarsOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons'
+import { BarsOutlined, DeleteOutlined } from '@ant-design/icons'
 import { IEmbed } from '@bot/models/embed'
 import { EditFormProps } from '@components/Form'
 import {
@@ -25,9 +25,11 @@ export const EditEmbedForm: React.FC<EditEmbedFormProps> = ({
 }) => {
   const [form] = Form.useForm(_form)
 
-  const { data: embed } = useGetEmbedQuery(embedId, { skip: !embedId })
-  const [addEmbed] = useAddEmbedMutation()
-  const [editEmbed] = useEditEmbedMutation()
+  const { data: embed, isLoading: isEmbedLoading } = useGetEmbedQuery(embedId, { skip: !embedId })
+  const [addEmbed, { isLoading: isAddLoading }] = useAddEmbedMutation()
+  const [editEmbed, { isLoading: isEditLoading }] = useEditEmbedMutation()
+
+  const isLoading = isEmbedLoading || isEditLoading || isAddLoading
 
   const handleFinish = async (fields: any) => {
     try {
@@ -65,19 +67,19 @@ export const EditEmbedForm: React.FC<EditEmbedFormProps> = ({
 
   return (
     <Form initialValues={embed} onFinish={handleFinish} form={form} layout="vertical" {...props}>
-      <Title form={form} embed={embed} />
-      <Author form={form} embed={embed} />
-      <Images form={form} embed={embed} />
-      <Description form={form} embed={embed} />
-      <Fields form={form} embed={embed} />
-      <Footer form={form} embed={embed} />
+      <Title form={form} embed={embed} disabled={isLoading} />
+      <Author form={form} embed={embed} disabled={isLoading} />
+      <Images form={form} embed={embed} disabled={isLoading} />
+      <Description form={form} embed={embed} disabled={isLoading} />
+      <Fields form={form} embed={embed} disabled={isLoading} />
+      <Footer form={form} embed={embed} disabled={isLoading} />
 
       {showControls && (
         <Flex justify="end" gap={8}>
-          <Button type="default" onClick={handleAbort}>
+          <Button type="default" onClick={handleAbort} disabled={isLoading}>
             Discard
           </Button>
-          <Button type="primary" onClick={form.submit}>
+          <Button type="primary" onClick={form.submit} disabled={isLoading}>
             Save
           </Button>
         </Flex>
@@ -160,7 +162,13 @@ const Fields: React.FC<EditEmbedFormItem> = ({ form, embed, disabled }) => {
         {(fields, { add, remove }) => (
           <Space direction="vertical" style={{ width: '100%' }}>
             {fields.map((field, index) => (
-              <Field key={index} form={form} field={field} remove={remove} />
+              <Field
+                key={field.name}
+                form={form}
+                field={field}
+                remove={remove}
+                disabled={disabled}
+              />
             ))}
             <Button type="dashed" onClick={() => add()} style={{ width: '100%' }}>
               Add field
@@ -171,7 +179,7 @@ const Fields: React.FC<EditEmbedFormItem> = ({ form, embed, disabled }) => {
     </Form.Item>
   )
 }
-const Field: React.FC<any> = ({ form, field, remove }) => {
+const Field: React.FC<any> = ({ form, field, remove, disabled }) => {
   const inline = Form.useWatch(['fields', field.name, 'inline'], form)
 
   return (
@@ -179,14 +187,16 @@ const Field: React.FC<any> = ({ form, field, remove }) => {
       <Space direction="vertical" style={{ width: '100%' }}>
         <Flex gap={8}>
           <Form.Item
-            style={{ flex: 1 }}
+            style={{ width: '100%' }}
             name={[field.name, 'name']}
-            rules={[{ required: true, message: 'Required' }]}
+            rules={[{ required: true, message: '' }]}
+            noStyle
           >
-            <Input placeholder="Field name..." />
+            <Input disabled={disabled} placeholder="Field name..." />
           </Form.Item>
-          <Form.Item name={[field.name, 'inline']}>
+          <Form.Item name={[field.name, 'inline']} noStyle>
             <Button
+              disabled={disabled}
               type={inline ? 'primary' : 'dashed'}
               onClick={() => form.setFieldValue(['fields', field.name, 'inline'], !inline)}
             >
@@ -194,15 +204,12 @@ const Field: React.FC<any> = ({ form, field, remove }) => {
             </Button>
           </Form.Item>
 
-          <Button type="primary">
-            <EditOutlined />
-          </Button>
-          <Button type="primary" danger onClick={() => remove(field.name)}>
+          <Button disabled={disabled} type="primary" danger onClick={() => remove(field.name)}>
             <DeleteOutlined />
           </Button>
         </Flex>
 
-        <Form.Item name={[field.name, 'value']} rules={[{ required: true, message: 'Required' }]}>
+        <Form.Item name={[field.name, 'value']} rules={[{ required: true, message: '' }]} noStyle>
           <Input.TextArea rows={3} placeholder="Field value..." />
         </Form.Item>
       </Space>

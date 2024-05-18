@@ -19,7 +19,7 @@ export const embedApi = createApi({
   endpoints: (builder) => ({
     getEmbeds: builder.query<GetEmbedsResponse, GetEmbedsRequest>({
       query: (query) => ({
-        url: 'Embed',
+        url: 'embed',
         method: 'GET',
         ...(!!query && { params: query }),
       }),
@@ -27,14 +27,14 @@ export const embedApi = createApi({
     }),
     getEmbed: builder.query<GetEmbedResponse, GetEmbedRequest>({
       query: (id) => ({
-        url: `Embed/${id}`,
+        url: `embed/${id}`,
         method: 'GET',
       }),
       providesTags: ['Embed'],
     }),
     addEmbed: builder.mutation<PostEmbedResponse, PostEmbedRequest>({
       query: (body) => ({
-        url: `Embed`,
+        url: `embed`,
         method: 'POST',
         body,
       }),
@@ -42,7 +42,7 @@ export const embedApi = createApi({
     }),
     editEmbed: builder.mutation<PatchEmbedResponse, PatchEmbedRequest>({
       query: ({ id, ...body }) => ({
-        url: `Embed/${id}`,
+        url: `embed/${id}`,
         method: 'PATCH',
         body,
       }),

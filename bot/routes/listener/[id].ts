@@ -9,7 +9,7 @@ router.get('/listener/:id', async (req, res) => {
       return res.status(405).send('incompatible method')
     }
 
-    const listener = await Listener.findById(req.params.id)
+    const listener = await Listener.findById(req.params.id).populate('action')
 
     if (!listener) {
       return res.status(404).send('unknown listener')

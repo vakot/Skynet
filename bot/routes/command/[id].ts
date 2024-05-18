@@ -12,11 +12,7 @@ router.get('/command/:id', async (req, res) => {
 
     const { guild: guildId } = req.query
 
-    if (!guildId || typeof guildId !== 'string') {
-      return res.status(400).send('unresolved guild id')
-    }
-
-    const command = await client.findCommand(req.params.id, guildId)
+    const command = await client.findCommand(req.params.id, guildId as string | undefined)
 
     if (!command) {
       return res.status(404).send('unknown command')

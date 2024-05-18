@@ -22,7 +22,7 @@ router.get('/listener', async (req, res) => {
       filter.guild = typeof guildId === 'string' ? guildId : { $in: guildId }
     }
 
-    const listeners = await Listener.find(filter).populate('action')
+    const listeners = await Listener.find(filter)
 
     return res.status(200).json(listeners)
   } catch (error) {

@@ -4,6 +4,7 @@ import { Commands } from './Commands'
 import { Embeds } from './Embeds'
 import { Listeners } from './Listeners'
 import { Messages } from './Messages'
+import { SendMessage } from './SendMessage'
 
 const Dashboard = {
   Actions,
@@ -12,6 +13,7 @@ const Dashboard = {
   Embeds,
   Listeners,
   Messages,
+  SendMessage,
 }
 
 export default Dashboard

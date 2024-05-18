@@ -3,13 +3,13 @@ import express from 'express'
 
 const router = express.Router()
 
-router.get('/guild/:id', async (req, res) => {
+router.get('/guild/:guild', async (req, res) => {
   try {
     if (req.method !== 'GET') {
       return res.status(405).send('incompatible method')
     }
 
-    const { id: guildId } = req.params
+    const { guild: guildId } = req.params
 
     if (!guildId) {
       return res.status(400).send('unresolved guild id')

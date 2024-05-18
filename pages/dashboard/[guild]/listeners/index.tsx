@@ -39,6 +39,7 @@ const DashboardGuildListenersPage: React.FC<{ guild: Guild['id'] }> = ({ guild: 
                 { title: 'Commands', path: 'commands' },
                 { title: 'Embeds', path: 'embeds' },
                 { title: 'Messages', path: 'messages' },
+                { title: 'Utilities', path: 'utilities' },
               ],
             },
           ]}

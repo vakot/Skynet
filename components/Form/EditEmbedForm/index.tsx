@@ -1,12 +1,12 @@
 import { BarsOutlined, DeleteOutlined } from '@ant-design/icons'
 import { IEmbed } from '@bot/models/embed'
-import { EditFormProps } from '@components/Form'
+import { EditFormItemProps, EditFormProps } from '@components/Form'
 import {
   useAddEmbedMutation,
   useEditEmbedMutation,
   useGetEmbedQuery,
 } from '@modules/api/embed/embed.api'
-import { Button, Card, ColorPicker, Flex, Form, FormInstance, Input, Space } from 'antd'
+import { Button, Card, ColorPicker, Flex, Form, Input, Space } from 'antd'
 import { useEffect } from 'react'
 
 export interface EditEmbedFormProps extends EditFormProps {
@@ -67,12 +67,12 @@ export const EditEmbedForm: React.FC<EditEmbedFormProps> = ({
 
   return (
     <Form initialValues={embed} onFinish={handleFinish} form={form} layout="vertical" {...props}>
-      <Title form={form} embed={embed} disabled={isLoading} />
-      <Author form={form} embed={embed} disabled={isLoading} />
-      <Images form={form} embed={embed} disabled={isLoading} />
-      <Description form={form} embed={embed} disabled={isLoading} />
-      <Fields form={form} embed={embed} disabled={isLoading} />
-      <Footer form={form} embed={embed} disabled={isLoading} />
+      <Title form={form} disabled={isLoading} />
+      <Author form={form} disabled={isLoading} />
+      <Images form={form} disabled={isLoading} />
+      <Description form={form} disabled={isLoading} />
+      <Fields form={form} disabled={isLoading} />
+      <Footer form={form} disabled={isLoading} />
 
       {showControls && (
         <Flex justify="end" gap={8}>
@@ -88,13 +88,7 @@ export const EditEmbedForm: React.FC<EditEmbedFormProps> = ({
   )
 }
 
-interface EditEmbedFormItem {
-  form: FormInstance
-  embed?: IEmbed
-  disabled?: boolean
-}
-
-const Author: React.FC<EditEmbedFormItem> = ({ form, embed, disabled }) => {
+const Author: React.FC<EditFormItemProps> = ({ form, disabled }) => {
   return (
     <Form.Item label="Author">
       <Space direction="vertical" style={{ width: '100%' }}>
@@ -113,7 +107,7 @@ const Author: React.FC<EditEmbedFormItem> = ({ form, embed, disabled }) => {
     </Form.Item>
   )
 }
-const Title: React.FC<EditEmbedFormItem> = ({ form, embed, disabled }) => {
+const Title: React.FC<EditFormItemProps> = ({ form, disabled }) => {
   return (
     <Form.Item label="Title">
       <Flex gap={8}>
@@ -130,7 +124,7 @@ const Title: React.FC<EditEmbedFormItem> = ({ form, embed, disabled }) => {
     </Form.Item>
   )
 }
-const Images: React.FC<EditEmbedFormItem> = ({ form, embed, disabled }) => {
+const Images: React.FC<EditFormItemProps> = ({ form, disabled }) => {
   return (
     <Form.Item label="Images">
       <Flex gap={8}>
@@ -144,7 +138,7 @@ const Images: React.FC<EditEmbedFormItem> = ({ form, embed, disabled }) => {
     </Form.Item>
   )
 }
-const Description: React.FC<EditEmbedFormItem> = ({ form, embed, disabled }) => {
+const Description: React.FC<EditFormItemProps> = ({ form, disabled }) => {
   return (
     <Form.Item label="Description">
       <Flex gap={8}>
@@ -155,7 +149,7 @@ const Description: React.FC<EditEmbedFormItem> = ({ form, embed, disabled }) => 
     </Form.Item>
   )
 }
-const Fields: React.FC<EditEmbedFormItem> = ({ form, embed, disabled }) => {
+const Fields: React.FC<EditFormItemProps> = ({ form, disabled }) => {
   return (
     <Form.Item label="Fields">
       <Form.List name="fields">
@@ -216,7 +210,7 @@ const Field: React.FC<any> = ({ form, field, remove, disabled }) => {
     </Card>
   )
 }
-const Footer: React.FC<EditEmbedFormItem> = ({ form, embed, disabled }) => {
+const Footer: React.FC<EditFormItemProps> = ({ form, disabled }) => {
   return (
     <Form.Item label="Footer">
       <Flex gap={8}>

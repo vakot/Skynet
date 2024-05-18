@@ -17,7 +17,7 @@ export const MessageSchema: Schema = new Schema<IMessage>({
   name: { type: String, required: false },
   description: { type: String, required: false },
   content: { type: String, required: false },
-  embeds: { type: Schema.Types.Array, ref: 'embed', default: [] },
+  embeds: [{ type: Schema.Types.ObjectId, ref: 'embed' }],
   // components: { type: Schema.Types.Mixed, default: [] },
 })
 

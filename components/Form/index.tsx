@@ -1,4 +1,4 @@
-import { FormProps } from 'antd'
+import { FormInstance, FormProps } from 'antd'
 
 export interface EditFormProps
   extends Omit<
@@ -8,4 +8,9 @@ export interface EditFormProps
   onFinishFailed?: (error: any) => void
   onAbort?: () => void
   showControls?: boolean
+}
+
+export interface EditFormItemProps {
+  form: FormInstance<any>
+  disabled?: boolean
 }

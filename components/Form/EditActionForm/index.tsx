@@ -1,6 +1,6 @@
 import { EditOutlined, PlusOutlined } from '@ant-design/icons'
 import { IAction } from '@bot/models/action'
-import { EditFormProps } from '@components/Form'
+import { EditFormItemProps, EditFormProps } from '@components/Form'
 import { EditCategoryForm } from '@components/Form/EditCategoryForm'
 import { SelectEvent } from '@components/UI/Select/SelectEvent'
 import {
@@ -11,10 +11,10 @@ import {
 import { useGetCategoriesQuery } from '@modules/api/category/category.api'
 import { useGetPermissionsFlagsBitsQuery } from '@modules/api/permission/permission.api'
 import { executable } from '@modules/lib/executable'
-import { splitByUpperCase } from '@utils/helpers/splitByUpperCase'
+import { splitByUpperCase } from '@utils/helpers'
 import { toBinaryNumbers } from '@utils/helpers/toBinaryNumbers'
-import { Button, Card, Flex, Form, FormInstance, Input, Select, Space } from 'antd'
-import { useEffect, useState } from 'react'
+import { Button, Card, Flex, Form, Input, Select, Space } from 'antd'
+import { useEffect, useMemo, useState } from 'react'
 
 export interface EditActionFormProps extends EditFormProps {
   action?: IAction['_id']
@@ -90,14 +90,14 @@ export const EditActionForm: React.FC<EditActionFormProps> = ({
       layout="vertical"
       {...props}
     >
-      <Name form={form} action={action} disabled={isLoading} />
-      <Description form={form} action={action} disabled={isLoading} />
-      <Category form={form} action={action} disabled={isLoading} />
-      <Event form={form} action={action} disabled={isLoading || (!!actionId && !!action)} />
-      <Permissions form={form} action={action} disabled={isLoading} />
-      <Cooldown form={form} action={action} disabled={isLoading} />
+      <Name form={form} disabled={isLoading} />
+      <Description form={form} disabled={isLoading} />
+      <Category form={form} disabled={isLoading} />
+      <Event form={form} disabled={isLoading || (!!actionId && !!action)} />
+      <Permissions form={form} disabled={isLoading} />
+      <Cooldown form={form} disabled={isLoading} />
       {/* TODO: DevsOnly and testOnly radio buttons row (only for members of dev server with required role) */}
-      <Execute form={form} action={action} disabled={isLoading} />
+      <Execute form={form} disabled={isLoading} />
 
       {showControls && (
         <Flex justify="end" gap={8}>
@@ -113,30 +113,24 @@ export const EditActionForm: React.FC<EditActionFormProps> = ({
   )
 }
 
-interface EditActionFormItem {
-  form: FormInstance
-  action?: IAction
-  disabled?: boolean
-}
-
-const Name: React.FC<EditActionFormItem> = ({ form, action, disabled }) => {
+const Name: React.FC<EditFormItemProps> = ({ form, disabled }) => {
   return (
     <Form.Item label="Name" name="name">
       <Input placeholder="Name..." disabled={disabled} />
     </Form.Item>
   )
 }
-const Description: React.FC<EditActionFormItem> = ({ form, action, disabled }) => {
+const Description: React.FC<EditFormItemProps> = ({ form, disabled }) => {
   return (
     <Form.Item label="Description" name="description">
       <Input.TextArea rows={3} placeholder="Description..." disabled={disabled} />
     </Form.Item>
   )
 }
-const Category: React.FC<EditActionFormItem> = ({ form, action, disabled }) => {
+const Category: React.FC<EditFormItemProps> = ({ form, disabled }) => {
   const [isNestedFormOpen, setIsNestedFormOpen] = useState<boolean>(false)
 
-  const { data: categories } = useGetCategoriesQuery()
+  const { data: categories, isLoading: isCategoriesLoading } = useGetCategoriesQuery()
 
   const categoryId = Form.useWatch('category', form)
 
@@ -149,7 +143,9 @@ const Category: React.FC<EditActionFormItem> = ({ form, action, disabled }) => {
               allowClear
               showSearch
               placeholder="Category..."
-              disabled={disabled || isNestedFormOpen}
+              loading={isCategoriesLoading}
+              disabled={disabled || isNestedFormOpen || isCategoriesLoading}
+              optionFilterProp="label"
               options={categories?.map((category) => ({
                 label: category.emoji ? `${category.emoji} ${category.name}` : category.name,
                 value: category._id,
@@ -159,7 +155,8 @@ const Category: React.FC<EditActionFormItem> = ({ form, action, disabled }) => {
           <Button
             type="primary"
             onClick={() => setIsNestedFormOpen(true)}
-            disabled={disabled || isNestedFormOpen}
+            loading={isCategoriesLoading}
+            disabled={disabled || isNestedFormOpen || isCategoriesLoading}
           >
             {categoryId ? <EditOutlined /> : <PlusOutlined />}
           </Button>
@@ -184,40 +181,59 @@ const Category: React.FC<EditActionFormItem> = ({ form, action, disabled }) => {
     </Form.Item>
   )
 }
-const Event: React.FC<EditActionFormItem> = ({ form, action, disabled }) => {
+const Event: React.FC<EditFormItemProps> = ({ form, disabled }) => {
+  const event = Form.useWatch('event', form)
+
+  useEffect(() => {
+    if (!disabled) {
+      if (event && event in executable) {
+        form.setFieldValue('execute', (executable as any)[event])
+      } else {
+        form.setFieldValue('execute', undefined)
+      }
+    }
+  }, [form, event, disabled])
+
   return (
     <Form.Item label="Event" name="event" rules={[{ required: true, message: 'Required' }]}>
       <SelectEvent disabled={disabled} />
     </Form.Item>
   )
 }
-const Permissions: React.FC<EditActionFormItem> = ({ form, action, disabled }) => {
-  const { data: permissionFlagsBits } = useGetPermissionsFlagsBitsQuery()
+const Permissions: React.FC<EditFormItemProps> = ({ form, disabled }) => {
+  const { data: permissionFlagsBits, isLoading: isPermissionFlagsBitsLoading } =
+    useGetPermissionsFlagsBitsQuery()
+
+  const permissionFlagsBitsCollection = useMemo<any[]>(() => {
+    return Object.entries(
+      Object.keys(permissionFlagsBits || {}).reduce((acc: any, key) => {
+        const value = (permissionFlagsBits as any)?.[key]
+        acc[value] = acc[value] || []
+        acc[value].push(key)
+        return acc
+      }, {})
+    )
+  }, [permissionFlagsBits])
 
   return (
     <Form.Item label="Permissions" name="permissions">
       <Select
-        mode="tags"
+        mode="multiple"
         allowClear
         showSearch
-        disabled={disabled}
+        loading={isPermissionFlagsBitsLoading}
+        disabled={disabled || isPermissionFlagsBitsLoading}
         placeholder="Permissions..."
-        options={Object.entries(
-          Object.keys(permissionFlagsBits || {}).reduce((acc: any, key) => {
-            const value = (permissionFlagsBits as any)?.[key]
-            acc[value] = acc[value] || []
-            acc[value].push(key)
-            return acc
-          }, {})
-        ).map(([value, names]) => ({
-          value: value,
+        optionFilterProp="label"
+        options={permissionFlagsBitsCollection.map(([value, names]) => ({
           label: (names as string[]).map((name) => splitByUpperCase(name).join(' ')).join(' and '),
+          value: value,
         }))}
       />
     </Form.Item>
   )
 }
-const Cooldown: React.FC<EditActionFormItem> = ({ form, action, disabled }) => {
+const Cooldown: React.FC<EditFormItemProps> = ({ form, disabled }) => {
   return (
     <Form.Item
       label="Cooldown"
@@ -242,18 +258,7 @@ const Cooldown: React.FC<EditActionFormItem> = ({ form, action, disabled }) => {
     </Form.Item>
   )
 }
-const Execute: React.FC<EditActionFormItem> = ({ form, action, disabled }) => {
-  const event = Form.useWatch('event', form)
-
-  useEffect(() => {
-    if (!action) {
-      form.setFieldValue(
-        'execute',
-        event && event in executable ? (executable as any)[event] : undefined
-      )
-    }
-  }, [form, action, event])
-
+const Execute: React.FC<EditFormItemProps> = ({ form, disabled }) => {
   return (
     <Form.Item
       label="Function"

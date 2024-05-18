@@ -1,11 +1,11 @@
-import { EditFormProps } from '@components/Form'
+import { EditFormItemProps, EditFormProps } from '@components/Form'
 import {
   useAddCommandMutation,
   useEditCommandMutation,
   useGetCommandQuery,
 } from '@modules/api/command/command.api'
 import { useGetGuildQuery, useGetGuildsQuery } from '@modules/api/guild/guild.api'
-import { Button, Flex, Form, FormInstance, Input, Select } from 'antd'
+import { Button, Flex, Form, Input, Select } from 'antd'
 import { ApplicationCommand, BaseGuild } from 'discord.js'
 import { useEffect } from 'react'
 
@@ -76,13 +76,9 @@ export const EditCommandForm: React.FC<EditCommandFormProps> = ({
       layout="vertical"
       {...props}
     >
-      <Name form={form} command={command} disabled={isLoading || isGlobal} />
-      <Description form={form} command={command} disabled={isLoading || isGlobal} />
-      <Guild
-        form={form}
-        command={command}
-        disabled={isLoading || isGlobal || (!!guildId && !!guild)}
-      />
+      <Name form={form} disabled={isLoading || isGlobal} />
+      <Description form={form} disabled={isLoading || isGlobal} />
+      <Guild form={form} disabled={isLoading || isGlobal || (!!guildId && !!guild)} />
 
       {showControls && (
         <Flex justify="end" gap={8}>
@@ -106,20 +102,14 @@ export const EditCommandForm: React.FC<EditCommandFormProps> = ({
   )
 }
 
-interface EditCommandFormItem {
-  form: FormInstance
-  command?: ApplicationCommand
-  disabled?: boolean
-}
-
-const Name: React.FC<EditCommandFormItem> = ({ form, command, disabled }) => {
+const Name: React.FC<EditFormItemProps> = ({ form, disabled }) => {
   return (
     <Form.Item label="Name" name="name" rules={[{ required: true, message: 'Required' }]}>
       <Input placeholder="Name..." disabled={disabled} />
     </Form.Item>
   )
 }
-const Description: React.FC<EditCommandFormItem> = ({ form, command, disabled }) => {
+const Description: React.FC<EditFormItemProps> = ({ form, disabled }) => {
   return (
     <Form.Item
       label="Description"
@@ -130,7 +120,7 @@ const Description: React.FC<EditCommandFormItem> = ({ form, command, disabled })
     </Form.Item>
   )
 }
-const Guild: React.FC<EditCommandFormItem> = ({ form, command, disabled }) => {
+const Guild: React.FC<EditFormItemProps> = ({ form, disabled }) => {
   const { data: guilds } = useGetGuildsQuery()
 
   return (
@@ -140,6 +130,7 @@ const Guild: React.FC<EditCommandFormItem> = ({ form, command, disabled }) => {
         allowClear
         disabled={disabled}
         placeholder="Guild..."
+        optionFilterProp="label"
         options={guilds?.map((guild) => ({
           value: guild.id,
           label: guild.name || guild.id,

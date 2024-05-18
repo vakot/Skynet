@@ -2,9 +2,10 @@ import { EditOutlined, PlusOutlined } from '@ant-design/icons'
 import { IAction } from '@bot/models/action'
 import { SkynetEvents } from '@bot/models/event'
 import { IListener } from '@bot/models/listener'
-import { EditFormProps } from '@components/Form'
+import { EditFormItemProps, EditFormProps } from '@components/Form'
 import { EditActionForm } from '@components/Form/EditActionForm'
 import { EditCommandForm } from '@components/Form/EditCommandForm'
+import { SelectEvent } from '@components/UI/Select/SelectEvent'
 import { useGetActionQuery, useGetActionsQuery } from '@modules/api/action/action.api'
 import { useGetCommandsQuery } from '@modules/api/command/command.api'
 import { useGetGuildQuery, useGetGuildsQuery } from '@modules/api/guild/guild.api'
@@ -13,7 +14,6 @@ import {
   useEditListenerMutation,
   useGetListenerQuery,
 } from '@modules/api/listener/listener.api'
-import { toTitleCase } from '@utils/helpers/toTitleCase'
 import { Button, Card, Flex, Form, FormInstance, Input, Select, Space } from 'antd'
 import { BaseGuild } from 'discord.js'
 import { useEffect, useState } from 'react'
@@ -92,12 +92,12 @@ export const EditListenerForm: React.FC<EditListenerFormProps> = ({
       layout="vertical"
       {...props}
     >
-      <Name form={form} listener={listener} disabled={isLoading} />
-      <Description form={form} listener={listener} disabled={isLoading} />
-      <Guild form={form} listener={listener} disabled={isLoading || (!!guildId && !!guild)} />
-      <Action form={form} listener={listener} disabled={isLoading || (!!actionId && !!action)} />
-      <Event form={form} listener={listener} disabled={isLoading || (!!actionId && !!action)} />
-      <Component form={form} listener={listener} disabled={isLoading} />
+      <Name form={form} disabled={isLoading} />
+      <Description form={form} disabled={isLoading} />
+      <Guild form={form} disabled={isLoading || (!!guildId && !!guild)} />
+      <Action form={form} disabled={isLoading || (!!actionId && !!action)} />
+      <Event form={form} disabled={isLoading || (!!actionId && !!action)} />
+      <Component form={form} disabled={isLoading} />
 
       {showControls && (
         <Flex justify="end" gap={8}>
@@ -113,35 +113,22 @@ export const EditListenerForm: React.FC<EditListenerFormProps> = ({
   )
 }
 
-interface EditListenerFormItem {
-  form: FormInstance
-  listener?: IListener
-  disabled?: boolean
-}
-
-const Name: React.FC<EditListenerFormItem> = ({ form, listener, disabled }) => {
+const Name: React.FC<EditFormItemProps> = ({ form, disabled }) => {
   return (
     <Form.Item label="Name" name="name">
       <Input placeholder="Name..." disabled={disabled} />
     </Form.Item>
   )
 }
-const Description: React.FC<EditListenerFormItem> = ({ form, listener, disabled }) => {
+const Description: React.FC<EditFormItemProps> = ({ form, disabled }) => {
   return (
     <Form.Item label="Description" name="description">
       <Input.TextArea rows={3} placeholder="Description..." disabled={disabled} />
     </Form.Item>
   )
 }
-const Guild: React.FC<EditListenerFormItem> = ({ form, listener, disabled }) => {
-  const guildId = Form.useWatch('guild', form)
-
-  const { data: guild } = useGetGuildQuery(guildId, { skip: !guildId })
+const Guild: React.FC<EditFormItemProps> = ({ form, disabled }) => {
   const { data: guilds } = useGetGuildsQuery()
-
-  useEffect(() => {
-    form.setFieldValue('guild', listener?.guild || guild?.id)
-  }, [form, listener, guild, guildId])
 
   return (
     <Form.Item label="Guild" name="guild">
@@ -150,6 +137,7 @@ const Guild: React.FC<EditListenerFormItem> = ({ form, listener, disabled }) => 
         allowClear
         placeholder="Guild..."
         disabled={disabled}
+        optionFilterProp="label"
         options={guilds?.map((guild) => ({
           value: guild.id,
           label: guild.name || guild.id,
@@ -158,7 +146,7 @@ const Guild: React.FC<EditListenerFormItem> = ({ form, listener, disabled }) => 
     </Form.Item>
   )
 }
-const Action: React.FC<EditListenerFormItem> = ({ form, listener, disabled }) => {
+const Action: React.FC<EditFormItemProps> = ({ form, disabled }) => {
   const [isNestedFormOpen, setIsNestedFormOpen] = useState<boolean>(false)
 
   const event = Form.useWatch('event', form)
@@ -176,6 +164,7 @@ const Action: React.FC<EditListenerFormItem> = ({ form, listener, disabled }) =>
               allowClear
               placeholder="Action..."
               disabled={disabled || isNestedFormOpen}
+              optionFilterProp="label"
               options={actions?.map((action) => ({
                 value: action._id,
                 label: action.name || action._id,
@@ -210,10 +199,12 @@ const Action: React.FC<EditListenerFormItem> = ({ form, listener, disabled }) =>
     </Form.Item>
   )
 }
-const Event: React.FC<EditListenerFormItem> = ({ form, listener, disabled }) => {
+const Event: React.FC<EditFormItemProps> = ({ form, disabled }) => {
   const actionId = Form.useWatch('action', form)
 
-  const { data: action } = useGetActionQuery(actionId, { skip: !actionId })
+  const { data: action, isLoading: isActionLoading } = useGetActionQuery(actionId, {
+    skip: !actionId,
+  })
 
   useEffect(() => {
     if (actionId && action) {
@@ -223,23 +214,14 @@ const Event: React.FC<EditListenerFormItem> = ({ form, listener, disabled }) => 
 
   return (
     <Form.Item label="Event" name="event" rules={[{ required: true, message: 'Required' }]}>
-      <Select
-        allowClear
-        showSearch
-        placeholder="Event..."
-        disabled={disabled || (!!actionId && !!action)}
-        options={Object.values(SkynetEvents).map((skynetEvent) => ({
-          label: skynetEvent
-            .split('-')
-            .map((word) => toTitleCase(word))
-            .join(' '),
-          value: skynetEvent,
-        }))}
+      <SelectEvent
+        loading={isActionLoading}
+        disabled={disabled || isActionLoading || (!!actionId && !!action)}
       />
     </Form.Item>
   )
 }
-const Component: React.FC<EditListenerFormItem> = ({ form, listener, disabled }) => {
+const Component: React.FC<EditFormItemProps> = ({ form, disabled }) => {
   const event = Form.useWatch('event', form)
 
   const InnerForm = event && event in ComponentsForms ? (ComponentsForms as any)[event] : null
@@ -273,6 +255,7 @@ const ComponentsForms: { [key: string]: React.FC<{ form: FormInstance; disabled?
                 showSearch
                 disabled={disabled || isNestedFormOpen}
                 placeholder="Select command..."
+                optionFilterProp="label"
                 options={commands?.map((command) => ({
                   label: command.name,
                   value: command.id,

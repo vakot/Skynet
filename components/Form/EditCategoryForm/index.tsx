@@ -1,11 +1,11 @@
 import { ICategory } from '@bot/models/category'
-import { EditFormProps } from '@components/Form'
+import { EditFormItemProps, EditFormProps } from '@components/Form'
 import {
   useAddCategoryMutation,
   useEditCategoryMutation,
   useGetCategoryQuery,
 } from '@modules/api/category/category.api'
-import { Button, Flex, Form, FormInstance, Input, Select } from 'antd'
+import { Button, Flex, Form, Input, Select } from 'antd'
 import EmojiPicker from 'emoji-picker-react'
 import { useEffect } from 'react'
 
@@ -75,38 +75,24 @@ export const EditCategoryForm: React.FC<EditCategoryFormProps> = ({
       layout="vertical"
       {...props}
     >
-      <EmojiAndName form={form} category={category} disabled={isLoading || isGlobal} />
-      <Description form={form} category={category} disabled={isLoading || isGlobal} />
+      <EmojiAndName form={form} disabled={isLoading || isGlobal} />
+      <Description form={form} disabled={isLoading || isGlobal} />
 
       {showControls && (
         <Flex justify="end" gap={8}>
-          {isGlobal ? (
-            <Button type="primary" onClick={handleAbort} disabled={isLoading}>
-              Close
-            </Button>
-          ) : (
-            <>
-              <Button type="default" onClick={handleAbort} disabled={isLoading}>
-                Discard
-              </Button>
-              <Button type="primary" onClick={form.submit} disabled={isLoading}>
-                Save
-              </Button>
-            </>
-          )}
+          <Button type="default" onClick={handleAbort} disabled={isLoading}>
+            Discard
+          </Button>
+          <Button type="primary" onClick={form.submit} disabled={isLoading || isGlobal}>
+            Save
+          </Button>
         </Flex>
       )}
     </Form>
   )
 }
 
-interface EditCategoryFormItem {
-  form: FormInstance
-  category?: ICategory
-  disabled?: boolean
-}
-
-const EmojiAndName: React.FC<EditCategoryFormItem> = ({ form, category, disabled }) => {
+const EmojiAndName: React.FC<EditFormItemProps> = ({ form, disabled }) => {
   return (
     <Flex gap={8}>
       <Form.Item label="Emoji" name="emoji" style={{ width: 100 }}>
@@ -134,7 +120,7 @@ const EmojiAndName: React.FC<EditCategoryFormItem> = ({ form, category, disabled
     </Flex>
   )
 }
-const Description: React.FC<EditCategoryFormItem> = ({ form, category, disabled }) => {
+const Description: React.FC<EditFormItemProps> = ({ form, disabled }) => {
   return (
     <Form.Item label="Description" name="description">
       <Input.TextArea disabled={disabled} rows={3} placeholder="Description..." />

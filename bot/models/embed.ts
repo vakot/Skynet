@@ -1,13 +1,14 @@
 import { IDocument } from '@bot/models/document'
+import { HexColorString } from 'discord.js'
 import mongoose, { Schema } from 'mongoose'
 
 export interface IEmbed extends IDocument {
   title?: string
-  color?: string
+  color?: HexColorString
   url?: string
   description?: string
   author?: {
-    name?: string
+    name: string
     url?: string
     icon_url?: string
   }
@@ -18,27 +19,27 @@ export interface IEmbed extends IDocument {
     }
   ]
   footer?: {
-    text?: string
+    text: string
     icon_url?: string
   }
   image?: {
-    url?: string
+    url: string
   }
   thumbnail?: {
-    url?: string
+    url: string
   }
 }
 
 const EmbedSchema: Schema = new Schema({
-  title: { type: String, required: false },
-  color: { type: String, required: false },
-  url: { type: String, required: false },
-  description: { type: String, required: false },
-  author: { type: Schema.Types.Mixed, required: false },
+  title: { type: String, default: null },
+  color: { type: String, default: null },
+  url: { type: String, default: null },
+  description: { type: String, default: null },
+  author: { type: Schema.Types.Mixed, default: null },
   fields: { type: Schema.Types.Array, default: [] },
-  footer: { type: Schema.Types.Mixed, required: false },
-  image: { type: Schema.Types.Mixed, required: false },
-  thumbnail: { type: Schema.Types.Mixed, required: false },
+  footer: { type: Schema.Types.Mixed, default: null },
+  image: { type: Schema.Types.Mixed, default: null },
+  thumbnail: { type: Schema.Types.Mixed, default: null },
 })
 
 export const Embed =

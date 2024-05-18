@@ -1,6 +1,6 @@
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons'
 import { IMessage } from '@bot/models/message'
-import { EditFormProps } from '@components/Form'
+import { EditFormItemProps, EditFormProps } from '@components/Form'
 import { EditEmbedForm } from '@components/Form/EditEmbedForm'
 import { useGetEmbedsQuery } from '@modules/api/embed/embed.api'
 import {
@@ -8,7 +8,7 @@ import {
   useEditMessageMutation,
   useGetMessageQuery,
 } from '@modules/api/message/message.api'
-import { Button, Card, Flex, Form, FormInstance, Input, Select, Space, Tooltip } from 'antd'
+import { Button, Card, Flex, Form, Input, Select, Space, Tooltip } from 'antd'
 import { useEffect, useState } from 'react'
 
 export interface EditMessageFormProps extends EditFormProps {
@@ -74,11 +74,11 @@ export const EditMessageForm: React.FC<EditMessageFormProps> = ({
       layout="vertical"
       {...props}
     >
-      <Name form={form} message={message} disabled={isLoading} />
-      <Description form={form} message={message} disabled={isLoading} />
-      <Content form={form} message={message} disabled={isLoading} />
-      <Embeds form={form} message={message} disabled={isLoading} />
-      <Components form={form} message={message} disabled={isLoading} />
+      <Name form={form} disabled={isLoading} />
+      <Description form={form} disabled={isLoading} />
+      <Content form={form} disabled={isLoading} />
+      <Embeds form={form} disabled={isLoading} />
+      <Components form={form} disabled={isLoading} />
 
       {showControls && (
         <Flex justify="end" gap={8}>
@@ -94,27 +94,21 @@ export const EditMessageForm: React.FC<EditMessageFormProps> = ({
   )
 }
 
-interface EditMessageFormItem {
-  form: FormInstance
-  message?: IMessage
-  disabled?: boolean
-}
-
-const Name: React.FC<EditMessageFormItem> = ({ form, message, disabled }) => {
+const Name: React.FC<EditFormItemProps> = ({ form, disabled }) => {
   return (
     <Form.Item label="Name" name="name">
       <Input placeholder="Name..." disabled={disabled} />
     </Form.Item>
   )
 }
-const Description: React.FC<EditMessageFormItem> = ({ form, message, disabled }) => {
+const Description: React.FC<EditFormItemProps> = ({ form, disabled }) => {
   return (
     <Form.Item label="Description" name="description">
       <Input.TextArea rows={3} placeholder="Description..." disabled={disabled} />
     </Form.Item>
   )
 }
-const Content: React.FC<EditMessageFormItem> = ({ form, message, disabled }) => {
+const Content: React.FC<EditFormItemProps> = ({ form, disabled }) => {
   return (
     <Form.Item
       label="Content"
@@ -125,7 +119,7 @@ const Content: React.FC<EditMessageFormItem> = ({ form, message, disabled }) => 
     </Form.Item>
   )
 }
-const Embeds: React.FC<EditMessageFormItem> = ({ form, message, disabled }) => {
+const Embeds: React.FC<EditFormItemProps> = ({ form, disabled }) => {
   return (
     <Form.Item label="Embeds">
       <Form.List name="embeds">
@@ -151,8 +145,6 @@ const Embeds: React.FC<EditMessageFormItem> = ({ form, message, disabled }) => {
   )
 }
 const Embed: React.FC<any> = ({ form, field, remove, disabled }) => {
-  const [editEmbedForm] = Form.useForm()
-
   const [isNestedFormOpen, setIsNestedFormOpen] = useState<boolean>(false)
 
   const { data: embeds, isLoading: isEmbedsLoading } = useGetEmbedsQuery()
@@ -173,6 +165,7 @@ const Embed: React.FC<any> = ({ form, field, remove, disabled }) => {
             allowClear
             disabled={disabled || isNestedFormOpen}
             loading={isEmbedsLoading}
+            optionFilterProp="label"
             options={embeds?.map((embed) => ({
               value: embed._id,
               label: embed.title || embed._id,
@@ -197,7 +190,6 @@ const Embed: React.FC<any> = ({ form, field, remove, disabled }) => {
       {isNestedFormOpen && (
         <Card size="small">
           <EditEmbedForm
-            form={editEmbedForm}
             embed={embedId}
             onFinish={(value) => {
               setIsNestedFormOpen(false)
@@ -213,7 +205,7 @@ const Embed: React.FC<any> = ({ form, field, remove, disabled }) => {
     </Space>
   )
 }
-const Components: React.FC<EditMessageFormItem> = ({ form, message, disabled }) => {
+const Components: React.FC<EditFormItemProps> = ({ form, disabled }) => {
   return (
     <Form.Item label="Components">
       <Form.List name="components">

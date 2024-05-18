@@ -31,13 +31,15 @@ export const RoutesBreadcrumb: React.FC<RoutesBreadcrumbProps> = ({
       if (index === 0) {
         acc.push({ ...current })
       } else {
-        const previousPaths = acc[index - 1].path
+        const prevPath = acc[index - 1].path
+        // const nextPath = items[index + 1]
+
         acc.push({
           ...current,
-          path: `${previousPaths}/${current.path}`,
+          path: `${prevPath}/${current.path}`,
           children: current.children?.map((children) => ({
             ...children,
-            path: `${previousPaths}/${children.path}`,
+            path: `${prevPath}/${children.path}`,
           })),
         })
       }
@@ -73,6 +75,7 @@ const SingleBreacrumbItem: React.FC<RoutesBreadcrumbItem> = (item) => {
 const MultipleBreacrumbItem: React.FC<RoutesBreadcrumbItem> = (item) => {
   return (
     <Dropdown
+      destroyPopupOnHide
       menu={{
         items:
           item.children?.map((children) => ({

@@ -1,50 +1,85 @@
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons'
 import { ICategory } from '@bot/models/category'
-import { Button, List, ListProps, Space } from 'antd'
+import { EditCategoryForm } from '@components/Form/EditCategoryForm'
+import { useGetCategoriesQuery } from '@modules/api/category/category.api'
+import { Button, Empty, Form, List, ListProps, Modal, Space } from 'antd'
+import { Guild } from 'discord.js'
+import { useState } from 'react'
 
 export interface CategoriesListProps extends Omit<ListProps<ICategory>, 'dataSource'> {
-  data?: ICategory[]
-  onSelect?: (item: ICategory) => void
-  onDelete?: (item: ICategory) => void
+  guild?: Guild['id']
 }
 
 export const CategoriesList: React.FC<CategoriesListProps> = ({
-  data,
-  onSelect,
-  onDelete,
+  guild: guildId,
+  loading,
   ...props
 }) => {
-  return (
-    <Space direction="vertical" size="large" style={{ width: '100%' }}>
-      <List {...props}>
-        {data?.map((category) => (
-          <List.Item key={category._id}>
-            <List.Item.Meta
-              avatar={category.emoji}
-              title={category.name}
-              description={category.description}
-            />
+  const { data: categories, isLoading: isCategoriesLoading } = useGetCategoriesQuery()
 
-            <Space>
-              <Button
-                type="primary"
-                disabled={category._id.toString().startsWith('global-')}
-                onClick={() => onSelect?.(category)}
-              >
-                <EditOutlined />
-              </Button>
-              <Button
-                type="primary"
-                disabled={category._id.toString().startsWith('global-')}
-                danger
-                onClick={() => onDelete?.(category)}
-              >
-                <DeleteOutlined />
-              </Button>
-            </Space>
-          </List.Item>
-        ))}
-      </List>
-    </Space>
+  return (
+    <List loading={loading || isCategoriesLoading} {...props}>
+      {categories?.map((category) => (
+        <CategoriesListItem key={category.id} category={category} guild={guildId} />
+      )) || (!isCategoriesLoading ? <Empty /> : null)}
+    </List>
+  )
+}
+
+export interface CategoriesListItemProps {
+  category: ICategory
+  guild: CategoriesListProps['guild']
+}
+
+export const CategoriesListItem: React.FC<CategoriesListItemProps> = ({
+  category,
+  guild: guildId,
+}) => {
+  const [form] = Form.useForm()
+
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
+
+  const isGlobal = !!category && category._id.startsWith('global-')
+
+  return (
+    <List.Item>
+      <List.Item.Meta
+        avatar={category.emoji}
+        title={category.name || category._id}
+        description={category.description}
+      />
+
+      <Space>
+        <Button type="primary" onClick={() => setIsModalOpen(true)} disabled={isGlobal}>
+          <EditOutlined />
+        </Button>
+        <Button
+          danger
+          onClick={() => {
+            // TODO: delete
+          }}
+          disabled={isGlobal}
+        >
+          <DeleteOutlined />
+        </Button>
+      </Space>
+
+      <Modal
+        title="Edit category"
+        open={isModalOpen}
+        onOk={() => form.submit()}
+        onCancel={() => {
+          form.resetFields()
+          setIsModalOpen(false)
+        }}
+        destroyOnClose
+      >
+        <EditCategoryForm
+          form={form}
+          category={category._id}
+          onFinish={() => setIsModalOpen(false)}
+        />
+      </Modal>
+    </List.Item>
   )
 }

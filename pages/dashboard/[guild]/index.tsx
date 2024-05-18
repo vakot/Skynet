@@ -1,7 +1,7 @@
 import { BugOutlined, FolderOpenOutlined } from '@ant-design/icons'
 import Main from '@components/Layouts/Main'
 import { RoutesBreadcrumb } from '@components/UI/RoutesBreadcrumb'
-import { useGetGuildQuery } from '@modules/api/guild/guild.api'
+import { useGetGuildQuery, useGetGuildsQuery } from '@modules/api/guild/guild.api'
 import { AppRoutes } from '@utils/routes'
 import { Button, Card, Flex, Space } from 'antd'
 import { Guild } from 'discord.js'
@@ -11,6 +11,7 @@ import { useRouter } from 'next/router'
 import { authOptions } from 'pages/api/auth/[...nextauth]'
 
 const DashboardGuildPage: React.FC<{ guild: Guild['id'] }> = ({ guild: guildId }) => {
+  const { data: guilds, isLoading: isGuildsLoading } = useGetGuildsQuery()
   const { data: guild, isLoading: isGuildLoading } = useGetGuildQuery(guildId)
 
   const baseUrl = AppRoutes.DASHBOARD + '/' + guildId
@@ -19,10 +20,19 @@ const DashboardGuildPage: React.FC<{ guild: Guild['id'] }> = ({ guild: guildId }
     <Main>
       <Space direction="vertical" style={{ width: '100%' }}>
         <RoutesBreadcrumb
-          loading={isGuildLoading}
+          loading={isGuildLoading || isGuildsLoading}
           items={[
             { title: 'Dashboard', path: AppRoutes.DASHBOARD },
-            { title: guild?.name, path: guildId },
+            {
+              title: guild?.name,
+              path: guildId,
+              children: guilds
+                ?.filter(({ id }) => id !== guildId)
+                .map(({ name, id }) => ({
+                  title: name,
+                  path: id,
+                })),
+            },
           ]}
         />
         <Card>

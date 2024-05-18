@@ -1,39 +1,103 @@
-import { EditListenerForm } from '@components/Form/EditListenerForm'
+import { BugOutlined, FolderOpenOutlined } from '@ant-design/icons'
 import Main from '@components/Layouts/Main'
-import utils from '@utils/index'
-import { Card, Flex, Space } from 'antd'
+import { RoutesBreadcrumb } from '@components/UI/RoutesBreadcrumb'
+import { useGetGuildQuery } from '@modules/api/guild/guild.api'
+import { AppRoutes } from '@utils/routes'
+import { Button, Card, Flex, Space } from 'antd'
+import { Guild } from 'discord.js'
 import { GetServerSidePropsContext } from 'next'
 import { getServerSession } from 'next-auth'
 import { useRouter } from 'next/router'
 import { authOptions } from 'pages/api/auth/[...nextauth]'
+import React from 'react'
 
-const DashboardPage: React.FC<void> = () => {
-  const router = useRouter()
+const DashboardGuildPage: React.FC<{ guild: Guild['id'] }> = ({ guild: guildId }) => {
+  const { data: guild, isLoading: isGuildLoading } = useGetGuildQuery(guildId)
 
-  const guildId = router.query.guild as string
+  const baseUrl = AppRoutes.DASHBOARD + '/' + guildId
 
   return (
     <Main>
-      <Flex gap={16}>
-        <Card style={{ flex: 1 }}>
-          TODO: server overview
-          <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-            <Card>
-              <h3>TODO: Command interactions</h3>
-            </Card>
-            <Card>
-              <h3>TODO: Button interactions</h3>
-            </Card>
-            <Card>
-              <h3>TODO: Select interactions</h3>
-            </Card>
+      <Space direction="vertical" style={{ width: '100%' }}>
+        <RoutesBreadcrumb
+          loading={isGuildLoading}
+          items={[
+            { title: 'Dashboard', path: AppRoutes.DASHBOARD },
+            { title: guild?.name, path: guildId },
+          ]}
+        />
+        <Card>
+          <Space direction="vertical" style={{ width: '100%' }}>
+            <DashboardGuildLinkButton
+              loading={isGuildLoading}
+              label="Embeds"
+              icon={<BugOutlined />}
+              path={baseUrl + '/embeds'}
+            />
+            <DashboardGuildLinkButton
+              loading={isGuildLoading}
+              label="Messages"
+              icon={<BugOutlined />}
+              path={baseUrl + '/messages'}
+            />
+            <DashboardGuildLinkButton
+              loading={isGuildLoading}
+              label="Categories"
+              icon={<BugOutlined />}
+              path={baseUrl + '/categories'}
+            />
+            <DashboardGuildLinkButton
+              loading={isGuildLoading}
+              label="Actions"
+              icon={<BugOutlined />}
+              path={baseUrl + '/actions'}
+            />
+            <DashboardGuildLinkButton
+              loading={isGuildLoading}
+              label="Listeners"
+              icon={<BugOutlined />}
+              path={baseUrl + '/listeners'}
+            />
+            <DashboardGuildLinkButton
+              loading={isGuildLoading}
+              label="Commands"
+              icon={<BugOutlined />}
+              path={baseUrl + '/commands'}
+            />
           </Space>
         </Card>
-        <Card style={{ flex: 1 }}>
-          <EditListenerForm guild={guildId} showControls />
-        </Card>
-      </Flex>
+      </Space>
     </Main>
+  )
+}
+
+const DashboardGuildLinkButton: React.FC<{
+  label?: React.ReactNode
+  icon?: React.ReactNode
+  path: string
+  loading?: boolean
+}> = ({ label, icon, path, loading }) => {
+  const router = useRouter()
+
+  return (
+    <Button
+      loading={loading}
+      type="default"
+      size="large"
+      style={{ width: '100%' }}
+      onClick={() => router.replace(path)}
+    >
+      {icon ? (
+        <Flex justify="space-between">
+          <Space>
+            {icon} {label}
+          </Space>
+          <FolderOpenOutlined />
+        </Flex>
+      ) : (
+        label
+      )}
+    </Button>
   )
 }
 
@@ -41,12 +105,12 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   const session = await getServerSession(context.req, context.res, authOptions)
 
   if (!session) {
-    return { redirect: { destination: utils.AppRoutes.AUTH } }
+    return { redirect: { destination: AppRoutes.AUTH } }
   }
 
   return {
-    props: {},
+    props: context.params,
   }
 }
 
-export default DashboardPage
+export default DashboardGuildPage

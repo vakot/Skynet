@@ -1,0 +1,19 @@
+.Breadcrumb {
+  > ol > li {
+    display: flex;
+    align-items: center;
+
+    > span {
+      display: flex;
+      align-items: center;
+    }
+  }
+
+  .Item {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    padding-inline: 16px;
+    height: 32px;
+  }
+}

@@ -1,5 +1,9 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import {
+  GetGuildChannelRequest,
+  GetGuildChannelResponse,
+  GetGuildChannelsRequest,
+  GetGuildChannelsResponse,
   GetGuildRequest,
   GetGuildResponse,
   GetGuildsRequest,
@@ -28,7 +32,33 @@ export const guildApi = createApi({
       }),
       providesTags: ['Guild'],
     }),
+    getGuildChannels: builder.query<GetGuildChannelsResponse, GetGuildChannelsRequest>({
+      query: (id) => ({
+        url: `guild/${id}/channel`,
+        method: 'GET',
+      }),
+      providesTags: ['Guild'],
+    }),
+    getGuildChannel: builder.query<GetGuildChannelResponse, GetGuildChannelRequest>({
+      query: ({ id, guild: guildId }) => ({
+        url: `guild/${guildId}/channel/${id}`,
+        method: 'GET',
+      }),
+      providesTags: ['Guild'],
+    }),
+    sendGuildChannelMessage: builder.mutation<any, any>({
+      query: ({ channel: id, guild: guildId, message: messageId }) => ({
+        url: `guild/${guildId}/channel/${id}/send?message=${messageId}`,
+        method: 'POST',
+      }),
+    }),
   }),
 })
 
-export const { useGetGuildsQuery, useGetGuildQuery } = guildApi
+export const {
+  useGetGuildsQuery,
+  useGetGuildQuery,
+  useGetGuildChannelsQuery,
+  useGetGuildChannelQuery,
+  useSendGuildChannelMessageMutation,
+} = guildApi

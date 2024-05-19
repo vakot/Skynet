@@ -1,4 +1,4 @@
-import { IEmbed } from '@bot/models/embed'
+import { IEmbed } from '@bot/models/message'
 
 export type GetEmbedsRequest = {
   ids?: string[] | string

@@ -2,7 +2,9 @@ import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons'
 import { IMessage } from '@bot/models/message'
 import { EditFormItemProps, EditFormProps } from '@components/Form'
 import { EditEmbedForm } from '@components/Form/EditEmbedForm'
+import { EditMessageComponentForm } from '@components/Form/EditMessageForm/EditComponentForm'
 import { useGetEmbedsQuery } from '@modules/api/embed/embed.api'
+import { useGetMessageComponentsQuery } from '@modules/api/message/component/component.api'
 import {
   useAddMessageMutation,
   useEditMessageMutation,
@@ -67,7 +69,7 @@ export const EditMessageForm: React.FC<EditMessageFormProps> = ({
         description: message?.description,
         content: message?.content,
         embeds: message?.embeds || [],
-        // components: message?.components || [],
+        components: message?.components || [],
       }}
       onFinish={handleFinish}
       form={form}
@@ -83,7 +85,7 @@ export const EditMessageForm: React.FC<EditMessageFormProps> = ({
       {showControls && (
         <Flex justify="end" gap={8}>
           <Button type="default" onClick={handleAbort} disabled={isLoading}>
-            Discard
+            Cancel
           </Button>
           <Button type="primary" onClick={form.submit} disabled={isLoading}>
             Save
@@ -234,7 +236,7 @@ const RowComponent: React.FC<any> = ({ form, field: row, remove: removeRow, disa
   return (
     <Card size="small">
       <Space direction="vertical" style={{ width: '100%' }}>
-        <Form.List name={[row.name, 'components']}>
+        <Form.List name={row.name}>
           {(fields, { add, remove }) => (
             <Space direction="vertical" style={{ width: '100%' }}>
               {fields.map((field) => (
@@ -269,11 +271,9 @@ const RowComponent: React.FC<any> = ({ form, field: row, remove: removeRow, disa
   )
 }
 const Component: React.FC<any> = ({ form, row, field, remove, disabled }) => {
-  // const [editComponentForm] = Form.useForm()
-
   const [isNestedFormOpen, setIsNestedFormOpen] = useState<boolean>(false)
 
-  // const { data: components, isLoading: isComponentsLoading } = useGetComponentsQuery()
+  const { data: components, isLoading: isComponentsLoading } = useGetMessageComponentsQuery()
 
   const componentId = Form.useWatch(['components', row.name, field.name], form)
 
@@ -286,17 +286,17 @@ const Component: React.FC<any> = ({ form, row, field, remove, disabled }) => {
           name={field.name}
           rules={[{ required: true, message: '' }]}
         >
-          {/* <Select
+          <Select
             showSearch
             allowClear
             disabled={disabled || isNestedFormOpen}
             loading={isComponentsLoading}
             options={components?.map((component) => ({
               value: component._id,
-              label: component.title || component._id,
+              label: component.name || component._id,
             }))}
             placeholder="Component..."
-          /> */}
+          />
         </Form.Item>
         <Tooltip title="Remove component (will not be deleted)">
           <Button type="primary" danger onClick={() => remove(field.name)} disabled={disabled}>
@@ -312,10 +312,9 @@ const Component: React.FC<any> = ({ form, row, field, remove, disabled }) => {
         </Button>
       </Flex>
 
-      {/* {isNestedFormOpen && (
-        <Card size='small'>
-          <EditComponentForm
-            form={editComponentForm}
+      {isNestedFormOpen && (
+        <Card size="small">
+          <EditMessageComponentForm
             component={componentId}
             onFinish={(value) => {
               setIsNestedFormOpen(false)
@@ -327,7 +326,7 @@ const Component: React.FC<any> = ({ form, row, field, remove, disabled }) => {
             showControls
           />
         </Card>
-      )} */}
+      )}
     </Space>
   )
 }

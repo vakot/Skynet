@@ -1,7 +1,13 @@
 import { client } from '@bot/index'
-import { IEmbed } from '@bot/models/embed'
-import { Message } from '@bot/models/message'
-import { APIEmbed, EmbedBuilder } from 'discord.js'
+import { IEmbed, IMessageComponent, Message } from '@bot/models/message'
+import {
+  APIActionRowComponent,
+  APIButtonComponent,
+  APIEmbed,
+  ActionRowBuilder,
+  ButtonBuilder,
+  EmbedBuilder,
+} from 'discord.js'
 import express from 'express'
 
 const router = express.Router()
@@ -41,7 +47,10 @@ router.post('/guild/:guild/channel/:channel/send', async (req, res) => {
       return res.status(403).send('channel is not text based')
     }
 
-    const message = await Message.findById(messageId).populate('embeds')
+    const message = await Message.findById(messageId).populate('embeds').populate({
+      path: 'components',
+      model: 'message-component',
+    })
 
     if (!message) {
       return res.status(404).send('unknown message')
@@ -64,13 +73,35 @@ router.post('/guild/:guild/channel/:channel/send', async (req, res) => {
         return builder.toJSON()
       }) || []
 
+    const rowComponents: APIActionRowComponent<APIButtonComponent>[] =
+      message.components?.map((row) => {
+        const rowBuilder = new ActionRowBuilder<ButtonBuilder>()
+
+        row.map(({ _id, component }: IMessageComponent) => {
+          const builder = new ButtonBuilder()
+
+          builder.setCustomId(_id.toString())
+          builder.setDisabled(component.disabled || false)
+          // builder.setEmoji(component.emoji || null)
+          builder.setLabel(component.label || '<>')
+          builder.setStyle(component.style || 2)
+
+          rowBuilder.addComponents(builder)
+        })
+
+        return rowBuilder.toJSON()
+      }) || []
+
     return res.status(200).json(
       await channel.send({
         content: message.content,
         embeds: embeds,
+        components: rowComponents,
       })
     )
   } catch (error) {
+    console.log(error)
+
     return res.status(500).send(error)
   }
 })

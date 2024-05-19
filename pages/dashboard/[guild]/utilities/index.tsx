@@ -11,7 +11,7 @@ import { useRouter } from 'next/router'
 import { authOptions } from 'pages/api/auth/[...nextauth]'
 import React from 'react'
 
-const DashboardGuildPage: React.FC<{ guild: Guild['id'] }> = ({ guild: guildId }) => {
+const DashboardGuildUtilitiesPage: React.FC<{ guild: Guild['id'] }> = ({ guild: guildId }) => {
   const { data: guilds, isLoading: isGuildsLoading } = useGetGuildsQuery()
   const { data: guild, isLoading: isGuildLoading } = useGetGuildQuery(guildId)
 
@@ -34,6 +34,7 @@ const DashboardGuildPage: React.FC<{ guild: Guild['id'] }> = ({ guild: guildId }
                   path: id,
                 })),
             },
+            { title: 'Utilities', path: 'utilities' },
           ]}
         />
         <Card>
@@ -42,16 +43,6 @@ const DashboardGuildPage: React.FC<{ guild: Guild['id'] }> = ({ guild: guildId }
             defaultActiveKey={['0', '1']}
             style={{ background: 'transparent' }}
             items={[
-              {
-                label: 'Components',
-                children: <Components baseUrl={baseUrl} loading={isGuildLoading} />,
-                style: {
-                  marginBottom: 16,
-                  backgroundColor: 'rgba(0,0,0,0.025)',
-                  borderRadius: 8,
-                  border: 'none',
-                },
-              },
               {
                 label: 'Utilities',
                 children: <Utilities baseUrl={baseUrl} loading={isGuildLoading} />,
@@ -69,59 +60,6 @@ const DashboardGuildPage: React.FC<{ guild: Guild['id'] }> = ({ guild: guildId }
   )
 }
 
-export const Components: React.FC<{ loading?: boolean; baseUrl?: string }> = ({
-  loading,
-  baseUrl,
-}) => {
-  return (
-    <List>
-      <Space direction="vertical" style={{ width: '100%' }}>
-        <DashboardGuildLinkButton
-          loading={loading}
-          label="Embeds"
-          icon={<BugOutlined />}
-          path={baseUrl + '/embeds'}
-        />
-        <DashboardGuildLinkButton
-          loading={loading}
-          label="Messages"
-          icon={<BugOutlined />}
-          path={baseUrl + '/messages'}
-        />
-        <DashboardGuildLinkButton
-          loading={loading}
-          label="Categories"
-          icon={<BugOutlined />}
-          path={baseUrl + '/categories'}
-        />
-        <DashboardGuildLinkButton
-          loading={loading}
-          label="Actions"
-          icon={<BugOutlined />}
-          path={baseUrl + '/actions'}
-        />
-        <DashboardGuildLinkButton
-          loading={loading}
-          label="Listeners"
-          icon={<BugOutlined />}
-          path={baseUrl + '/listeners'}
-        />
-        <DashboardGuildLinkButton
-          loading={loading}
-          label="Commands"
-          icon={<BugOutlined />}
-          path={baseUrl + '/commands'}
-        />
-        <DashboardGuildLinkButton
-          loading={loading}
-          label="Components"
-          icon={<BugOutlined />}
-          path={baseUrl + '/components'}
-        />
-      </Space>
-    </List>
-  )
-}
 export const Utilities: React.FC<{ loading?: boolean; baseUrl?: string }> = ({
   loading,
   baseUrl,
@@ -174,4 +112,4 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   }
 }
 
-export default DashboardGuildPage
+export default DashboardGuildUtilitiesPage

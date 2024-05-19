@@ -5,6 +5,7 @@ import { IListener } from '@bot/models/listener'
 import { EditFormItemProps, EditFormProps } from '@components/Form'
 import { EditActionForm } from '@components/Form/EditActionForm'
 import { EditCommandForm } from '@components/Form/EditCommandForm'
+import { EditMessageComponentForm } from '@components/Form/EditMessageForm/EditComponentForm'
 import { SelectEvent } from '@components/UI/Select/SelectEvent'
 import { useGetActionQuery, useGetActionsQuery } from '@modules/api/action/action.api'
 import { useGetCommandsQuery } from '@modules/api/command/command.api'
@@ -14,7 +15,8 @@ import {
   useEditListenerMutation,
   useGetListenerQuery,
 } from '@modules/api/listener/listener.api'
-import { Button, Card, Flex, Form, FormInstance, Input, Select, Space } from 'antd'
+import { useGetMessageComponentsQuery } from '@modules/api/message/component/component.api'
+import { Button, Card, Flex, Form, Input, Select, Space } from 'antd'
 import { BaseGuild } from 'discord.js'
 import { useEffect, useState } from 'react'
 
@@ -102,7 +104,7 @@ export const EditListenerForm: React.FC<EditListenerFormProps> = ({
       {showControls && (
         <Flex justify="end" gap={8}>
           <Button type="default" onClick={handleAbort} disabled={isLoading}>
-            Discard
+            Cancel
           </Button>
           <Button type="primary" onClick={form.submit} disabled={isLoading}>
             Save
@@ -231,7 +233,7 @@ const Component: React.FC<EditFormItemProps> = ({ form, disabled }) => {
   }
 }
 
-const ComponentsForms: { [key: string]: React.FC<{ form: FormInstance; disabled?: boolean }> } = {
+const ComponentsForms: { [key: string]: React.FC<EditFormItemProps> } = {
   [SkynetEvents.CommandInteraction]: ({ form, disabled }) => {
     const [isNestedFormOpen, setIsNestedFormOpen] = useState<boolean>(false)
 
@@ -278,6 +280,66 @@ const ComponentsForms: { [key: string]: React.FC<{ form: FormInstance; disabled?
                 guild={guildId}
                 onFinish={(value) => {
                   form.setFieldValue('component', value?.id)
+                  setIsNestedFormOpen(false)
+                }}
+                onAbort={() => {
+                  setIsNestedFormOpen(false)
+                }}
+                showControls
+              />
+            </Card>
+          )}
+        </Space>
+      </Form.Item>
+    )
+  },
+  [SkynetEvents.ButtonInteraction]: ({ form, disabled }) => {
+    const [isNestedFormOpen, setIsNestedFormOpen] = useState<boolean>(false)
+
+    const componentId = Form.useWatch('component', form)
+
+    const { data: components, isLoading: isComponentsLoading } = useGetMessageComponentsQuery({
+      type: SkynetEvents.ButtonInteraction,
+    })
+
+    return (
+      <Form.Item label="Component" required>
+        <Space direction="vertical" style={{ width: '100%' }}>
+          <Flex gap={8}>
+            <Form.Item
+              style={{ flex: 1 }}
+              name="component"
+              rules={[{ required: true, message: '' }]}
+              noStyle
+            >
+              <Select
+                allowClear
+                showSearch
+                disabled={disabled || isNestedFormOpen || isComponentsLoading}
+                loading={isComponentsLoading}
+                placeholder="Select button..."
+                optionFilterProp="label"
+                options={components?.map((component) => ({
+                  label: component.name || component._id,
+                  value: component._id,
+                }))}
+              />
+            </Form.Item>
+            <Button
+              type="primary"
+              onClick={() => setIsNestedFormOpen(true)}
+              disabled={disabled || isNestedFormOpen}
+            >
+              {componentId ? <EditOutlined /> : <PlusOutlined />}
+            </Button>
+          </Flex>
+
+          {isNestedFormOpen && (
+            <Card size="small">
+              <EditMessageComponentForm
+                component={componentId}
+                onFinish={(value) => {
+                  form.setFieldValue('component', value?._id)
                   setIsNestedFormOpen(false)
                 }}
                 onAbort={() => {

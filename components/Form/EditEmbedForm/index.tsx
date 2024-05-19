@@ -1,5 +1,5 @@
 import { BarsOutlined, DeleteOutlined } from '@ant-design/icons'
-import { IEmbed } from '@bot/models/embed'
+import { IEmbed } from '@bot/models/message'
 import { EditFormItemProps, EditFormProps } from '@components/Form'
 import {
   useAddEmbedMutation,
@@ -77,7 +77,7 @@ export const EditEmbedForm: React.FC<EditEmbedFormProps> = ({
       {showControls && (
         <Flex justify="end" gap={8}>
           <Button type="default" onClick={handleAbort} disabled={isLoading}>
-            Discard
+            Cancel
           </Button>
           <Button type="primary" onClick={form.submit} disabled={isLoading}>
             Save

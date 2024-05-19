@@ -1,6 +1,7 @@
-import { BugOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons'
+import { BugOutlined, DeleteOutlined, EditOutlined, SendOutlined } from '@ant-design/icons'
 import { IMessage } from '@bot/models/message'
 import { EditMessageForm } from '@components/Form/EditMessageForm'
+import { SendMessageForm } from '@components/Form/SendMessageForm'
 import { useGetMessagesQuery } from '@modules/api/message/message.api'
 import { Button, Empty, Form, List, ListProps, Modal, Space } from 'antd'
 import { Guild } from 'discord.js'
@@ -32,9 +33,11 @@ export interface MessagesListItemProps {
 }
 
 export const MessagesListItem: React.FC<MessagesListItemProps> = ({ message, guild: guildId }) => {
-  const [form] = Form.useForm()
+  const [editForm] = Form.useForm()
+  const [sendForm] = Form.useForm()
 
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
+  const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false)
+  const [isSendModalOpen, setIsSendModalOpen] = useState<boolean>(false)
 
   return (
     <List.Item>
@@ -45,7 +48,10 @@ export const MessagesListItem: React.FC<MessagesListItemProps> = ({ message, gui
       />
 
       <Space>
-        <Button type="primary" onClick={() => setIsModalOpen(true)}>
+        <Button type="primary" onClick={() => setIsSendModalOpen(true)}>
+          <SendOutlined />
+        </Button>
+        <Button type="primary" onClick={() => setIsEditModalOpen(true)}>
           <EditOutlined />
         </Button>
         <Button
@@ -59,16 +65,38 @@ export const MessagesListItem: React.FC<MessagesListItemProps> = ({ message, gui
       </Space>
 
       <Modal
-        title="Edit message template"
-        open={isModalOpen}
-        onOk={() => form.submit()}
+        title="Send message"
+        open={isSendModalOpen}
+        onOk={() => sendForm.submit()}
         onCancel={() => {
-          form.resetFields()
-          setIsModalOpen(false)
+          sendForm.resetFields()
+          setIsSendModalOpen(false)
         }}
         destroyOnClose
       >
-        <EditMessageForm form={form} message={message._id} onFinish={() => setIsModalOpen(false)} />
+        <SendMessageForm
+          form={sendForm}
+          message={message._id}
+          guild={guildId}
+          onFinish={() => setIsSendModalOpen(false)}
+        />
+      </Modal>
+
+      <Modal
+        title="Edit message template"
+        open={isEditModalOpen}
+        onOk={() => editForm.submit()}
+        onCancel={() => {
+          editForm.resetFields()
+          setIsEditModalOpen(false)
+        }}
+        destroyOnClose
+      >
+        <EditMessageForm
+          form={editForm}
+          message={message._id}
+          onFinish={() => setIsEditModalOpen(false)}
+        />
       </Modal>
     </List.Item>
   )

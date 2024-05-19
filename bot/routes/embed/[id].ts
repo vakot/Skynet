@@ -1,4 +1,4 @@
-import { Embed } from '@bot/models/embed'
+import { Embed } from '@bot/models/message'
 import express from 'express'
 
 const router = express.Router()

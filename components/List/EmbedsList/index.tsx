@@ -1,5 +1,5 @@
 import { BugOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons'
-import { IEmbed } from '@bot/models/embed'
+import { IEmbed } from '@bot/models/message'
 import { EditEmbedForm } from '@components/Form/EditEmbedForm'
 import { useGetEmbedsQuery } from '@modules/api/embed/embed.api'
 import { Button, Empty, Form, List, ListProps, Modal, Space } from 'antd'

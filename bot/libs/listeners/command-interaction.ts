@@ -1,8 +1,7 @@
-import { ChatInputCommandInteraction, Events } from 'discord.js'
-
 import { SkynetClient } from '@bot/client'
 import { IEvent, SkynetEvents } from '@bot/models/event'
 import { Listener } from '@bot/models/listener'
+import { ChatInputCommandInteraction, Events } from 'discord.js'
 
 export default {
   type: Events.InteractionCreate,

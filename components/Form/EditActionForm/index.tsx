@@ -1,5 +1,6 @@
 import { EditOutlined, PlusOutlined } from '@ant-design/icons'
 import { IAction } from '@bot/models/action'
+import { SkynetEvents } from '@bot/models/event'
 import { EditFormItemProps, EditFormProps } from '@components/Form'
 import { EditCategoryForm } from '@components/Form/EditCategoryForm'
 import { SelectEvent } from '@components/UI/Select/SelectEvent'
@@ -18,12 +19,14 @@ import { useEffect, useMemo, useState } from 'react'
 
 export interface EditActionFormProps extends EditFormProps {
   action?: IAction['_id']
+  event?: SkynetEvents
   onFinish?: (value?: IAction) => void
 }
 
 export const EditActionForm: React.FC<EditActionFormProps> = ({
   form: _form,
   action: actionId,
+  event,
   onFinish,
   onFinishFailed,
   onAbort,
@@ -77,7 +80,7 @@ export const EditActionForm: React.FC<EditActionFormProps> = ({
       initialValues={{
         name: action?.name,
         description: action?.description,
-        event: action?.event,
+        event: action?.event ?? event,
         category: action?.category,
         cooldown: action?.cooldown ?? 5,
         // testOnly: action?.testOnly ?? false, // TODO: only for developers team
@@ -93,7 +96,7 @@ export const EditActionForm: React.FC<EditActionFormProps> = ({
       <Name form={form} disabled={isLoading} />
       <Description form={form} disabled={isLoading} />
       <Category form={form} disabled={isLoading} />
-      <Event form={form} disabled={isLoading || (!!actionId && !!action)} />
+      <Event form={form} disabled={isLoading || !!event || (!!actionId && !!action)} />
       <Permissions form={form} disabled={isLoading} />
       <Cooldown form={form} disabled={isLoading} />
       {/* TODO: DevsOnly and testOnly radio buttons row (only for members of dev server with required role) */}
@@ -102,7 +105,7 @@ export const EditActionForm: React.FC<EditActionFormProps> = ({
       {showControls && (
         <Flex justify="end" gap={8}>
           <Button type="default" onClick={handleAbort} disabled={isLoading}>
-            Discard
+            Cancel
           </Button>
           <Button type="primary" onClick={form.submit} disabled={isLoading}>
             Save

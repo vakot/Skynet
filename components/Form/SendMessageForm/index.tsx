@@ -92,7 +92,7 @@ export const SendMessageForm: React.FC<SendMessageFormProps> = ({
       {showControls && (
         <Flex justify="end" gap={8}>
           <Button type="default" onClick={handleAbort} disabled={isLoading}>
-            Discard
+            Cancel
           </Button>
           <Button type="primary" onClick={form.submit} disabled={isLoading}>
             Save

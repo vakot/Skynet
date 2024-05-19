@@ -7,6 +7,7 @@ import { commandApi } from '@modules/api/command/command.api'
 import { embedApi } from '@modules/api/embed/embed.api'
 import { guildApi } from '@modules/api/guild/guild.api'
 import { listenerApi } from '@modules/api/listener/listener.api'
+import { messageComponentApi } from '@modules/api/message/component/component.api'
 import { messageApi } from '@modules/api/message/message.api'
 import { permissionApi } from '@modules/api/permission/permission.api'
 
@@ -16,6 +17,7 @@ export const store = configureStore({
     [categoryApi.reducerPath]: categoryApi.reducer,
     [clientApi.reducerPath]: clientApi.reducer,
     [commandApi.reducerPath]: commandApi.reducer,
+    [messageComponentApi.reducerPath]: messageComponentApi.reducer,
     [embedApi.reducerPath]: embedApi.reducer,
     [guildApi.reducerPath]: guildApi.reducer,
     [listenerApi.reducerPath]: listenerApi.reducer,
@@ -28,6 +30,7 @@ export const store = configureStore({
       .concat(categoryApi.middleware)
       .concat(clientApi.middleware)
       .concat(commandApi.middleware)
+      .concat(messageComponentApi.middleware)
       .concat(embedApi.middleware)
       .concat(guildApi.middleware)
       .concat(listenerApi.middleware)

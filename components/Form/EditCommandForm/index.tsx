@@ -82,20 +82,12 @@ export const EditCommandForm: React.FC<EditCommandFormProps> = ({
 
       {showControls && (
         <Flex justify="end" gap={8}>
-          {isGlobal ? (
-            <Button type="primary" onClick={handleAbort} disabled={isLoading}>
-              Close
-            </Button>
-          ) : (
-            <>
-              <Button type="default" onClick={handleAbort} disabled={isLoading}>
-                Discard
-              </Button>
-              <Button type="primary" onClick={form.submit} disabled={isLoading}>
-                Save
-              </Button>
-            </>
-          )}
+          <Button type="default" onClick={handleAbort} disabled={isLoading}>
+            Cancel
+          </Button>
+          <Button type="primary" onClick={form.submit} disabled={isLoading || isGlobal}>
+            Save
+          </Button>
         </Flex>
       )}
     </Form>
@@ -121,14 +113,15 @@ const Description: React.FC<EditFormItemProps> = ({ form, disabled }) => {
   )
 }
 const Guild: React.FC<EditFormItemProps> = ({ form, disabled }) => {
-  const { data: guilds } = useGetGuildsQuery()
+  const { data: guilds, isLoading: isGuildsLoading } = useGetGuildsQuery()
 
   return (
     <Form.Item label="Guild" name="guild" rules={[{ required: true, message: 'Required' }]}>
       <Select
         showSearch
         allowClear
-        disabled={disabled}
+        disabled={disabled || isGuildsLoading}
+        loading={isGuildsLoading}
         placeholder="Guild..."
         optionFilterProp="label"
         options={guilds?.map((guild) => ({

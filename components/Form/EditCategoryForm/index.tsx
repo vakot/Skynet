@@ -81,7 +81,7 @@ export const EditCategoryForm: React.FC<EditCategoryFormProps> = ({
       {showControls && (
         <Flex justify="end" gap={8}>
           <Button type="default" onClick={handleAbort} disabled={isLoading}>
-            Discard
+            Cancel
           </Button>
           <Button type="primary" onClick={form.submit} disabled={isLoading || isGlobal}>
             Save

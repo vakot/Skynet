@@ -34,7 +34,18 @@ const DashboardGuildUtilitiesPage: React.FC<{ guild: Guild['id'] }> = ({ guild: 
                   path: id,
                 })),
             },
-            { title: 'Utilities', path: 'utilities' },
+            {
+              title: 'Utilities',
+              path: 'utilities',
+              children: [
+                { title: 'Actions', path: 'actions' },
+                { title: 'Categories', path: 'categories' },
+                { title: 'Commands', path: 'commands' },
+                { title: 'Embeds', path: 'embeds' },
+                { title: 'Listeners', path: 'listeners' },
+                { title: 'Messages', path: 'messages' },
+              ],
+            },
           ]}
         />
         <Card>

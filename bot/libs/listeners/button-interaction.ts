@@ -1,11 +1,11 @@
 import { SkynetClient } from '@bot/client'
 import { IEvent, SkynetEvents } from '@bot/models/event'
 import { Listener } from '@bot/models/listener'
-import { ButtonInteraction, Events } from 'discord.js'
+import Discord from 'discord.js'
 
 export default {
-  type: Events.InteractionCreate,
-  async init(client: SkynetClient, interaction: ButtonInteraction) {
+  type: Discord.Events.InteractionCreate,
+  async init(client: SkynetClient, interaction: Discord.ButtonInteraction) {
     if (!interaction.isButton()) {
       return
     }

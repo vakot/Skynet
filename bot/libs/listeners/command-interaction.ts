@@ -42,6 +42,13 @@ export default {
       })
     }
 
+    if (listener.action.event !== SkynetEvents.CommandInteraction) {
+      return interaction.reply({
+        content: 'The action associated with this listener for this command has wrong event type',
+        ephemeral: true,
+      })
+    }
+
     try {
       listener.action.toObject().execute(client, interaction)
       client.logger.log(`${listener.action.name || listener.action._id} executed`)

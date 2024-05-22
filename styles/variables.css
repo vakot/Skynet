@@ -1,0 +1,9 @@
+:root {
+  --background-dark: #1e1f22;
+  --background-default: #001529;
+  /* --background-default: #2b2d31; */
+  --background-light: #313338;
+  --background-lighter: #383a40;
+
+  --primary-lighter: #5865f2;
+}

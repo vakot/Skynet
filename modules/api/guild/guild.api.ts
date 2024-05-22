@@ -46,12 +46,6 @@ export const guildApi = createApi({
       }),
       providesTags: ['Guild'],
     }),
-    sendGuildChannelMessage: builder.mutation<any, any>({
-      query: ({ channel: id, guild: guildId, message: messageId }) => ({
-        url: `guild/${guildId}/channel/${id}/send?message=${messageId}`,
-        method: 'POST',
-      }),
-    }),
   }),
 })
 
@@ -60,5 +54,4 @@ export const {
   useGetGuildQuery,
   useGetGuildChannelsQuery,
   useGetGuildChannelQuery,
-  useSendGuildChannelMessageMutation,
 } = guildApi

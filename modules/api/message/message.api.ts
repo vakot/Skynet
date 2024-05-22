@@ -8,6 +8,8 @@ import {
   PatchMessageResponse,
   PostMessageRequest,
   PostMessageResponse,
+  SendMessageRequest,
+  SendMessageResponse,
 } from './message.api.types'
 
 export const messageApi = createApi({
@@ -48,6 +50,12 @@ export const messageApi = createApi({
       }),
       invalidatesTags: ['Message'],
     }),
+    sendMessage: builder.mutation<SendMessageResponse, SendMessageRequest>({
+      query: ({ message: messageId, channel: channelId, guild: guildId }) => ({
+        url: `message/${messageId}?guild=${guildId}&channel=${channelId}`,
+        method: 'POST',
+      }),
+    }),
   }),
 })
 
@@ -56,4 +64,5 @@ export const {
   useGetMessageQuery,
   useAddMessageMutation,
   useEditMessageMutation,
+  useSendMessageMutation,
 } = messageApi

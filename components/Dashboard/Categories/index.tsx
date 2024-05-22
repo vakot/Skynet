@@ -1,41 +1,87 @@
+import { ICategory } from '@bot/models/category'
 import { EditCategoryForm } from '@components/Form/EditCategoryForm'
-import { CategoriesList } from '@components/List/CategoriesList'
-import { Button, Card, Form, Modal } from 'antd'
-import { Guild } from 'discord.js'
-import { useState } from 'react'
+import { RoutesBreadcrumb } from '@components/UI/RoutesBreadcrumb'
+import { useGetCategoriesQuery, useGetCategoryQuery } from '@modules/api/category/category.api'
+import { AppRoutes } from '@utils/routes'
+import { Button, Card, Empty, Flex, Menu, Space } from 'antd'
+import { useRouter } from 'next/router'
 
 export interface CategoriesProps {
-  guild?: Guild['id']
+  category?: ICategory['_id']
 }
 
-export const Categories: React.FC<CategoriesProps> = ({ guild: guildId }) => {
-  const [form] = Form.useForm()
+export const Categories: React.FC<CategoriesProps> = ({ category: categoryId }) => {
+  const router = useRouter()
 
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
+  const { data: category, isLoading: isCategoryLoading } = useGetCategoryQuery(categoryId, {
+    skip: !categoryId,
+  })
+  const { data: categories, isLoading: isCategoriesLoading } = useGetCategoriesQuery()
 
   return (
-    <Card>
-      <CategoriesList
-        guild={guildId}
-        header={
-          <Button type="primary" onClick={() => setIsModalOpen(true)}>
-            Add new category
+    <Space direction="vertical" size="large" style={{ width: '100%' }}>
+      <Flex justify="space-between">
+        <RoutesBreadcrumb
+          items={[
+            {
+              path: AppRoutes.DASHBOARD,
+              title: 'Dashboard',
+            },
+            {
+              path: AppRoutes.CATEGORIES,
+              title: 'Categories',
+            },
+          ]}
+        />
+        <Space>
+          {!!categoryId && !!category && (
+            <Button type="primary" danger>
+              Delete category
+            </Button>
+          )}
+          <Button type="primary" onClick={() => router.push(AppRoutes.CATEGORIES)}>
+            Create category
           </Button>
-        }
-      />
+        </Space>
+      </Flex>
 
-      <Modal
-        title="Create custom category"
-        open={isModalOpen}
-        onOk={() => form.submit()}
-        onCancel={() => {
-          form.resetFields()
-          setIsModalOpen(false)
-        }}
-        destroyOnClose
-      >
-        <EditCategoryForm form={form} onFinish={() => setIsModalOpen(false)} />
-      </Modal>
-    </Card>
+      <Flex gap={8}>
+        <Card
+          size="small"
+          style={{ width: 240, maxHeight: 338, overflowX: 'hidden', overflowY: 'auto' }}
+          loading={isCategoriesLoading}
+        >
+          {!categories ? (
+            <Empty />
+          ) : (
+            <Menu
+              mode="inline"
+              onSelect={({ keyPath }) =>
+                router.push([AppRoutes.CATEGORIES, ...keyPath.toReversed()].join('/'))
+              }
+              selectedKeys={[categoryId]}
+              items={categories.map(({ _id, emoji, name }) => ({
+                key: _id,
+                icon: emoji,
+                label: name || _id,
+              }))}
+            />
+          )}
+        </Card>
+
+        <Card
+          loading={isCategoryLoading}
+          title={category?.name || category?._id}
+          style={{ flex: 1 }}
+        >
+          <EditCategoryForm
+            category={categoryId}
+            onFinish={(value) => router.push([AppRoutes.CATEGORIES, value?._id].join('/'))}
+            onAbort={() => router.push(AppRoutes.CATEGORIES)}
+            showControls
+          />
+        </Card>
+      </Flex>
+    </Space>
   )
 }

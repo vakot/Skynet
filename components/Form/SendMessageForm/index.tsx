@@ -7,9 +7,12 @@ import {
   useGetGuildChannelsQuery,
   useGetGuildQuery,
   useGetGuildsQuery,
-  useSendGuildChannelMessageMutation,
 } from '@modules/api/guild/guild.api'
-import { useGetMessageQuery, useGetMessagesQuery } from '@modules/api/message/message.api'
+import {
+  useGetMessageQuery,
+  useGetMessagesQuery,
+  useSendMessageMutation,
+} from '@modules/api/message/message.api'
 import { Button, Card, Flex, Form, Input, Select, Space } from 'antd'
 import { GuildChannel, Guild as IGuild } from 'discord.js'
 import { useEffect, useState } from 'react'
@@ -45,7 +48,7 @@ export const SendMessageForm: React.FC<SendMessageFormProps> = ({
     skip: !messageId,
   })
 
-  const [sendMessage, { isLoading: isSendMessageLoading }] = useSendGuildChannelMessageMutation()
+  const [sendMessage, { isLoading: isSendMessageLoading }] = useSendMessageMutation()
 
   const isLoading = isGuildLoading || isChannelLoading || isMessageLoading || isSendMessageLoading
 
@@ -131,7 +134,9 @@ const Guild: React.FC<EditFormItemProps> = ({ form, disabled }) => {
 const Channel: React.FC<EditFormItemProps> = ({ form, disabled }) => {
   const guildId = Form.useWatch('guild', form)
 
-  const { data: channels, isLoading: isChannelsLoading } = useGetGuildChannelsQuery(guildId)
+  const { data: channels, isLoading: isChannelsLoading } = useGetGuildChannelsQuery(guildId, {
+    skip: !guildId,
+  })
 
   return (
     <Form.Item

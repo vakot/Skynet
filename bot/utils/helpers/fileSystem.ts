@@ -47,7 +47,7 @@ export function* getFiles<T>(directoryPath: string): Generator<{ data: T; path: 
       const data = require(filePath).default
 
       if (data) {
-        yield { data, path: path.relative(directoryPath, filePath).replace('\\', '/') }
+        yield { data, path: path.relative(directoryPath, filePath).replace(/\\/g, '/') }
       }
     } catch (error) {
       console.error(error)

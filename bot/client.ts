@@ -109,7 +109,7 @@ export class SkynetClient<Ready extends boolean = boolean> extends Client<Ready>
 
     for (const { data: router, path: routerPath } of routers) {
       server.use(baseURL, router)
-      const routerPathFormat = routerPath.replace('index.ts', '').replace('.ts', '')
+      const routerPathFormat = routerPath.replace('/index.ts', '').replace('.ts', '')
       this.logger.log(` ${this.logger.traceTag} ${baseURL}/${routerPathFormat}`)
     }
 

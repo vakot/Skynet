@@ -1,7 +1,27 @@
 .Main {
   min-height: 100vh;
-  overflow: hidden;
+  display: flex;
+  justify-content: center;
   z-index: 0;
 
-  margin-left: 72px;
+  .Sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+  }
+
+  .Menu {
+    position: fixed;
+    top: 0;
+    left: 80px;
+    height: 100vh;
+  }
+}
+
+.Content {
+  width: 100%;
+  max-width: 1000px;
+  margin-left: 280px;
+  padding-top: 16px;
 }

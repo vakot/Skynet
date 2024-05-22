@@ -1,0 +1,20 @@
+html,
+body {
+  font-family: 'Roboto', sans-serif;
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  position: relative;
+
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  min-height: 100vh;
+
+  /* color: white; */
+  /* background-color: var(--background-light); */
+}

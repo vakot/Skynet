@@ -1,7 +1,6 @@
 import { ArrowLeftOutlined, DiscordFilled } from '@ant-design/icons'
 import { AppRoutes } from '@utils/routes'
-import { Button } from 'antd'
-import classNames from 'classnames'
+import { Button, Divider, Space } from 'antd'
 import type { GetServerSidePropsContext } from 'next'
 import { getServerSession } from 'next-auth/next'
 import { signIn } from 'next-auth/react'
@@ -14,21 +13,20 @@ const SignInPage: React.FC<void> = () => {
 
   return (
     <div className={styles.Container}>
-      <Button
-        type="primary"
-        className={classNames(styles.Button, styles.Login)}
-        onClick={() => signIn('discord')}
-      >
-        <DiscordFilled />
-        <p>Login with Discord</p>
-      </Button>
-      <Button
-        className={classNames(styles.Button, styles.Back)}
-        onClick={() => router.back() /* TODO: test and maybe replace with direct path */}
-      >
-        <ArrowLeftOutlined className={styles.Icon} />
-        <p>Back</p>
-      </Button>
+      <Space direction="vertical" size="small" style={{ width: 300 }}>
+        <Button size="large" block type="primary" onClick={() => signIn('discord')}>
+          <DiscordFilled /> Login with Discord
+        </Button>
+        <Divider style={{ margin: '16px 0' }} />
+        <Button
+          size="large"
+          block
+          className={styles.Back}
+          onClick={() => router.back() /* TODO: test and maybe replace with direct path */}
+        >
+          <ArrowLeftOutlined className={styles.Icon} /> Back
+        </Button>
+      </Space>
     </div>
   )
 }

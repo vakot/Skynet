@@ -5,7 +5,6 @@ import { IListener } from '@bot/models/listener'
 import { EditFormItemProps, EditFormProps } from '@components/Form'
 import { EditActionForm } from '@components/Form/EditActionForm'
 import { EditCommandForm } from '@components/Form/EditCommandForm'
-import { EditMessageComponentForm } from '@components/Form/EditMessageForm/EditComponentForm'
 import { SelectEvent } from '@components/UI/Select/SelectEvent'
 import { useGetActionQuery, useGetActionsQuery } from '@modules/api/action/action.api'
 import { useGetCommandsQuery } from '@modules/api/command/command.api'
@@ -15,8 +14,7 @@ import {
   useEditListenerMutation,
   useGetListenerQuery,
 } from '@modules/api/listener/listener.api'
-import { useGetMessageComponentsQuery } from '@modules/api/message/component/component.api'
-import { Button, Card, Flex, Form, Input, Select, Space } from 'antd'
+import { Button, Flex, Form, Input, Modal, Select, Space } from 'antd'
 import { BaseGuild } from 'discord.js'
 import { useEffect, useState } from 'react'
 
@@ -149,7 +147,9 @@ const Guild: React.FC<EditFormItemProps> = ({ form, disabled }) => {
   )
 }
 const Action: React.FC<EditFormItemProps> = ({ form, disabled }) => {
-  const [isNestedFormOpen, setIsNestedFormOpen] = useState<boolean>(false)
+  const [editActionForm] = Form.useForm()
+
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
 
   const event = Form.useWatch('event', form)
   const actionId = Form.useWatch('action', form)
@@ -165,7 +165,7 @@ const Action: React.FC<EditFormItemProps> = ({ form, disabled }) => {
               showSearch
               allowClear
               placeholder="Action..."
-              disabled={disabled || isNestedFormOpen}
+              disabled={disabled || isModalOpen}
               optionFilterProp="label"
               options={actions?.map((action) => ({
                 value: action._id,
@@ -175,28 +175,34 @@ const Action: React.FC<EditFormItemProps> = ({ form, disabled }) => {
           </Form.Item>
           <Button
             type="primary"
-            onClick={() => setIsNestedFormOpen(true)}
-            disabled={disabled || isNestedFormOpen}
+            onClick={() => setIsModalOpen(true)}
+            disabled={disabled || isModalOpen}
           >
             {actionId ? <EditOutlined /> : <PlusOutlined />}
           </Button>
         </Flex>
 
-        {isNestedFormOpen && (
-          <Card size="small">
-            <EditActionForm
-              action={actionId}
-              onFinish={(value) => {
-                setIsNestedFormOpen(false)
-                form.setFieldValue('action', value?._id)
-              }}
-              onAbort={() => {
-                setIsNestedFormOpen(false)
-              }}
-              showControls
-            />
-          </Card>
-        )}
+        <Modal
+          style={{ minWidth: '720px' }}
+          open={isModalOpen}
+          okText="Save"
+          cancelText="Cancel"
+          onOk={() => editActionForm.submit()}
+          onCancel={() => {
+            editActionForm.resetFields()
+            setIsModalOpen(false)
+          }}
+          destroyOnClose
+        >
+          <EditActionForm
+            form={editActionForm}
+            action={actionId}
+            onFinish={(value) => {
+              setIsModalOpen(false)
+              form.setFieldValue('action', value?._id)
+            }}
+          />
+        </Modal>
       </Space>
     </Form.Item>
   )
@@ -235,12 +241,14 @@ const Component: React.FC<EditFormItemProps> = ({ form, disabled }) => {
 
 const ComponentsForms: { [key: string]: React.FC<EditFormItemProps> } = {
   [SkynetEvents.CommandInteraction]: ({ form, disabled }) => {
-    const [isNestedFormOpen, setIsNestedFormOpen] = useState<boolean>(false)
+    const [editCommandForm] = Form.useForm()
+
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
 
     const guildId = Form.useWatch('guild', form)
     const commandId = Form.useWatch('component', form)
 
-    const { data: commands } = useGetCommandsQuery({ guild: guildId })
+    const { data: commands, isLoading: isCommandsLoading } = useGetCommandsQuery({ guild: guildId })
 
     return (
       <Form.Item label="Command" required>
@@ -255,7 +263,8 @@ const ComponentsForms: { [key: string]: React.FC<EditFormItemProps> } = {
               <Select
                 allowClear
                 showSearch
-                disabled={disabled || isNestedFormOpen}
+                loading={isCommandsLoading}
+                disabled={disabled || isCommandsLoading}
                 placeholder="Select command..."
                 optionFilterProp="label"
                 options={commands?.map((command) => ({
@@ -266,91 +275,103 @@ const ComponentsForms: { [key: string]: React.FC<EditFormItemProps> } = {
             </Form.Item>
             <Button
               type="primary"
-              onClick={() => setIsNestedFormOpen(true)}
-              disabled={disabled || isNestedFormOpen}
+              loading={isCommandsLoading}
+              onClick={() => setIsModalOpen(true)}
+              disabled={disabled || isCommandsLoading}
             >
               {commandId ? <EditOutlined /> : <PlusOutlined />}
             </Button>
           </Flex>
 
-          {isNestedFormOpen && (
-            <Card size="small">
-              <EditCommandForm
-                command={commandId}
-                guild={guildId}
-                onFinish={(value) => {
-                  form.setFieldValue('component', value?.id)
-                  setIsNestedFormOpen(false)
-                }}
-                onAbort={() => {
-                  setIsNestedFormOpen(false)
-                }}
-                showControls
-              />
-            </Card>
-          )}
+          <Modal
+            open={isModalOpen}
+            okText="Save"
+            cancelText="Cancel"
+            onOk={() => {
+              editCommandForm.submit()
+              setIsModalOpen(false)
+            }}
+            onCancel={() => {
+              editCommandForm.resetFields()
+              setIsModalOpen(false)
+            }}
+            destroyOnClose
+          >
+            <EditCommandForm
+              command={commandId}
+              guild={guildId}
+              onFinish={(value) => form.setFieldValue('component', value?.id)}
+            />
+          </Modal>
         </Space>
       </Form.Item>
     )
   },
-  [SkynetEvents.ButtonInteraction]: ({ form, disabled }) => {
-    const [isNestedFormOpen, setIsNestedFormOpen] = useState<boolean>(false)
+  // [SkynetEvents.ButtonInteraction]: ({ form, disabled }) => {
+  //   const [editComponentForm] = Form.useForm()
 
-    const componentId = Form.useWatch('component', form)
+  //   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
 
-    const { data: components, isLoading: isComponentsLoading } = useGetMessageComponentsQuery({
-      type: SkynetEvents.ButtonInteraction,
-    })
+  //   const componentId = Form.useWatch('component', form)
 
-    return (
-      <Form.Item label="Component" required>
-        <Space direction="vertical" style={{ width: '100%' }}>
-          <Flex gap={8}>
-            <Form.Item
-              style={{ flex: 1 }}
-              name="component"
-              rules={[{ required: true, message: '' }]}
-              noStyle
-            >
-              <Select
-                allowClear
-                showSearch
-                disabled={disabled || isNestedFormOpen || isComponentsLoading}
-                loading={isComponentsLoading}
-                placeholder="Select button..."
-                optionFilterProp="label"
-                options={components?.map((component) => ({
-                  label: component.name || component._id,
-                  value: component._id,
-                }))}
-              />
-            </Form.Item>
-            <Button
-              type="primary"
-              onClick={() => setIsNestedFormOpen(true)}
-              disabled={disabled || isNestedFormOpen}
-            >
-              {componentId ? <EditOutlined /> : <PlusOutlined />}
-            </Button>
-          </Flex>
+  //   const { data: components, isLoading: isComponentsLoading } = useGetMessageComponentsQuery({
+  //     type: SkynetEvents.ButtonInteraction,
+  //   })
 
-          {isNestedFormOpen && (
-            <Card size="small">
-              <EditMessageComponentForm
-                component={componentId}
-                onFinish={(value) => {
-                  form.setFieldValue('component', value?._id)
-                  setIsNestedFormOpen(false)
-                }}
-                onAbort={() => {
-                  setIsNestedFormOpen(false)
-                }}
-                showControls
-              />
-            </Card>
-          )}
-        </Space>
-      </Form.Item>
-    )
-  },
+  //   return (
+  //     <Form.Item label="Component" required>
+  //       <Space direction="vertical" style={{ width: '100%' }}>
+  //         <Flex gap={8}>
+  //           <Form.Item
+  //             style={{ flex: 1 }}
+  //             name="component"
+  //             rules={[{ required: true, message: '' }]}
+  //             noStyle
+  //           >
+  //             <Select
+  //               allowClear
+  //               showSearch
+  //               disabled={disabled || isComponentsLoading}
+  //               loading={isComponentsLoading}
+  //               placeholder="Select button..."
+  //               optionFilterProp="label"
+  //               options={components?.map((component) => ({
+  //                 label: component.name || component._id,
+  //                 value: component._id,
+  //               }))}
+  //             />
+  //           </Form.Item>
+  //           <Button
+  //             type="primary"
+  //             onClick={() => setIsModalOpen(true)}
+  //             disabled={disabled || isComponentsLoading}
+  //           >
+  //             {componentId ? <EditOutlined /> : <PlusOutlined />}
+  //           </Button>
+  //         </Flex>
+
+  //         <Modal
+  //           open={isModalOpen}
+  //           okText="Save"
+  //           cancelText="Cancel"
+  //           onOk={() => {
+  //             editComponentForm.submit()
+  //             setIsModalOpen(false)
+  //           }}
+  //           onCancel={() => {
+  //             editComponentForm.resetFields()
+  //             setIsModalOpen(false)
+  //           }}
+  //           destroyOnClose
+  //         >
+  //           <EditMessageComponentForm
+  //             form={editComponentForm}
+  //             component={componentId}
+  //             onFinish={(value) => form.setFieldValue('component', value?._id)}
+  //           />
+  //         </Modal>
+  //       </Space>
+  //     </Form.Item>
+  //   )
+  // },
 }

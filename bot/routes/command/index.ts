@@ -12,14 +12,13 @@ router.get('/command', async (req, res) => {
 
     const { ids: commandIds, guild: guildId } = req.query
 
-    const globalCommands = await client.findCommands(commandIds as string[])
-
-    const guildCommands =
-      guildId && typeof guildId === 'string'
-        ? await client.findCommands(commandIds as string[], guildId)
-        : []
-
-    return res.status(200).json([...globalCommands, ...guildCommands])
+    if (guildId && typeof guildId === 'string') {
+      const commands = await client.findCommands(commandIds as string[], guildId)
+      return res.status(200).json(commands)
+    } else {
+      const commands = await client.findCommands(commandIds as string[])
+      return res.status(200).json(commands)
+    }
   } catch (error) {
     return res.status(500).send(error)
   }

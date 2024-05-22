@@ -10,7 +10,7 @@ router.get('/listener', async (req, res) => {
       return res.status(405).send('incompatible method')
     }
 
-    const { ids: listenerIds, guild: guildId } = req.query
+    const { ids: listenerIds, guild: guildId, action: actionId } = req.query
 
     const filter: FilterQuery<typeof Listener> = {}
 
@@ -19,10 +19,18 @@ router.get('/listener', async (req, res) => {
     }
 
     if (guildId) {
-      filter.guild = typeof guildId === 'string' ? guildId : { $in: guildId }
+      filter.$or = [
+        { guild: typeof guildId === 'string' ? guildId : { $in: guildId } },
+        { guild: { $exists: false } },
+        { guild: null },
+      ]
     }
 
-    const listeners = await Listener.find(filter)
+    if (actionId) {
+      filter.action = typeof actionId === 'string' ? actionId : { $in: actionId }
+    }
+
+    const listeners = await Listener.find(filter).populate('action')
 
     return res.status(200).json(listeners)
   } catch (error) {

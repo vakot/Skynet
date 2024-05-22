@@ -10,10 +10,8 @@ export default {
       return
     }
 
-    const { commandId } = interaction
-
     const listener = await Listener.findOne({
-      component: commandId,
+      component: interaction.commandId,
     }).populate('action')
 
     if (!listener) {
@@ -45,13 +43,14 @@ export default {
     }
 
     try {
-      return listener.action.toObject().execute(client, interaction)
+      listener.action.toObject().execute(client, interaction)
+      client.logger.log(`${listener.action.name || listener.action._id} executed`)
     } catch (error) {
       interaction.reply({
         content: 'The listener for this command failed to be executed',
         ephemeral: true,
       })
-      return client.logger.error(error)
+      client.logger.error(error)
     }
   },
 } as IEvent

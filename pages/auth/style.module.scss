@@ -5,36 +5,23 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  flex-direction: column;
-  gap: 16px;
 }
 
-.Button {
-  width: 320px;
+.Back {
+  position: relative;
 
-  &.Login {
-    display: flex;
-    gap: 16px;
-    padding: 16px;
-    font-size: 24px;
+  .Icon {
+    position: absolute;
+    top: 50%;
+    left: 32px;
+    transform: translateY(-50%);
+
+    transition: left 0.3s;
   }
 
-  &.Back {
-    position: relative;
-
+  &:hover {
     .Icon {
-      position: absolute;
-      top: 50%;
-      left: 32px;
-      transform: translateY(-50%);
-
-      transition: left 0.3s;
-    }
-
-    &:hover {
-      .Icon {
-        left: 16px;
-      }
+      left: 16px;
     }
   }
 }

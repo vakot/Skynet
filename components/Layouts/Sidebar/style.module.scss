@@ -1,22 +1,7 @@
-@import '@styles/variables.scss';
-
 .Sidebar {
-  position: fixed;
-  left: 0;
-  top: 0;
+  padding: 16px;
 
-  width: 72px;
-  height: 100vh;
-  background-color: $background_dark;
-
-  z-index: 9999;
-
-  padding: 12px;
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
+  background-color: var(--background-dark);
 
   .Image {
     width: 48px;
@@ -41,9 +26,6 @@
   .Container {
     position: relative;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
     width: 48px;
     height: 48px;
 
@@ -52,7 +34,7 @@
       position: absolute;
       left: -1px;
       top: 50%;
-      transform: translate(-12px, -50%);
+      transform: translate(-16px, -50%);
       width: 0px;
       height: 0px;
       border-radius: 0 4px 4px 0;
@@ -60,32 +42,24 @@
       transition: width 0.3s, height 0.3s, left 0.3s;
     }
 
-    &.Active::after {
-      left: 0;
-      width: 4px;
-      height: 12px;
-    }
-
     &:hover::after {
       left: 0;
       width: 4px;
       height: 24px;
     }
+
+    &.Active::after {
+      left: 0;
+      width: 4px;
+      height: 32px;
+    }
   }
 
-  .Guilds {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .Separator {
-    content: '';
-    width: 50%;
+  .Divider {
+    width: 32px;
     height: 4px;
     border-radius: 2px;
     background-color: gray;
-    opacity: 0.25;
+    margin: 0 auto;
   }
 }

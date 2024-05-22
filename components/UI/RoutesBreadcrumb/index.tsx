@@ -7,8 +7,14 @@ import styles from './style.module.scss'
 
 export interface RoutesBreadcrumbItem {
   title?: string
-  path: string
+  path: string | string[]
   children?: Omit<RoutesBreadcrumbItem, 'children'>[]
+}
+
+export interface RoutesBreadcrumbClearItem {
+  title?: string
+  path: string
+  children?: Omit<RoutesBreadcrumbClearItem, 'children'>[]
 }
 
 export interface RoutesBreadcrumbProps extends Omit<BreadcrumbProps, 'items'> {
@@ -22,36 +28,24 @@ export const RoutesBreadcrumb: React.FC<RoutesBreadcrumbProps> = ({
   className,
   ...props
 }) => {
-  const routes = useMemo<RoutesBreadcrumbItem[]>(() => {
-    if (!items) {
-      return []
-    }
-
-    return items.reduce<RoutesBreadcrumbItem[]>((acc, current, index) => {
-      if (index === 0) {
-        acc.push({ ...current })
-      } else {
-        const prevPath = acc[index - 1].path
-        // const nextPath = items[index + 1]
-
-        acc.push({
-          ...current,
-          path: `${prevPath}/${current.path}`,
-          children: current.children?.map((children) => ({
-            ...children,
-            path: `${prevPath}/${children.path}`,
-          })),
-        })
-      }
-      return acc
-    }, [])
+  const routes = useMemo<RoutesBreadcrumbClearItem[]>(() => {
+    return (
+      items?.map((item) => ({
+        ...item,
+        path: typeof item.path === 'string' ? item.path : item.path.join('/'),
+        children: item.children?.map((children) => ({
+          ...children,
+          path: typeof children.path === 'string' ? children.path : children.path.join('/'),
+        })),
+      })) || []
+    )
   }, [items])
 
   return loading ? (
     <Spin />
   ) : (
     <Breadcrumb
-      items={routes.map((item) => ({
+      items={routes?.map((item) => ({
         title: item.children ? (
           <MultipleBreacrumbItem {...item} />
         ) : (
@@ -64,7 +58,7 @@ export const RoutesBreadcrumb: React.FC<RoutesBreadcrumbProps> = ({
   )
 }
 
-const SingleBreacrumbItem: React.FC<RoutesBreadcrumbItem> = (item) => {
+const SingleBreacrumbItem: React.FC<RoutesBreadcrumbClearItem> = (item) => {
   return (
     <Link href={item.path} className={styles.Item}>
       {item.title}
@@ -72,7 +66,7 @@ const SingleBreacrumbItem: React.FC<RoutesBreadcrumbItem> = (item) => {
   )
 }
 
-const MultipleBreacrumbItem: React.FC<RoutesBreadcrumbItem> = (item) => {
+const MultipleBreacrumbItem: React.FC<RoutesBreadcrumbClearItem> = (item) => {
   return (
     <Dropdown
       destroyPopupOnHide

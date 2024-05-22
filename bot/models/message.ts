@@ -1,5 +1,4 @@
 import { IDocument } from '@bot/models/document'
-import { SkynetEvents } from '@bot/models/event'
 import { HexColorString, User } from 'discord.js'
 import mongoose, { Schema } from 'mongoose'
 
@@ -30,20 +29,13 @@ export interface IEmbed extends IDocument {
     url: string
   }
 }
-export interface IMessageComponent extends IDocument {
-  author?: User
-  name?: string
-  description?: string
-  type: SkynetEvents
-  component: any
-}
 export interface IMessage extends IDocument {
   author?: User
   name?: string
   description?: string
   content?: string
   embeds?: IEmbed['_id'][]
-  components?: [IMessageComponent['_id'][]]
+  components?: any[]
 }
 
 const EmbedSchema: Schema = new Schema({
@@ -57,27 +49,17 @@ const EmbedSchema: Schema = new Schema({
   image: { type: Schema.Types.Mixed, default: null },
   thumbnail: { type: Schema.Types.Mixed, default: null },
 })
-const MessageComponentSchema: Schema = new Schema({
-  author: { type: String, required: false },
-  name: { type: String, required: false },
-  description: { type: String, default: null },
-  type: { type: String, required: true },
-  component: { type: Schema.Types.Mixed, required: true },
-})
 const MessageSchema: Schema = new Schema<IMessage>({
   author: { type: String, required: false },
   name: { type: String, required: false },
   description: { type: String, required: false },
   content: { type: String, required: false },
   embeds: [{ type: Schema.Types.ObjectId, ref: 'embed' }],
-  components: [[{ type: Schema.Types.ObjectId, ref: 'message-component' }]],
+  components: [{ type: Schema.Types.Mixed }],
 })
 
 export const Embed =
   (mongoose.models.Embed as mongoose.Model<IEmbed>) || mongoose.model<IEmbed>('embed', EmbedSchema)
-export const MessageComponent =
-  (mongoose.models.MessageComponent as mongoose.Model<IMessageComponent>) ||
-  mongoose.model<IMessageComponent>('message-component', MessageComponentSchema)
 export const Message =
   (mongoose.models.Message as mongoose.Model<IMessage>) ||
   mongoose.model<IMessage>('message', MessageSchema)

@@ -64,7 +64,7 @@ export const Embeds: React.FC<EmbedsProps> = ({ embed: embedId }) => {
               onSelect={({ keyPath }) =>
                 router.push([AppRoutes.EMBEDS, ...keyPath.toReversed()].join('/'))
               }
-              selectedKeys={[embedId]}
+              selectedKeys={embedId ? [embedId] : []}
               items={embeds?.map(({ _id, title }) => ({
                 key: _id,
                 icon: <BookFilled />,

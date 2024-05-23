@@ -61,7 +61,7 @@ export const Actions: React.FC<ActionsProps> = ({ action: actionId }) => {
               onSelect={({ keyPath }) =>
                 router.push([AppRoutes.ACTIONS, ...keyPath.toReversed()].join('/'))
               }
-              selectedKeys={[actionId]}
+              selectedKeys={actionId ? [actionId] : []}
               items={actions.map(({ _id, name, event }) => ({
                 key: _id,
                 icon:

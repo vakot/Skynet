@@ -82,7 +82,7 @@ export const Listeners: React.FC<ListenersProps> = ({ guild: guildId, listener: 
                   [AppRoutes.DASHBOARD, guild.id, 'listeners', ...keyPath.toReversed()].join('/')
                 )
               }
-              selectedKeys={[listenerId]}
+              selectedKeys={listenerId ? [listenerId] : []}
               items={listeners.map(({ _id, name, event }) => ({
                 key: _id,
                 icon:

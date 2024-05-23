@@ -60,7 +60,7 @@ export const Messages: React.FC<MessagesProps> = ({ message: messageId }) => {
               onSelect={({ keyPath }) =>
                 router.push([AppRoutes.MESSAGES, ...keyPath.toReversed()].join('/'))
               }
-              selectedKeys={[messageId]}
+              selectedKeys={messageId ? [messageId] : []}
               items={messages.map(({ _id, name }) => ({
                 key: _id,
                 icon: <FileTextFilled />,

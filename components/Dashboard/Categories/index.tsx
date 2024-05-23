@@ -59,7 +59,7 @@ export const Categories: React.FC<CategoriesProps> = ({ category: categoryId }) 
               onSelect={({ keyPath }) =>
                 router.push([AppRoutes.CATEGORIES, ...keyPath.toReversed()].join('/'))
               }
-              selectedKeys={[categoryId]}
+              selectedKeys={categoryId ? [categoryId] : []}
               items={categories.map(({ _id, emoji, name }) => ({
                 key: _id,
                 icon: emoji,

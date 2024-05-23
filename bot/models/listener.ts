@@ -5,6 +5,7 @@ import { BaseGuild, Snowflake, User } from 'discord.js'
 import mongoose, { Schema } from 'mongoose'
 
 export interface IListener extends IDocument<Snowflake> {
+  _id: Snowflake
   author?: User
   name?: string
   description?: string

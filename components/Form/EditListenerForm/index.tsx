@@ -80,12 +80,12 @@ export const EditListenerForm: React.FC<EditListenerFormProps> = ({
   return (
     <Form
       initialValues={{
+        _id: listener?._id,
         name: listener?.name,
         description: listener?.description,
         action: listener?.action?._id || action?._id,
         guild: listener?.guild || guild?.id,
         event: listener?.event || action?.event,
-        component: listener?.component,
       }}
       onFinish={handleFinish}
       form={form}
@@ -94,10 +94,16 @@ export const EditListenerForm: React.FC<EditListenerFormProps> = ({
     >
       <Name form={form} disabled={isLoading} />
       <Description form={form} disabled={isLoading} />
-      <Guild form={form} disabled={isLoading || (!!guildId && !!guild)} />
+      <Guild
+        form={form}
+        disabled={isLoading || (!!guildId && !!guild) || (!!listenerId && !!listener)}
+      />
       <Action form={form} disabled={isLoading || (!!actionId && !!action)} />
-      <Event form={form} disabled={isLoading || (!!actionId && !!action)} />
-      <Component form={form} disabled={isLoading} />
+      <Event
+        form={form}
+        disabled={isLoading || (!!actionId && !!action) || (!!listenerId && !!listener)}
+      />
+      <Component form={form} disabled={isLoading || (!!listenerId && !!listener)} />
 
       {showControls && (
         <Flex justify="end" gap={8}>
@@ -246,7 +252,7 @@ const ComponentsForms: { [key: string]: React.FC<EditFormItemProps> } = {
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
 
     const guildId = Form.useWatch('guild', form)
-    const commandId = Form.useWatch('component', form)
+    const commandId = Form.useWatch('_id', form)
 
     const { data: commands, isLoading: isCommandsLoading } = useGetCommandsQuery({ guild: guildId })
 
@@ -256,7 +262,7 @@ const ComponentsForms: { [key: string]: React.FC<EditFormItemProps> } = {
           <Flex gap={8}>
             <Form.Item
               style={{ flex: 1 }}
-              name="component"
+              name="_id"
               rules={[{ required: true, message: '' }]}
               noStyle
             >
@@ -300,78 +306,11 @@ const ComponentsForms: { [key: string]: React.FC<EditFormItemProps> } = {
             <EditCommandForm
               command={commandId}
               guild={guildId}
-              onFinish={(value) => form.setFieldValue('component', value?.id)}
+              onFinish={(value) => form.setFieldValue('_id', value?.id)}
             />
           </Modal>
         </Space>
       </Form.Item>
     )
   },
-  // [SkynetEvents.ButtonInteraction]: ({ form, disabled }) => {
-  //   const [editComponentForm] = Form.useForm()
-
-  //   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
-
-  //   const componentId = Form.useWatch('component', form)
-
-  //   const { data: components, isLoading: isComponentsLoading } = useGetMessageComponentsQuery({
-  //     type: SkynetEvents.ButtonInteraction,
-  //   })
-
-  //   return (
-  //     <Form.Item label="Component" required>
-  //       <Space direction="vertical" style={{ width: '100%' }}>
-  //         <Flex gap={8}>
-  //           <Form.Item
-  //             style={{ flex: 1 }}
-  //             name="component"
-  //             rules={[{ required: true, message: '' }]}
-  //             noStyle
-  //           >
-  //             <Select
-  //               allowClear
-  //               showSearch
-  //               disabled={disabled || isComponentsLoading}
-  //               loading={isComponentsLoading}
-  //               placeholder="Select button..."
-  //               optionFilterProp="label"
-  //               options={components?.map((component) => ({
-  //                 label: component.name || component._id,
-  //                 value: component._id,
-  //               }))}
-  //             />
-  //           </Form.Item>
-  //           <Button
-  //             type="primary"
-  //             onClick={() => setIsModalOpen(true)}
-  //             disabled={disabled || isComponentsLoading}
-  //           >
-  //             {componentId ? <EditOutlined /> : <PlusOutlined />}
-  //           </Button>
-  //         </Flex>
-
-  //         <Modal
-  //           open={isModalOpen}
-  //           okText="Save"
-  //           cancelText="Cancel"
-  //           onOk={() => {
-  //             editComponentForm.submit()
-  //             setIsModalOpen(false)
-  //           }}
-  //           onCancel={() => {
-  //             editComponentForm.resetFields()
-  //             setIsModalOpen(false)
-  //           }}
-  //           destroyOnClose
-  //         >
-  //           <EditMessageComponentForm
-  //             form={editComponentForm}
-  //             component={componentId}
-  //             onFinish={(value) => form.setFieldValue('component', value?._id)}
-  //           />
-  //         </Modal>
-  //       </Space>
-  //     </Form.Item>
-  //   )
-  // },
 }

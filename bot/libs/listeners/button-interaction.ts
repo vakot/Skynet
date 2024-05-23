@@ -10,9 +10,7 @@ export default {
       return
     }
 
-    const listener = await Listener.findOne({
-      component: interaction.customId,
-    }).populate('action')
+    const listener = await Listener.findById(interaction.customId).populate('action')
 
     if (!listener) {
       return interaction.reply({

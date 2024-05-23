@@ -1,9 +1,9 @@
 import { DeleteOutlined, EditOutlined, PlusOutlined, SendOutlined } from '@ant-design/icons'
 import { SkynetEvents } from '@bot/models/event'
-import { IListener } from '@bot/models/listener'
 import { IMessage } from '@bot/models/message'
 import { EditFormItemProps, EditFormProps } from '@components/Form'
 import { EditEmbedForm } from '@components/Form/EditEmbedForm'
+import { EditListenerForm } from '@components/Form/EditListenerForm'
 import { SendMessageForm } from '@components/Form/SendMessageForm'
 import { useGetEmbedsQuery } from '@modules/api/embed/embed.api'
 import { useGetListenersQuery } from '@modules/api/listener/listener.api'
@@ -12,20 +12,8 @@ import {
   useEditMessageMutation,
   useGetMessageQuery,
 } from '@modules/api/message/message.api'
-import {
-  Button,
-  Card,
-  Dropdown,
-  Flex,
-  Form,
-  Input,
-  Modal,
-  Select,
-  Space,
-  Tooltip,
-  theme,
-} from 'antd'
-import { useEffect, useMemo, useState } from 'react'
+import { Button, Card, Flex, Form, Input, Modal, Select, Space, Tooltip } from 'antd'
+import { useEffect, useState } from 'react'
 
 export interface EditMessageFormProps extends EditFormProps {
   message?: IMessage['id']
@@ -356,11 +344,8 @@ const ButtonComponent: React.FC<EditFormItemProps & { row: any; field: any }> = 
   row,
   field,
 }) => {
-  const { token } = theme.useToken()
-
   const [open, setOpen] = useState<boolean>(false)
 
-  const buttons: any[] | undefined = Form.useWatch(['components', row.name, 'components'], form)
   const isDisabled: boolean | undefined = Form.useWatch(
     ['components', row.name, 'components', field.name, 'disabled'],
     form
@@ -370,107 +355,8 @@ const ButtonComponent: React.FC<EditFormItemProps & { row: any; field: any }> = 
     form
   )
 
-  const { data: listeners, isLoading: isListenersLoading } = useGetListenersQuery({
-    event: SkynetEvents.ButtonInteraction,
-  })
-
-  const filteredListeners = useMemo<IListener[]>(() => {
-    const buttonCustomIds = buttons?.map((button) => button?.customId)
-    return listeners?.filter(({ _id }) => !buttonCustomIds?.includes(_id.toString())) || []
-  }, [buttons, listeners])
-
   return (
-    <Dropdown
-      open={open}
-      destroyPopupOnHide
-      dropdownRender={() => (
-        <div
-          style={{
-            backgroundColor: token.colorBgElevated,
-            borderRadius: token.borderRadiusLG,
-            boxShadow: token.boxShadowSecondary,
-            padding: token.padding,
-            width: 600,
-          }}
-        >
-          <Space direction="vertical" style={{ width: '100%' }}>
-            <Flex gap={8}>
-              {style !== 5 && (
-                <Form.Item name={[field.name, 'emoji']} noStyle>
-                  <Input style={{ width: 120 }} disabled={disabled} placeholder="Emoji..." />
-                </Form.Item>
-              )}
-              <Form.Item
-                name={[field.name, 'style']}
-                noStyle
-                rules={[{ required: true, message: 'Required' }]}
-              >
-                <Select
-                  options={[
-                    { label: 'Primary', value: 1 },
-                    { label: 'Secondary', value: 2 },
-                    { label: 'Success', value: 3 },
-                    { label: 'Danger', value: 4 },
-                    { label: 'Link', value: 5 },
-                  ]}
-                  disabled={disabled}
-                  placeholder="Style..."
-                />
-              </Form.Item>
-              <Form.Item noStyle name={[field.name, 'disabled']}>
-                <Button
-                  // TODO: type visualise
-                  type={isDisabled ? 'default' : 'primary'}
-                  onClick={() =>
-                    form.setFieldValue(
-                      ['components', row.name, 'components', field.name, 'disabled'],
-                      !isDisabled
-                    )
-                  }
-                >
-                  {isDisabled ? 'Disabled' : 'Enabled'}
-                </Button>
-              </Form.Item>
-            </Flex>
-
-            <Flex gap={8}>
-              <Form.Item noStyle name={[field.name, 'label']}>
-                <Input disabled={disabled} placeholder="Label..." />
-              </Form.Item>
-
-              {style === 5 ? (
-                <Form.Item
-                  noStyle
-                  name={[field.name, 'url']}
-                  rules={[{ required: true, message: 'Required' }]}
-                >
-                  <Input type="url" disabled={disabled} placeholder="Link..." />
-                </Form.Item>
-              ) : (
-                <Form.Item
-                  noStyle
-                  name={[field.name, 'customId']}
-                  rules={[{ required: true, message: 'Required' }]}
-                >
-                  <Select
-                    allowClear
-                    showSearch
-                    disabled={disabled || isListenersLoading}
-                    loading={isListenersLoading}
-                    placeholder="Listener..."
-                    optionFilterProp="label"
-                    options={filteredListeners?.map((listener) => ({
-                      label: listener.name || listener._id,
-                      value: listener._id,
-                    }))}
-                  />
-                </Form.Item>
-              )}
-            </Flex>
-          </Space>
-        </div>
-      )}
-    >
+    <>
       <Button
         type="primary"
         // onBlur={() => setOpen(false)} // TODO: prope blur handle
@@ -478,6 +364,153 @@ const ButtonComponent: React.FC<EditFormItemProps & { row: any; field: any }> = 
       >
         Click to edit
       </Button>
-    </Dropdown>
+
+      <Modal
+        open={open}
+        title="Edit button"
+        okText="Save"
+        cancelText="Cancel"
+        onOk={() => setOpen(false)}
+        onCancel={() => setOpen(false)}
+      >
+        <Space direction="vertical" style={{ width: '100%' }}>
+          <Flex gap={8}>
+            {style !== 5 && (
+              <Form.Item name={[field.name, 'emoji']} noStyle>
+                <Input style={{ width: 120 }} disabled={disabled} placeholder="Emoji..." />
+              </Form.Item>
+            )}
+            <Form.Item
+              name={[field.name, 'style']}
+              noStyle
+              rules={[{ required: true, message: 'Required' }]}
+            >
+              <Select
+                style={{ flex: 1 }}
+                options={[
+                  { label: 'Primary', value: 1 },
+                  { label: 'Secondary', value: 2 },
+                  { label: 'Success', value: 3 },
+                  { label: 'Danger', value: 4 },
+                  { label: 'Link', value: 5 },
+                ]}
+                disabled={disabled}
+                placeholder="Style..."
+              />
+            </Form.Item>
+            <Form.Item noStyle name={[field.name, 'disabled']}>
+              <Button
+                // TODO: type visualise
+                type={isDisabled ? 'default' : 'primary'}
+                onClick={() =>
+                  form.setFieldValue(
+                    ['components', row.name, 'components', field.name, 'disabled'],
+                    !isDisabled
+                  )
+                }
+              >
+                {isDisabled ? 'Disabled' : 'Enabled'}
+              </Button>
+            </Form.Item>
+          </Flex>
+          <Flex gap={8}>
+            <Form.Item noStyle name={[field.name, 'label']}>
+              <Input style={{ flex: 1 }} disabled={disabled} placeholder="Label..." />
+            </Form.Item>
+            {style === 5 ? (
+              <Form.Item
+                noStyle
+                name={[field.name, 'url']}
+                rules={[{ required: true, message: 'Required' }]}
+              >
+                <Input style={{ flex: 1 }} type="url" disabled={disabled} placeholder="Link..." />
+              </Form.Item>
+            ) : (
+              <ListenerButtonComponent form={form} disabled={disabled} row={row} field={field} />
+            )}
+          </Flex>
+        </Space>
+      </Modal>
+    </>
+  )
+}
+
+const ListenerButtonComponent: React.FC<EditFormItemProps & { row: any; field: any }> = ({
+  form,
+  disabled,
+  row,
+  field,
+}) => {
+  const [editListenerForm] = Form.useForm()
+
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
+
+  const listenerId = Form.useWatch(
+    ['components', row.name, 'components', field.name, 'customId'],
+    form
+  )
+
+  const { data: listeners, isLoading: isListenersLoading } = useGetListenersQuery({
+    event: SkynetEvents.ButtonInteraction,
+  })
+
+  return (
+    <>
+      <Form.Item
+        noStyle
+        name={[field.name, 'customId']}
+        rules={[{ required: true, message: 'Required' }]}
+      >
+        <Select
+          style={{ flex: 1 }}
+          allowClear
+          showSearch
+          disabled={disabled || isListenersLoading}
+          loading={isListenersLoading}
+          placeholder="Listener..."
+          optionFilterProp="label"
+          options={listeners?.map((listener) => ({
+            label: listener.name || listener._id,
+            value: listener._id,
+          }))}
+        />
+      </Form.Item>
+
+      <Button
+        type="primary"
+        loading={isListenersLoading}
+        onClick={() => setIsModalOpen(true)}
+        disabled={disabled || isListenersLoading}
+      >
+        {listenerId ? <EditOutlined /> : <PlusOutlined />}
+      </Button>
+
+      <Modal
+        title="Edit listener"
+        open={isModalOpen}
+        okText="Save"
+        cancelText="Cancel"
+        onOk={() => {
+          editListenerForm.submit()
+          setIsModalOpen(false)
+        }}
+        onCancel={() => {
+          editListenerForm.resetFields()
+          setIsModalOpen(false)
+        }}
+        destroyOnClose
+      >
+        <EditListenerForm
+          form={editListenerForm}
+          listener={listenerId}
+          onFinish={(value) =>
+            form.setFieldValue(
+              ['components', row.name, 'components', field.name, 'customId'],
+              value?.id
+            )
+          }
+        />
+      </Modal>
+    </>
   )
 }

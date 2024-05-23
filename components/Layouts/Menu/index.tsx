@@ -7,7 +7,6 @@ import {
   EyeFilled,
   GroupOutlined,
   LinkOutlined,
-  MessageFilled,
   SendOutlined,
   UndoOutlined,
 } from '@ant-design/icons'
@@ -81,13 +80,6 @@ const Menu: React.FC<{ className?: string }> = ({ className }) => {
                         label: 'Commands',
                         onClick: () =>
                           router.push([AppRoutes.DASHBOARD, guildId, 'commands'].join('/')),
-                      },
-                      {
-                        key: 'messages',
-                        icon: <MessageFilled />,
-                        label: 'Messages',
-                        onClick: () =>
-                          router.push([AppRoutes.DASHBOARD, guildId, 'messages'].join('/')),
                       },
                     ]
                   : []),

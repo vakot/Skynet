@@ -1,6 +1,7 @@
 import { Action, configureStore, ThunkAction } from '@reduxjs/toolkit'
 
 import { actionApi } from '@modules/api/action/action.api'
+import { automationApi } from '@modules/api/automation/automation.api'
 import { categoryApi } from '@modules/api/category/category.api'
 import { clientApi } from '@modules/api/client/client.api'
 import { commandApi } from '@modules/api/command/command.api'
@@ -13,6 +14,7 @@ import { permissionApi } from '@modules/api/permission/permission.api'
 export const store = configureStore({
   reducer: {
     [actionApi.reducerPath]: actionApi.reducer,
+    [automationApi.reducerPath]: automationApi.reducer,
     [categoryApi.reducerPath]: categoryApi.reducer,
     [clientApi.reducerPath]: clientApi.reducer,
     [commandApi.reducerPath]: commandApi.reducer,
@@ -25,6 +27,7 @@ export const store = configureStore({
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
       .concat(actionApi.middleware)
+      .concat(automationApi.middleware)
       .concat(categoryApi.middleware)
       .concat(clientApi.middleware)
       .concat(commandApi.middleware)

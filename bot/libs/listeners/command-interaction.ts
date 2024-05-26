@@ -1,7 +1,9 @@
 import { SkynetClient } from '@bot/client'
+import { Automation } from '@bot/models/automation'
 import { IEvent, SkynetEvents } from '@bot/models/event'
 import { Listener } from '@bot/models/listener'
-import Discord from 'discord.js'
+import { interpolate } from '@bot/utils/helpers/interpolate'
+import Discord, { GuildChannel } from 'discord.js'
 
 export default {
   type: Discord.Events.InteractionCreate,
@@ -9,6 +11,70 @@ export default {
     if (!interaction.isChatInputCommand()) {
       return
     }
+
+    const automations = await Automation.find({
+      event: SkynetEvents.CommandInteraction,
+      guild: interaction.guildId,
+    })
+
+    automations
+      .filter((automation) => {
+        const { conditions } = automation
+
+        return !conditions.find((condition) => {
+          if (condition.event !== SkynetEvents.CommandInteraction) {
+            return true
+          }
+
+          const { value, property } = condition.value
+
+          if ((interaction as any)[property] !== value) {
+            return true
+          }
+
+          return false
+        })
+      })
+      .map((automation) => {
+        const { actions } = automation
+
+        actions.forEach(async (action) => {
+          try {
+            if (action.event !== SkynetEvents.CommandInteraction) {
+              return
+            }
+
+            if (action.type === 'reply') {
+              const { message, ephemeral } = action.value as {
+                message: Discord.MessageCreateOptions
+                ephemeral: boolean
+              }
+
+              return await interaction.reply({
+                content: interpolate(message.content, interaction),
+                ephemeral,
+              })
+            } else if (action.type === 'sendMessage') {
+              const { channels, message } = action.value as {
+                channels: GuildChannel['id'][]
+                message: Discord.MessageCreateOptions
+              }
+
+              return channels?.forEach(
+                async (channel) =>
+                  await interaction.guild?.channels.fetch(channel).then((c) => {
+                    if (c?.isTextBased())
+                      c.send({
+                        content: interpolate(message.content, interaction),
+                      })
+                  })
+              )
+            }
+          } catch (error) {
+            client.logger.error(error)
+          }
+        })
+      })
 
     const listener = await Listener.findById(interaction.commandId).populate('action')
 

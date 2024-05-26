@@ -1,31 +1,35 @@
 import { CodeFilled, PlaySquareFilled } from '@ant-design/icons'
+import { IAutomation } from '@bot/models/automation'
 import { SkynetEvents } from '@bot/models/event'
-import { IListener } from '@bot/models/listener'
-import { EditListenerForm } from '@components/Form/EditListenerForm'
+import { EditAutomationForm } from '@components/Form/EditAutomationForm'
 import { RoutesBreadcrumb } from '@components/UI/RoutesBreadcrumb'
+import {
+  useGetAutomationQuery,
+  useGetAutomationsQuery,
+} from '@modules/api/automation/automation.api'
+
 import { useGetGuildQuery } from '@modules/api/guild/guild.api'
-import { useGetListenerQuery, useGetListenersQuery } from '@modules/api/listener/listener.api'
 import { AppRoutes } from '@utils/routes'
 import { Button, Card, Empty, Flex, Menu, Space } from 'antd'
 import { Guild } from 'discord.js'
 import { useRouter } from 'next/router'
 
-export interface ListenersProps {
+export interface AutomationsProps {
+  automation?: IAutomation['_id']
   guild?: Guild['id']
-  listener?: IListener['_id']
 }
 
-export const Listeners: React.FC<ListenersProps> = ({ guild: guildId, listener: listenerId }) => {
+export const Automations: React.FC<AutomationsProps> = ({
+  automation: automationId,
+  guild: guildId,
+}) => {
   const router = useRouter()
 
   const { data: guild, isLoading: isGuildLoading } = useGetGuildQuery(guildId, { skip: !guildId })
-  const { data: listener, isLoading: isListenerLoading } = useGetListenerQuery(listenerId, {
-    skip: !listenerId,
+  const { data: automation, isLoading: isAutomationLoading } = useGetAutomationQuery(automationId, {
+    skip: !automationId,
   })
-  const { data: listeners, isLoading: isListenersLoading } = useGetListenersQuery(
-    { guild: guildId },
-    { skip: !guildId }
-  )
+  const { data: automations, isLoading: isAutomationsLoading } = useGetAutomationsQuery()
 
   if (!guild) {
     return <Empty />
@@ -35,33 +39,32 @@ export const Listeners: React.FC<ListenersProps> = ({ guild: guildId, listener: 
     <Space direction="vertical" size="large" style={{ width: '100%' }}>
       <Flex justify="space-between">
         <RoutesBreadcrumb
-          loading={isGuildLoading}
           items={[
             {
               path: AppRoutes.DASHBOARD,
-              title: 'Dashboard',
+              title: 'Home',
             },
             {
               path: [AppRoutes.DASHBOARD, guild.id],
               title: guild.name || 'Home',
             },
             {
-              path: [AppRoutes.DASHBOARD, guild.id, 'listeners'],
-              title: 'Listeners',
+              path: [AppRoutes.DASHBOARD, guild.id, 'automations'],
+              title: 'Automations',
             },
           ]}
         />
         <Space>
-          {!!listenerId && !!listener && (
+          {!!automationId && !!automation && (
             <Button type="primary" danger>
-              Delete listener
+              Delete automation
             </Button>
           )}
           <Button
             type="primary"
-            onClick={() => router.push([AppRoutes.DASHBOARD, guild.id, 'listeners'].join('/'))}
+            onClick={() => router.push([AppRoutes.DASHBOARD, guild.id, 'automations'].join('/'))}
           >
-            Create listener
+            Create automation
           </Button>
         </Space>
       </Flex>
@@ -70,20 +73,20 @@ export const Listeners: React.FC<ListenersProps> = ({ guild: guildId, listener: 
         <Card
           size="small"
           style={{ width: 240, maxHeight: 338, overflowX: 'hidden', overflowY: 'auto' }}
-          loading={isListenersLoading}
+          loading={isAutomationsLoading}
         >
-          {!listeners ? (
+          {!automations ? (
             <Empty />
           ) : (
             <Menu
               mode="inline"
               onSelect={({ keyPath }) =>
                 router.push(
-                  [AppRoutes.DASHBOARD, guild.id, 'listeners', ...keyPath.toReversed()].join('/')
+                  [AppRoutes.DASHBOARD, guild.id, 'automations', ...keyPath.toReversed()].join('/')
                 )
               }
-              selectedKeys={listenerId ? [listenerId] : []}
-              items={listeners.map(({ _id, name, event }) => ({
+              selectedKeys={automationId ? [automationId] : []}
+              items={automations.map(({ _id, name, event }) => ({
                 key: _id,
                 icon:
                   event === SkynetEvents.CommandInteraction ? (
@@ -98,17 +101,17 @@ export const Listeners: React.FC<ListenersProps> = ({ guild: guildId, listener: 
         </Card>
 
         <Card
-          loading={isListenerLoading}
-          title={listener?.name || listener?._id}
+          loading={isAutomationLoading}
+          title={automation?.name || automation?._id}
           style={{ flex: 1 }}
         >
-          <EditListenerForm
-            listener={listenerId}
+          <EditAutomationForm
+            automation={automationId}
             guild={guildId}
             onFinish={(value) =>
-              router.push([AppRoutes.DASHBOARD, guild.id, 'listeners', value?._id].join('/'))
+              router.push([AppRoutes.DASHBOARD, guild.id, 'automations', value?._id].join('/'))
             }
-            onAbort={() => router.push([AppRoutes.DASHBOARD, guild.id, 'listeners'].join('/'))}
+            onAbort={() => router.push([AppRoutes.DASHBOARD, guild.id, 'automations'].join('/'))}
             showControls
           />
         </Card>

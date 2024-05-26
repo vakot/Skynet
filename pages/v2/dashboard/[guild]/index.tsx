@@ -1,12 +1,8 @@
 import {
-  BookFilled,
-  CarFilled,
+  ArrowUpOutlined,
   CodeFilled,
   DatabaseFilled,
   EyeFilled,
-  GroupOutlined,
-  LinkOutlined,
-  MessageFilled,
   UndoOutlined,
 } from '@ant-design/icons'
 import Main from '@components/Layouts/Main'
@@ -46,46 +42,55 @@ const DashboardPage_unstable: React.FC<any> = ({ guild: guildId }) => {
             breakpoints={{ 900: 3, 1200: 4 }}
             source={[
               {
-                title: 'Actions',
+                title: 'Automations',
                 description: (
                   <Typography.Paragraph>
-                    <strong>Supercharge</strong> your server with <strong>Actions</strong>, enabling
-                    it to dynamically react to events with <strong>custom behaviors</strong>{' '}
-                    tailored to your community needs and preferences
+                    <strong>Supercharge</strong> your server with <strong>Acutomations</strong>,
+                    enabling it to dynamically react to events with{' '}
+                    <strong>custom behaviors</strong>
                   </Typography.Paragraph>
                 ),
-                icon: <CarFilled style={{ fontSize: 164 }} />,
-                onClick: () => router.push(AppRoutes.ACTIONS),
-                button: 'Create your own action',
+                icon: <ArrowUpOutlined style={{ fontSize: 32 }} />,
+                onClick: () => router.push([AppRoutes.DASHBOARD, guildId, 'automations'].join('/')),
+                button: 'Create your own automation',
               },
+              // {
+              //   title: 'Actions',
+              //   description: (
+              //     <Typography.Paragraph>
+              //       <strong>Supercharge</strong> your server with <strong>Actions</strong>, enabling
+              //       it to dynamically react to events with <strong>custom behaviors</strong>
+              //     </Typography.Paragraph>
+              //   ),
+              //   icon: <CarFilled style={{ fontSize: 32 }} />,
+              //   onClick: () => router.push(AppRoutes.ACTIONS),
+              //   button: 'Create your own action',
+              // },
               {
                 title: 'Listeners',
                 description: (
                   <Typography.Paragraph>
                     Implementing <strong>isolated</strong> event listeners to seamlessly connect the
                     Discord user interface with various actions and <strong>functionalities</strong>
-                    , ensuring <strong>efficient</strong> communication and interaction within the
-                    platform
                   </Typography.Paragraph>
                 ),
-                icon: <EyeFilled style={{ fontSize: 164 }} />,
+                icon: <EyeFilled style={{ fontSize: 32 }} />,
                 onClick: () => router.push([AppRoutes.DASHBOARD, guildId, 'listeners'].join('/')),
                 button: 'Create your own event listener',
               },
-              {
-                title: 'Messages',
-                description: (
-                  <Typography.Paragraph>
-                    <strong>View</strong>, <strong>create</strong>, <strong>customize</strong>, and{' '}
-                    <strong>send</strong> message templates tailored to the{' '}
-                    <strong>specific needs</strong> of your server,{' '}
-                    <strong>enhancing communication</strong> and engagement within your community
-                  </Typography.Paragraph>
-                ),
-                icon: <MessageFilled style={{ fontSize: 164 }} />,
-                onClick: () => router.push([AppRoutes.DASHBOARD, guildId, 'messages'].join('/')),
-                button: 'Create your message template',
-              },
+              // {
+              //   title: 'Messages',
+              //   description: (
+              //     <Typography.Paragraph>
+              //       <strong>View</strong>, <strong>create</strong>, <strong>customize</strong>, and{' '}
+              //       <strong>send</strong> message templates tailored to the{' '}
+              //       <strong>specific needs</strong> of your server
+              //     </Typography.Paragraph>
+              //   ),
+              //   icon: <MessageFilled style={{ fontSize: 32 }} />,
+              //   onClick: () => router.push([AppRoutes.DASHBOARD, guildId, 'messages'].join('/')),
+              //   button: 'Create your message template',
+              // },
               {
                 title: 'Commands',
                 description: (
@@ -95,7 +100,7 @@ const DashboardPage_unstable: React.FC<any> = ({ guild: guildId }) => {
                     <strong>control</strong> over user interactions
                   </Typography.Paragraph>
                 ),
-                icon: <CodeFilled style={{ fontSize: 164 }} />,
+                icon: <CodeFilled style={{ fontSize: 32 }} />,
                 onClick: () => router.push([AppRoutes.DASHBOARD, guildId, 'commands'].join('/')),
                 button: 'Create your own command',
               },
@@ -108,7 +113,7 @@ const DashboardPage_unstable: React.FC<any> = ({ guild: guildId }) => {
                     <strong>runtime data</strong>
                   </Typography.Paragraph>
                 ),
-                icon: <DatabaseFilled style={{ fontSize: 164 }} />,
+                icon: <DatabaseFilled style={{ fontSize: 32 }} />,
                 onClick: () => router.push([AppRoutes.DASHBOARD, guildId, 'storage'].join('/')),
               },
               {
@@ -121,61 +126,59 @@ const DashboardPage_unstable: React.FC<any> = ({ guild: guildId }) => {
                     and interactions
                   </Typography.Paragraph>
                 ),
-                icon: <UndoOutlined style={{ fontSize: 164 }} />,
+                icon: <UndoOutlined style={{ fontSize: 32 }} />,
                 onClick: () => router.push([AppRoutes.DASHBOARD, guildId, 'storage'].join('/')),
               },
-              {
-                title: 'Embed Builder',
-                description: (
-                  <Typography.Paragraph>
-                    Create, customize, and manage <strong>embedded messages</strong> effortlessly
-                    with the <strong>embed-builder</strong>,{' '}
-                    <strong>enhancing the visual appeal</strong> and <strong>clarity</strong> of
-                    your server communications.
-                  </Typography.Paragraph>
-                ),
-                icon: <BookFilled style={{ fontSize: 164 }} />,
-                onClick: () => router.push(AppRoutes.EMBEDS),
-                button: 'Create your own embed',
-              },
-              {
-                title: 'Categories',
-                description: (
-                  <Typography.Paragraph>
-                    <strong>Organize</strong> your server actions with{' '}
-                    <strong>customized categories</strong>, for streamlined <strong>access</strong>{' '}
-                    and <strong>management</strong>.
-                  </Typography.Paragraph>
-                ),
-                icon: <GroupOutlined style={{ fontSize: 164 }} />,
-                onClick: () => router.push(AppRoutes.CATEGORIES),
-                button: 'Create your own category',
-              },
-              {
-                title: 'Documentation',
-                description: (
-                  <Typography.Paragraph>
-                    Access <strong>comprehensive documentation</strong>, complete with{' '}
-                    <strong>detailed tutorials</strong> and <strong>examples</strong>, to guide you
-                    through the <strong>implementation</strong> and <strong>customization</strong>{' '}
-                    of your server features, ensuring you can make the most of your server
-                    capabilities.
-                  </Typography.Paragraph>
-                ),
-                icon: <LinkOutlined style={{ fontSize: 164 }} />,
-                onClick: () => {},
-              },
+              // {
+              //   title: 'Embed Builder',
+              //   description: (
+              //     <Typography.Paragraph>
+              //       Create, customize, and manage <strong>embedded messages</strong> effortlessly
+              //     </Typography.Paragraph>
+              //   ),
+              //   icon: <BookFilled style={{ fontSize: 32 }} />,
+              //   onClick: () => router.push(AppRoutes.EMBEDS),
+              //   button: 'Create your own embed',
+              // },
+              // {
+              //   title: 'Categories',
+              //   description: (
+              //     <Typography.Paragraph>
+              //       <strong>Organize</strong> your server actions with{' '}
+              //       <strong>customized categories</strong>, for streamlined <strong>access</strong>{' '}
+              //       and <strong>management</strong>
+              //     </Typography.Paragraph>
+              //   ),
+              //   icon: <GroupOutlined style={{ fontSize: 32 }} />,
+              //   onClick: () => router.push(AppRoutes.CATEGORIES),
+              //   button: 'Create your own category',
+              // },
+              // {
+              //   title: 'Documentation',
+              //   description: (
+              //     <Typography.Paragraph>
+              //       Access <strong>comprehensive documentation</strong>, complete with{' '}
+              //       <strong>detailed tutorials</strong> and <strong>examples</strong>, to guide you
+              //       through the <strong>implementation</strong> and <strong>customization</strong>
+              //     </Typography.Paragraph>
+              //   ),
+              //   icon: <LinkOutlined style={{ fontSize: 32 }} />,
+              //   onClick: () => {},
+              // },
             ]}
             render={(item) => (
-              <Card hoverable title={item.title} onClick={() => item.onClick()}>
-                <Space direction="vertical" size="large" style={{ width: '100%' }}>
-                  <Flex gap={32} justify="center" wrap="wrap">
-                    {item.description}
+              <Card
+                hoverable
+                title={
+                  <Flex justify="space-between" gap={8}>
                     {item.icon}
+                    {item.title}
                   </Flex>
-
-                  {item.button && <Button type="primary">{item.button}</Button>}
-                </Space>
+                }
+                onClick={() => item.onClick()}
+              >
+                {item.description}
+                {item.button && <Button type="primary">{item.button}</Button>}
               </Card>
             )}
           />
